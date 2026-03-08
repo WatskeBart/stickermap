@@ -85,7 +85,10 @@ jobs:
       #   --cache-from      pulls cached layers from GHCR on subsequent runs
       #   --cache-to        pushes updated cache layers back to GHCR after build
       #
-      # Cache image: ghcr.io/<owner>/stickermap-<service>:cache
+      # Cache image: ghcr.io/<owner>/stickermap-cache
+      # A single shared cache image is used for all services. Layer blobs are
+      # content-addressed so shared base layers (e.g. node:alpine) are reused
+      # across services regardless of which service last updated the manifest.
       # First run: --cache-from silently skips if the cache image doesn't exist yet.
       # All layers including intermediate build stages are cached, which is important
       # for the frontend's multi-stage Dockerfile (node builder + Caddy final stage).
@@ -100,8 +103,8 @@ jobs:
           platforms: linux/amd64
           extra-args: |
             --layers
-            --cache-from ghcr.io/${{ env.REPO }}/cache/stickermap-${{ matrix.service }}
-            --cache-to ghcr.io/${{ env.REPO }}/cache/stickermap-${{ matrix.service }}
+            --cache-from ghcr.io/${{ env.REPO }}-cache
+            --cache-to ghcr.io/${{ env.REPO }}-cache
 
       # ── Push ─────────────────────────────────────────────────────────────────
       # Pushes the locally built image to GHCR.
