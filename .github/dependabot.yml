@@ -12,24 +12,24 @@ updates:
   - package-ecosystem: "pip"
     directory: "/backend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
   # Node packages — reads frontend/package.json (pnpm uses the npm ecosystem)
   - package-ecosystem: "npm"
     directory: "/frontend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
   # Dockerfile base images
   - package-ecosystem: "docker"
     directory: "/backend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
   - package-ecosystem: "docker"
     directory: "/frontend"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
 
   # GitHub Actions — keeps action versions in .github/workflows/ up to date
   - package-ecosystem: "github-actions"
