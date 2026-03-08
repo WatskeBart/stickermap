@@ -1,0 +1,81 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app.kubernetes.io/name: stickermap
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ required "global.hostname is required" .Values.global.hostname }}
+      http:
+        paths:
+          # Backend API
+          - path: /api/v1
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-backend
+                port:
+                  number: 5555
+          # Backend static uploads
+          - path: /uploads
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-backend
+                port:
+                  number: 5555
+          {{- if .Values.global.keycloak.enabled }}
+          # Keycloak realm endpoints (used by browser for OIDC)
+          - path: /realms
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-keycloak
+                port:
+                  number: 8080
+          # Keycloak static resources
+          - path: /resources
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-keycloak
+                port:
+                  number: 8080
+          # Keycloak JS adapter
+          - path: /js
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-keycloak
+                port:
+                  number: 8080
+          # Keycloak admin console
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-keycloak
+                port:
+                  number: 8080
+          {{- end }}
+          # Frontend SPA (catch-all — must be last)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-frontend
+                port:
+                  number: 8080

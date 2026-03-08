@@ -1,0 +1,37 @@
+[project]
+name = "stickermap"
+version = "0.1.0"
+description = "Sticker location mapper"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "datetime>=6.0",
+    "exifread>=3.5.1",
+    "fastapi>=0.133.1",
+    "pillow>=12.1.1",
+    "psycopg[binary]>=3.3.3",
+    "python-dotenv>=1.2.1",
+    "python-jose[cryptography]>=3.5.0",
+    "python-multipart>=0.0.22",
+    "requests>=2.32.5",
+    "uvicorn[standard]>=0.41.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.28",
+    "pytest-mock>=3.14",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.ruff]
+ignore = ["F541"]
+
+[tool.pyright]
+reportOperatorIssue = "none"

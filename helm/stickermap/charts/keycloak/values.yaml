@@ -1,0 +1,14 @@
+# Default values — overridden by the umbrella chart's values.yaml
+image:
+  repository: quay.io/keycloak/keycloak
+  tag: "26.5"
+  pullPolicy: IfNotPresent
+
+adminUsername: admin
+adminPassword: admin
+
+dbPassword: ""
+
+replicaCount: 1
+
+resources: {}

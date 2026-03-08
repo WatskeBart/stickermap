@@ -1,0 +1,134 @@
+services:
+  # PostGIS Database
+  postgis:
+    image: docker.io/postgis/postgis:18-3.6
+    container_name: stickermap-postgis
+    environment:
+      POSTGRES_DB: stickermap
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d stickermap"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - stickermap-network
+
+  # Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    container_name: stickermap-keycloak
+    command:
+      - start-dev
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME: ${KC_HOSTNAME:-https://localhost:8282}
+      KC_HOSTNAME_ADMIN: ${KC_HOSTNAME_ADMIN:-https://localhost:8282}
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_METRICS_ENABLED: "true"
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "exec 3<>/dev/tcp/127.0.0.1/9000;echo -e 'GET /health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3;if [ $? -eq 0 ]; then echo 'Healthcheck Successful';exit 0;else echo 'Healthcheck Failed';exit 1;fi;",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - stickermap-network
+
+  # Backend API
+  backend:
+    image: ghcr.io/watskebart/stickermap/stickermap-backend:main
+    container_name: stickermap-backend
+    environment:
+      DB_HOST: postgis
+      DB_PORT: 5432
+      DB_DBNAME: stickermap
+      DB_USER: user
+      DB_PASSWORD: password
+      UPLOAD_DIR: /app/uploads
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://localhost:8282}
+      KEYCLOAK_INTERNAL_URL: ${KEYCLOAK_INTERNAL_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-stickermap}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-stickermap-client}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-clientsecret}
+      INIT_NEW_DATABASE: ${INIT_NEW_DATABASE:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "5555:5555"
+    volumes:
+      - backend_uploads:/app/uploads
+    depends_on:
+      postgis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5555/api/v1/ || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - stickermap-network
+
+  # Frontend
+  frontend:
+    image: ghcr.io/watskebart/stickermap/stickermap-frontend:main
+    container_name: stickermap-frontend
+    environment:
+      BACKEND_URL: ${BACKEND_URL:-http://backend:5555}
+      PRODUCTION: "true"
+      FRONTEND_URL: ${FRONTEND_URL:-localhost}
+      FRONTEND_PORT: ${FRONTEND_PORT:-8282}
+      TILESERVER_URL: ${TILESERVER_URL}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-https://localhost:8282}
+      KEYCLOAK_INTERNAL_URL: ${KEYCLOAK_INTERNAL_URL:-http://keycloak:8080}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-stickermap}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-stickermap-client}
+    ports:
+      - "80:80"
+      - "8282:8282"
+    volumes:
+      - caddy_data:/data
+    depends_on:
+      backend:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - stickermap-network
+
+volumes:
+  postgis_data:
+    driver: local
+  keycloak_data:
+    driver: local
+  backend_uploads:
+    driver: local
+  caddy_data:
+    driver: local
+
+networks:
+  stickermap-network:
+    driver: bridge

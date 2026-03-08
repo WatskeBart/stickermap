@@ -1,0 +1,50 @@
+# .github/workflows/update-uv-lock.yml
+#
+# When Dependabot opens a PR that updates backend/pyproject.toml, it cannot
+# regenerate uv.lock itself (Dependabot only understands the pip ecosystem).
+# This workflow detects those PRs and commits an updated uv.lock automatically.
+#
+# Uses pull_request_target (not pull_request) because Dependabot-triggered
+# workflows are treated as fork PRs and receive a read-only GITHUB_TOKEN.
+# pull_request_target runs in the base branch context and has write access.
+# The actor check ensures this only ever runs for Dependabot — not untrusted PRs.
+
+name: Update uv.lock
+
+on:
+  pull_request_target:
+    paths:
+      - 'backend/pyproject.toml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-lock:
+    name: Regenerate uv.lock
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      # Check out the PR branch (not the base branch that pull_request_target defaults to).
+      - name: Checkout PR branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+
+      - name: Regenerate uv.lock
+        working-directory: backend
+        run: uv lock
+
+      # Only commits if uv.lock actually changed; exits cleanly if already up to date.
+      - name: Commit updated uv.lock
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backend/uv.lock
+          git diff --cached --quiet || git commit -m "chore: update uv.lock"
+          git push

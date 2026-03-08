@@ -1,0 +1,140 @@
+# ==============================================================================
+# StickerMap Helm Values
+# ==============================================================================
+# Mandatory values are marked with # REQUIRED — the chart will not work without
+# them. All other values have sensible defaults.
+
+global:
+  # REQUIRED: External hostname used for the Ingress and Keycloak token issuer.
+  # Example: stickermap.example.com
+  hostname: ""
+
+  # Controls whether the embedded Keycloak sub-chart is deployed.
+  # Set to false when connecting to an existing external Keycloak instance.
+  keycloak:
+    enabled: true
+
+  # Database mode:
+  #   cnpg       — CloudNativePG Cluster (requires the CNPG operator in the cluster)
+  #   standalone — Plain PostgreSQL StatefulSet (no operator needed)
+  database:
+    type: cnpg
+
+# ------------------------------------------------------------------------------
+# Backend
+# ------------------------------------------------------------------------------
+backend:
+  image:
+    repository: ghcr.io/watskebart/stickermap/stickermap-backend
+    tag: main
+    pullPolicy: IfNotPresent
+
+  # REQUIRED: Keycloak client secret configured in the realm (must match stickermap-realm.json)
+  keycloakClientSecret: ""
+
+  # External Keycloak connection — only relevant when global.keycloak.enabled is false.
+  # keycloakUrl is REQUIRED in that case; keycloakInternalUrl falls back to keycloakUrl.
+  keycloakUrl: ""
+  keycloakInternalUrl: ""
+  keycloakRealm: "stickermap"
+  keycloakClientId: "stickermap-client"
+
+  replicaCount: 1
+
+  uploads:
+    storage:
+      size: 10Gi
+      # Set to a specific StorageClass name if needed; leave empty for cluster default
+      storageClassName: ""
+
+  env:
+    logLevel: "INFO"
+    initNewDatabase: "false"
+    corsAllowedOrigins: "*"
+    corsAllowedMethods: "*"
+    corsAllowedHeaders: "*"
+    corsAllowCredentials: "true"
+
+  resources: {}
+
+# ------------------------------------------------------------------------------
+# Frontend
+# ------------------------------------------------------------------------------
+frontend:
+  image:
+    repository: ghcr.io/watskebart/stickermap/stickermap-frontend
+    tag: main
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  # Optional: URL of a custom tile server (MapLibre/OpenStreetMap tile endpoint).
+  # Leave empty to use the default OpenStreetMap tiles baked into the frontend build.
+  tileserverUrl: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+
+  resources: {}
+
+# ------------------------------------------------------------------------------
+# Ingress (defined at umbrella level to route across all sub-chart services)
+# ------------------------------------------------------------------------------
+ingress:
+  # Ingress class name — change to match your cluster's ingress controller
+  className: nginx
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+    # nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+  tls: []
+  # Example TLS configuration:
+  # - secretName: stickermap-tls
+  #   hosts:
+  #     - stickermap.example.com
+
+# ------------------------------------------------------------------------------
+# Keycloak (only deployed when global.keycloak.enabled is true)
+# ------------------------------------------------------------------------------
+keycloak:
+  image:
+    repository: quay.io/keycloak/keycloak
+    tag: "26.5"
+    pullPolicy: IfNotPresent
+
+  # REQUIRED: Password for the Keycloak admin console user
+  adminPassword: ""
+  adminUsername: admin
+
+  # Password for the Keycloak PostgreSQL user. Leave empty to auto-generate.
+  dbPassword: ""
+
+  replicaCount: 1
+
+  resources: {}
+
+# ------------------------------------------------------------------------------
+# Database
+# ------------------------------------------------------------------------------
+database:
+  # cnpg mode: CloudNativePG Cluster with PostGIS.
+  # Requires the CNPG operator to be installed in the cluster.
+  cnpg:
+    # PostGIS-capable CNPG image. Change to match your air-gapped registry.
+    imageName: ghcr.io/cloudnative-pg/postgis:18-3.6-standard-trixie
+    instances: 1
+    storage:
+      size: 5Gi
+      # Set to a specific StorageClass name if needed; leave empty for cluster default
+      storageClassName: ""
+
+  # standalone mode: plain PostgreSQL StatefulSet with PostGIS.
+  # No operator required — works in any cluster.
+  standalone:
+    image:
+      repository: docker.io/postgis/postgis
+      tag: "18-3.6"
+      pullPolicy: IfNotPresent
+    storage:
+      size: 5Gi
+      # Set to a specific StorageClass name if needed; leave empty for cluster default
+      storageClassName: ""
+    # Password for the stickermap DB user. Leave empty to auto-generate.
+    appPassword: ""
+    resources: {}

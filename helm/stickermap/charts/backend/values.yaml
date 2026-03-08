@@ -1,0 +1,32 @@
+# Default values — overridden by the umbrella chart's values.yaml
+image:
+  repository: ghcr.io/watskebart/stickermap/stickermap-backend
+  tag: main
+  pullPolicy: IfNotPresent
+
+keycloakClientSecret: ""
+
+# External Keycloak connection overrides.
+# keycloakUrl is required when global.keycloak.enabled is false.
+# keycloakInternalUrl falls back to keycloakUrl when not set.
+keycloakUrl: ""
+keycloakInternalUrl: ""
+keycloakRealm: "stickermap"
+keycloakClientId: "stickermap-client"
+
+replicaCount: 1
+
+uploads:
+  storage:
+    size: 10Gi
+    storageClassName: ""
+
+env:
+  logLevel: "INFO"
+  initNewDatabase: "false"
+  corsAllowedOrigins: "*"
+  corsAllowedMethods: "*"
+  corsAllowedHeaders: "*"
+  corsAllowCredentials: "true"
+
+resources: {}

@@ -1,0 +1,11 @@
+{
+  "_comment": "This proxy config is only used for local development (npm start). Docker uses nginx instead.",
+  "/api/v1": {
+    "target": "http://localhost:5555",
+    "secure": false
+  },
+  "/uploads": {
+    "target": "http://localhost:5555",
+    "secure": false
+  }
+}

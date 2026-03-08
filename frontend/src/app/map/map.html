@@ -1,0 +1,211 @@
+<div class="map-container">
+  <mgl-map
+    [mapStyle]="mapStyle"
+    [zoom]="[5]"
+    [center]="[6.129131, 49.611267]"
+    (mapLoad)="onMapLoad($event)"
+    (mapClick)="onMapClick($event)"
+  >
+    <!-- Sticker markers: hidden during any selection mode -->
+    @if (!locationSelectionMode() && !editSelectingLocation()) {
+      @for (sticker of stickers(); track sticker.id) {
+        <mgl-marker [lngLat]="[sticker.lon, sticker.lat]">
+          <div class="marker-icon" (click)="onMarkerClick(sticker.id, $event)">
+            <img src="images/markers/marker-icon-2x-red.png" alt="sticker marker" />
+          </div>
+        </mgl-marker>
+      }
+
+      <!-- Sticker info popup: shown for the clicked marker -->
+      @if (openPopupSticker(); as sticker) {
+        <mgl-popup
+          [lngLat]="[sticker.lon, sticker.lat]"
+          [closeOnClick]="true"
+          [closeButton]="true"
+          [maxWidth]="'300px'"
+          (popupClose)="openPopupStickerId.set(null)"
+        >
+          <div class="sticker-popup-content">
+            <img
+              [src]="sticker.imageUrl"
+              class="sticker-popup-image"
+              alt="Sticker"
+              (click)="fullSizeImageUrl.set(sticker.imageUrl)"
+              (error)="$any($event.target).style.display = 'none'"
+            />
+            <div class="sticker-popup-info">
+              @if (isAuthenticated()) {
+                <p><strong>Geplakt door:</strong> {{ sticker.poster }}</p>
+                <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
+              } @else {
+                <p class="sticker-popup-anon">Log in om te zien wie deze sticker heeft geplakt</p>
+              }
+              <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
+              <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
+            </div>
+            @if (sticker.canEdit || sticker.canDelete) {
+              <div class="sticker-popup-actions">
+                @if (sticker.canEdit) {
+                  <button class="popup-btn popup-btn-edit" (click)="openEditModal(sticker.id)">
+                    Bewerken
+                  </button>
+                }
+                @if (sticker.canDelete) {
+                  <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id)">
+                    Verwijderen
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </mgl-popup>
+      }
+    }
+
+    <!-- Selection/preview marker: green for map click, blue for preview -->
+    @if (activeSelectionMarker(); as sel) {
+      <mgl-marker [lngLat]="[sel.lon, sel.lat]">
+        <div class="marker-icon">
+          <img
+            [src]="
+              sel.color === 'green'
+                ? 'images/markers/marker-icon-2x-green.png'
+                : 'images/markers/marker-icon-2x-blue.png'
+            "
+            alt="selected location"
+          />
+        </div>
+      </mgl-marker>
+    }
+
+    <!-- Info popup for empty map clicks -->
+    @if (!locationSelectionMode() && !editSelectingLocation() && clickedLoc()) {
+      <mgl-popup
+        [lngLat]="[clickedLoc()!.lon, clickedLoc()!.lat]"
+        [closeOnClick]="true"
+        [closeButton]="true"
+        (popupClose)="clickedLoc.set(null)"
+      >
+        Locatie:<br /><br />
+        Lat/Lon: {{ clickedLoc()!.lat.toFixed(6) }},{{ clickedLoc()!.lon.toFixed(6) }}
+      </mgl-popup>
+    }
+  </mgl-map>
+
+  @if (isLoading()) {
+    <div class="loading-overlay">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <p>Stickers worden geladen uit de database...</p>
+        @if (stickerCount() > 0) {
+          <small>{{ stickerCount() }} stickers geladen</small>
+        }
+      </div>
+    </div>
+  }
+</div>
+
+@if (fullSizeImageUrl()) {
+  <div class="image-overlay" (click)="closeFullImage()">
+    <button class="image-overlay-close" (click)="closeFullImage()">&times;</button>
+    <img [src]="fullSizeImageUrl()" alt="Sticker full size" (click)="$event.stopPropagation()" />
+  </div>
+}
+
+<!-- Edit Location Selection Banner -->
+@if (editSelectingLocation()) {
+  <div class="edit-location-banner">
+    <span>Klik op de kaart om een nieuwe locatie te selecteren</span>
+    <button (click)="cancelEditLocationSelection()">Annuleren</button>
+  </div>
+}
+
+<!-- Edit Modal Overlay -->
+@if (editingSticker() && !editSelectingLocation()) {
+  <div class="modal-overlay" (click)="closeEditModal()">
+    <div class="edit-modal" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeEditModal()">&times;</button>
+      <h3>Sticker Bewerken</h3>
+      @if (editError()) {
+        <div class="modal-message error">{{ editError() }}</div>
+      }
+      @if (editSuccess()) {
+        <div class="modal-message success">{{ editSuccess() }}</div>
+      }
+      @if (editForm(); as form) {
+        <div class="edit-form">
+          <div class="form-group">
+            <label>Geplakt door</label>
+            <input type="text" [(ngModel)]="form.poster" />
+          </div>
+          <div class="form-group">
+            <label>Plak datum</label>
+            <input type="datetime-local" [(ngModel)]="form.post_date" />
+          </div>
+          <div class="form-group">
+            <label>Locatie</label>
+            @if (editSelectingLocation()) {
+              <div class="location-selection-hint">Klik op de kaart om de locatie te selecteren</div>
+            }
+            @if (!editSelectingLocation()) {
+              <div class="form-location">
+                <div class="form-location-field">
+                  <label>Latitude</label>
+                  <input type="number" [(ngModel)]="form.location.lat" step="0.000001" />
+                </div>
+                <div class="form-location-field">
+                  <label>Longitude</label>
+                  <input type="number" [(ngModel)]="form.location.lon" step="0.000001" />
+                </div>
+                <button type="button" class="btn-location-select" (click)="startEditLocationSelection()">
+                  Kies op kaart
+                </button>
+              </div>
+            }
+          </div>
+          <!-- Admin-only field -->
+          @if (isAdmin()) {
+            <div class="form-group">
+              <label>Uploader</label>
+              <select [(ngModel)]="form.uploader">
+                @if (!uploaderList().includes(form.uploader)) {
+                  <option [value]="form.uploader">
+                    {{ form.uploader }}
+                  </option>
+                }
+                @for (uploader of uploaderList(); track uploader) {
+                  <option [value]="uploader">
+                    {{ uploader }}
+                  </option>
+                }
+              </select>
+            </div>
+          }
+          <div class="modal-actions">
+            <button class="btn-save" (click)="saveEdit()" [disabled]="editSaving()">
+              {{ editSaving() ? 'Opslaan...' : 'Opslaan' }}
+            </button>
+            <button class="btn-cancel" (click)="closeEditModal()">Annuleren</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+<!-- Delete Confirmation Overlay -->
+@if (showDeleteConfirm()) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <h3>Sticker Verwijderen</h3>
+      <p>Weet je zeker dat je deze sticker wilt verwijderen?</p>
+      @if (deletingSticker(); as sticker) {
+        <p><strong>{{ sticker.poster }}</strong></p>
+      }
+      <div class="modal-actions">
+        <button class="btn-delete-confirm" (click)="confirmDelete()">Ja, Verwijderen</button>
+        <button class="btn-cancel" (click)="closeDeleteConfirm()">Annuleren</button>
+      </div>
+    </div>
+  </div>
+}

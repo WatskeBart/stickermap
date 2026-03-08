@@ -1,0 +1,38 @@
+<header class="app-header">
+  <div class="header-left">
+    <h1 (click)="navigateHome()">StickerMap</h1>
+    @if (showViewMapButton()) {
+      <button class="btn-view-map" (click)="navigateToMap()">
+        Bekijk Kaart
+      </button>
+    }
+    @if (showAddStickerButton()) {
+      <button class="btn-add" (click)="navigateToAddSticker()">
+        Sticker Toevoegen
+      </button>
+    }
+  </div>
+  <div class="header-center">
+    @if (pageTitle()) {
+      <h2>{{ pageTitle() }}</h2>
+    }
+    @if (!pageTitle()) {
+      <p class="header-subtitle">{{ pageSubtitle() }}</p>
+    }
+  </div>
+  <div class="auth-controls">
+    @if (!authService.isAuthenticated()) {
+      <button (click)="login()" class="btn-secondary">
+        Login
+      </button>
+    }
+    @if (authService.isAuthenticated()) {
+      <div class="user-info">
+        <span>{{ authService.getUserInfo()?.given_name || 'User' }}</span>
+        <button (click)="logout()" class="btn-secondary">Logout</button>
+      </div>
+    }
+  </div>
+</header>
+
+<router-outlet></router-outlet>

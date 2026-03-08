@@ -1,0 +1,38 @@
+# Dependency updates are managed by Renovate (see renovate.json and
+# .github/workflows/renovate.yml). Renovate covers npm, pip, Docker,
+# GitHub Actions, and the custom ngssc GitHub release in frontend/Dockerfile.
+#
+# Dependabot is kept disabled (empty updates list). The file must exist for
+# GitHub to recognise it; an empty list simply means no Dependabot PRs.
+version: 2
+updates:
+  # Python packages — reads backend/pyproject.toml
+  # Note: Dependabot uses the 'pip' ecosystem for pyproject.toml projects.
+  # It will open PRs updating pyproject.toml; uv.lock must be regenerated manually.
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "monthly"
+
+  # Node packages — reads frontend/package.json (pnpm uses the npm ecosystem)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+
+  # Dockerfile base images
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "monthly"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+
+  # GitHub Actions — keeps action versions in .github/workflows/ up to date
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

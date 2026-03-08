@@ -1,0 +1,206 @@
+<div class="sticker-form-container">
+  <h2>Nieuwe Sticker Toevoegen</h2>
+
+  <!-- Error and Success Messages -->
+  @if (errorMessage()) {
+    <div class="message error">
+      {{ errorMessage() }}
+    </div>
+  }
+  @if (successMessage()) {
+    <div class="message success">
+      {{ successMessage() }}
+    </div>
+  }
+
+  <form (ngSubmit)="onSubmit()">
+    <!-- Uploader Name -->
+    <div class="form-group">
+      <label for="uploader">
+        Uploader *
+        @if (isUploaderAutoFilled()) {
+          <span class="auto-fill-badge">Automatisch ingevuld</span>
+        }
+      </label>
+      <input
+        type="text"
+        id="uploader"
+        [ngModel]="uploader()"
+        (ngModelChange)="uploader.set($event)"
+        name="uploader"
+        placeholder="Vul jouw naam in"
+        [class.auto-filled]="isUploaderAutoFilled()"
+        [readonly]="isUploaderAutoFilled()"
+        required
+        />
+        @if (isUploaderAutoFilled()) {
+          <small>Uploader naam uit Keycloak account</small>
+        }
+      </div>
+
+      <!-- Image Upload -->
+      <div class="form-group">
+        <label for="imageFile">Selecteer afbeelding *</label>
+        <input
+          type="file"
+          id="imageFile"
+          (change)="onFileSelected($event)"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          [disabled]="uploading()"
+          />
+          <small>Toegestaan: JPEG, PNG, GIF, WebP (max 16MB)</small>
+        </div>
+
+        <!-- Image Preview -->
+        @if (imagePreviewUrl()) {
+          <div class="image-preview">
+            <img [src]="imagePreviewUrl()" alt="Preview" />
+          </div>
+        }
+
+        <!-- Upload Status -->
+        @if (uploading()) {
+          <div class="upload-status">
+            <div class="spinner"></div>
+            <span>Afbeelding uploaden en GPS data controleren...</span>
+          </div>
+        }
+
+        <!-- GPS Information Display -->
+        @if (uploadedFilename() && hasGPSData() && extractedGPS(); as gps) {
+          <div class="gps-info">
+            <div class="info-header">
+              <h3>✓ GPS Data gevonden!</h3>
+              <span class="auto-fill-badge">Automatisch ingevuld</span>
+            </div>
+            <div class="gps-details">
+              <p><strong>Latitude:</strong> {{ gps.latitude?.toFixed(6) }}</p>
+              <p><strong>Longitude:</strong> {{ gps.longitude?.toFixed(6) }}</p>
+              @if (gps.DateTimestamp) {
+                <p><strong>Datum & Tijd:</strong> {{ gps.DateTimestamp }}</p>
+              }
+            </div>
+            <button type="button" (click)="toggleLocationSelection()" class="btn-secondary">
+              Kies een alternatieve locatie
+            </button>
+          </div>
+        }
+
+        <!-- Manual Location Selection -->
+        @if (uploadedFilename() && (useManualLocation() || !hasGPSData())) {
+          <div class="manual-location">
+            <h3>Handmatige locatie selectie</h3>
+            @if (manualLocation().lat === null) {
+              <div class="location-prompt">
+                <div class="location-input-options">
+                  <div class="option-section">
+                    <h4>Optie 1: Selecteer op de kaart</h4>
+                    <p class="hint">Klik op de knop, en vervolgens een locatie op de kaart</p>
+                    <button
+                      type="button"
+                      (click)="requestMapLocationSelection()"
+                      class="btn-select-location"
+                      [class.active]="isSelectingLocation()"
+                      >
+                      {{ isSelectingLocation() ? '📍 Klik nu op de kaart...' : '🗺️ Selecteer locatie op de kaart' }}
+                    </button>
+                  </div>
+                  <div class="divider">
+                    <span>OF</span>
+                  </div>
+                  <div class="option-section">
+                    <h4>Optie 2: Coordinaten invoeren</h4>
+                    <p class="hint">Voer de latitude en longitude in, gescheiden door een komma (bijv. 49.611267, 6.129131)</p>
+                    <input
+                      type="text"
+                      [ngModel]="manualLocationInput()"
+                      (ngModelChange)="manualLocationInput.set($event)"
+                      (input)="onManualLocationInput(manualLocationInput())"
+                      placeholder="latitude, longitude"
+                      class="coord-input"
+                      name="manualLocationInput"
+                      />
+                    </div>
+                  </div>
+                </div>
+              }
+              @if (manualLocation().lat !== null) {
+                <div class="location-confirmation">
+                  <div class="location-success">
+                    <span class="success-icon">✓</span>
+                    <p><strong>Locatie Geselecteerd!</strong></p>
+                  </div>
+                  <div class="location-coords">
+                    <p>Latitude: <strong>{{ manualLocation().lat!.toFixed(6) }}</strong></p>
+                    <p>Longitude: <strong>{{ manualLocation().lon!.toFixed(6) }}</strong></p>
+                  </div>
+                  <button type="button" (click)="changeLocation()" class="btn-change">
+                    Locatie Wijzigen
+                  </button>
+                </div>
+              }
+              @if (hasGPSData()) {
+                <div class="location-toggle">
+                  <button type="button" (click)="toggleLocationSelection()" class="btn-secondary">
+                    Gebruik GPS data uit afbeelding
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Poster Name -->
+          @if (uploadedFilename()) {
+            <div class="form-group">
+              <label for="poster">Naam van sticker plakker *</label>
+              <input
+                type="text"
+                id="poster"
+                [ngModel]="poster()"
+                (ngModelChange)="poster.set($event)"
+                name="poster"
+                placeholder="Wie heeft de sticker geplakt?"
+                required
+                />
+              </div>
+            }
+
+            <!-- Post Date -->
+            @if (uploadedFilename()) {
+              <div class="form-group">
+                <label for="postDate">
+                  Wanneer is de sticker geplakt? *
+                  @if (isDateAutoFilled()) {
+                    <span class="auto-fill-badge">Automatisch ingevuld</span>
+                  }
+                </label>
+                <input
+                  type="datetime-local"
+                  id="postDate"
+                  [ngModel]="postDate()"
+                  (ngModelChange)="postDate.set($event)"
+                  name="postDate"
+                  [class.auto-filled]="isDateAutoFilled()"
+                  required
+                  />
+                  <small>Geef de lokale tijd aan (tijden worden automatisch geconverteerd naar UTC)</small>
+                </div>
+              }
+
+              <!-- Submit Button -->
+              @if (uploadedFilename()) {
+                <div class="form-actions">
+                  <button
+                    type="submit"
+                    class="btn-primary"
+                    [disabled]="!canSubmit() || creating()"
+                    >
+                    {{ creating() ? 'Sticker Plaatsen...' : 'Plaats Sticker' }}
+                  </button>
+                  <button type="button" (click)="resetForm()" class="btn-secondary">
+                    Reset Formulier
+                  </button>
+                </div>
+              }
+            </form>
+          </div>

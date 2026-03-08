@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env.local
+.env.*.local
+
+# Uploads and datasets (will be mounted as volumes)
+uploads/
+datasets/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Tests
+tests/
+*.test.py

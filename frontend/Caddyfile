@@ -1,0 +1,62 @@
+# Global options
+{
+	skip_install_trust
+}
+
+# HTTP → HTTPS redirect
+http://{$FRONTEND_URL} {
+	redir https://{$FRONTEND_URL}:{$FRONTEND_PORT:8282}{uri} permanent
+}
+
+# Site configuration
+{$FRONTEND_URL}:{$FRONTEND_PORT:8282} {
+	tls internal
+
+	root * /var/www/html
+
+	encode gzip
+
+	header {
+		X-Frame-Options SAMEORIGIN
+		X-Content-Type-Options nosniff
+		X-XSS-Protection "1; mode=block"
+	}
+
+	# Proxy API requests to backend
+	handle /api/v1* {
+		reverse_proxy {$BACKEND_URL}
+	}
+
+	# Proxy uploads to backend
+	handle /uploads/* {
+		reverse_proxy {$BACKEND_URL}
+	}
+
+	# Proxy Keycloak authentication endpoints and resources
+	handle /realms/* {
+		reverse_proxy {$KEYCLOAK_INTERNAL_URL}
+	}
+
+	handle /resources/* {
+		reverse_proxy {$KEYCLOAK_INTERNAL_URL}
+	}
+
+	handle /js/* {
+		reverse_proxy {$KEYCLOAK_INTERNAL_URL}
+	}
+
+	# Keycloak admin REST API
+	handle /admin/* {
+		reverse_proxy {$KEYCLOAK_INTERNAL_URL}
+	}
+
+	# Convenience redirect: /auth or /auth/* → Keycloak admin console
+	redir /auth /admin/master/console
+	redir /auth/* /admin/master/console
+
+	# Serve static frontend files with SPA fallback
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}

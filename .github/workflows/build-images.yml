@@ -1,0 +1,116 @@
+# .github/workflows/build-images.yml
+#
+# Builds and pushes Docker images for the StickerMap monorepo to GHCR.
+# Uses buildah (pre-installed on ubuntu-latest) — no Docker daemon required.
+#
+# Triggers:
+#   - push to 'develop' branch  → tag: develop
+#   - push to 'main' branch     → tag: main
+#   - push of any git tag       → tag: <tag-name> (e.g. v1.0.0)
+#
+# No other branch pushes trigger this workflow.
+
+name: Build & Push Images
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    # '**' matches dots in semver tags (v1.0.0). '*' would not.
+    tags:
+      - '**'
+  workflow_dispatch:
+
+# 'packages: write' is required to push to GHCR (images + cache) using GITHUB_TOKEN.
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    name: Build ${{ matrix.service }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      # Do not cancel sibling matrix jobs if one fails.
+      fail-fast: false
+      matrix:
+        include:
+          - service: frontend
+            context: ./frontend
+            dockerfile: frontend/Dockerfile
+          - service: backend
+            context: ./backend
+            dockerfile: backend/Dockerfile
+
+    steps:
+      # ── Repository name to lowercase ─────────────────────────────────────────
+      - name: Make repository owner lowercase
+        run: echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+        
+      # ── Checkout ─────────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      # ── Registry authentication ───────────────────────────────────────────────
+      # Authenticate podman/buildah to GHCR using the built-in GITHUB_TOKEN.
+      # No additional repository secrets required.
+      - name: Log in to GitHub Container Registry
+        uses: redhat-actions/podman-login@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Image tag derivation ─────────────────────────────────────────────────
+      # Strip the ref prefix to get the bare branch name or tag name:
+      #   refs/heads/develop → develop
+      #   refs/heads/main    → main
+      #   refs/tags/v1.0.0   → v1.0.0
+      - name: Determine image tag
+        id: tag
+        run: |
+          if [[ "$GITHUB_REF" == refs/heads/* ]]; then
+            echo "value=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "value=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          fi
+
+      # ── Build ────────────────────────────────────────────────────────────────
+      # buildah is pre-installed on ubuntu-latest — no setup step required.
+      #
+      # Caching strategy:
+      #   --layers          enables per-layer cache tracking
+      #   --cache-from      pulls cached layers from GHCR on subsequent runs
+      #   --cache-to        pushes updated cache layers back to GHCR after build
+      #
+      # Cache image: ghcr.io/<owner>/stickermap-<service>:cache
+      # First run: --cache-from silently skips if the cache image doesn't exist yet.
+      # All layers including intermediate build stages are cached, which is important
+      # for the frontend's multi-stage Dockerfile (node builder + Caddy final stage).
+      - name: Build image with buildah
+        id: build
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: stickermap-${{ matrix.service }}
+          tags: ${{ steps.tag.outputs.value }}
+          containerfiles: ${{ matrix.dockerfile }}
+          context: ${{ matrix.context }}
+          platforms: linux/amd64
+          extra-args: |
+            --layers
+            --cache-from ghcr.io/${{ env.REPO }}/cache/stickermap-${{ matrix.service }}
+            --cache-to ghcr.io/${{ env.REPO }}/cache/stickermap-${{ matrix.service }}
+
+      # ── Push ─────────────────────────────────────────────────────────────────
+      # Pushes the locally built image to GHCR.
+      # steps.build.outputs.image → 'stickermap-<service>'
+      # steps.build.outputs.tags  → '<tag>'
+      # Combined result: ghcr.io/<owner>/stickermap-<service>:<tag>
+      - name: Push image to GHCR
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ${{ steps.build.outputs.image }}
+          tags: ${{ steps.build.outputs.tags }}
+          registry: ghcr.io/${{ env.REPO }}

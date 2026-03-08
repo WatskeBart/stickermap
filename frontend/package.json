@@ -1,0 +1,49 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "docker": "ng serve --host 0.0.0.0",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "@maplibre/ngx-maplibre-gl": "^21.0.2",
+    "angular-server-side-configuration": "^21.0.3",
+    "keycloak-angular": "^21.0.0",
+    "keycloak-js": "^26.2.3",
+    "maplibre-gl": "^5.0.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.1",
+    "@angular/cli": "^21.2.1",
+    "@angular/compiler-cli": "^21.2.0",
+    "baseline-browser-mapping": "^2.10.0",
+    "jsdom": "^28.1.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.18"
+  }
+}

@@ -1,0 +1,19 @@
+{{- if eq .Values.type "standalone" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-database
+  labels:
+    app.kubernetes.io/name: database
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+      protocol: TCP
+  selector:
+    app.kubernetes.io/name: database
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

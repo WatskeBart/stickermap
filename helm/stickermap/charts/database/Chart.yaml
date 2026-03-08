@@ -1,0 +1,5 @@
+apiVersion: v2
+name: database
+description: PostgreSQL with PostGIS for StickerMap — CNPG Cluster or standalone StatefulSet
+type: application
+version: 0.1.0

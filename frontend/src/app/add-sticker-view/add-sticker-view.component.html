@@ -1,0 +1,28 @@
+<div class="add-sticker-container">
+  <div class="content-wrapper">
+    <!-- Form Section -->
+    <div class="form-section" [class.hidden]="locationSelectionMode()">
+      <app-sticker-form
+        (stickerCreated)="onStickerCreated()"
+        (locationSelectionRequested)="onLocationSelectionRequested()"
+        (previewLocationRequested)="onPreviewLocationRequested($event)"
+      ></app-sticker-form>
+    </div>
+
+    <!-- Location Selection Map -->
+    <div class="map-section" [class.visible]="locationSelectionMode()">
+      <div class="map-overlay-header">
+        <h2>Klik op de kaart om de sticker locatie te bepalen</h2>
+        <p>Zoom in voor een nauwkeuriger locatie</p>
+      </div>
+      <app-map
+        [locationSelectionMode]="locationSelectionMode()"
+        [isAuthenticated]="authService.isAuthenticated()"
+        [isUploader]="authService.isUploader()"
+        [isEditor]="authService.isEditor()"
+        [isAdmin]="authService.isAdmin()"
+        (locationSelected)="onLocationSelected($event)"
+      ></app-map>
+    </div>
+  </div>
+</div>

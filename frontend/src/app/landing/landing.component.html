@@ -1,0 +1,23 @@
+<div class="landing-container">
+  <video autoplay [muted]="true" loop playsinline class="background-video">
+    <source src="/images/bg-clouds.webm" type="video/webm" />
+  </video>
+
+  <div class="landing-content">
+    <div class="action-cards">
+      <div class="action-card" (click)="navigateToMap()">
+        <div class="card-icon">🗺️</div>
+        <p>Bekijk alle sticker locaties</p>
+        <button class="btn-primary">Bekijk Kaart</button>
+      </div>
+
+      @if (authService.isUploader()) {
+        <div class="action-card" (click)="navigateToAddSticker()">
+          <div class="card-icon">📍</div>
+          <p>Nieuwe sticker toevoegen aan de kaart</p>
+          <button class="btn-primary">Sticker Toevoegen</button>
+        </div>
+      }
+    </div>
+  </div>
+</div>

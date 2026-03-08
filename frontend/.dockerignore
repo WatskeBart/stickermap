@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build output
+dist/
+tmp/
+out-tsc/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Tests
+*.spec.ts
+karma.conf.js
+
+# Angular cache
+.angular/

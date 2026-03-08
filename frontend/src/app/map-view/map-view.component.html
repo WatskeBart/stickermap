@@ -1,0 +1,10 @@
+<div class="map-view-container">
+  <div class="map-content">
+    <app-map
+      [isAuthenticated]="authService.isAuthenticated()"
+      [isUploader]="authService.isUploader()"
+      [isEditor]="authService.isEditor()"
+      [isAdmin]="authService.isAdmin()">
+    </app-map>
+  </div>
+</div>
