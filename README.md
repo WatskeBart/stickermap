@@ -1,4 +1,4 @@
-[![Dependabot Updates](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates) [![Build & Push Images](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml)
+[![Dependabot Updates](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates) [![Build & Push Images](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml) [![Backend Tests](https://github.com/WatskeBart/stickermap/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/WatskeBart/stickermap/actions/workflows/backend-tests.yml)
 
 # StickerMap
 
