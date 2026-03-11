@@ -1374,6 +1374,9 @@ packages:
   '@types/supercluster@7.1.3':
     resolution: {integrity: sha512-Z0pOY34GDFl3Q6hUFYf3HkTwKEE02e7QgtJppBt+beEAxnyOpJua+voGFvxINBHa06GwLFFym7gRPY2SiKIfIA==}
 
+  '@types/ws@8.18.1':
+    resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
+
   '@vitejs/plugin-basic-ssl@2.1.4':
     resolution: {integrity: sha512-HXciTXN/sDBYWgeAD4V4s0DN0g72x5mlxQhHxtYu3Tt8BLa6MzcJZUyDVFCdtjNs3bfENVHVzOsmooTVuNgAAw==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
@@ -1766,8 +1769,8 @@ packages:
     resolution: {integrity: sha512-HqD3yTBfnBxIrbnM1DoD6Pcq8NECnh8d4As1Qgh0z5Gg3jRRIqijury0CL3ghu/edArpUYiYqQiDUQBIs4np3Q==}
     engines: {node: '>=10.0.0'}
 
-  engine.io@6.6.5:
-    resolution: {integrity: sha512-2RZdgEbXmp5+dVbRm0P7HQUImZpICccJy7rN7Tv+SFa55pH+lxnuw6/K1ZxxBfHoYpSkHLAO92oa8O4SwFXA2A==}
+  engine.io@6.6.6:
+    resolution: {integrity: sha512-U2SN0w3OpjFRVlrc17E6TMDmH58Xl9rai1MblNjAdwWp07Kk+llmzX0hjDpQdrDGzwmvOtgM5yI+meYX6iZ2xA==}
     engines: {node: '>=10.2.0'}
 
   ent@2.2.2:
@@ -1892,8 +1895,8 @@ packages:
     resolution: {integrity: sha512-S8KoZgRZN+a5rNwqTxlZZePjT/4cnm0ROV70LedRHZ0p8u9fRID0hJUZQpkKLzro8LfmC8sx23bY6tVNxv8pQA==}
     engines: {node: '>= 18.0.0'}
 
-  flatted@3.4.0:
-    resolution: {integrity: sha512-kC6Bb+ooptOIvWj5B63EQWkF0FEnNjV2ZNkLMLZRDDduIiWeFF4iKnslwhiWxjAdbg4NzTNo6h0qLuvFrcx+Sw==}
+  flatted@3.4.1:
+    resolution: {integrity: sha512-IxfVbRFVlV8V/yRaGzk0UVIcsKKHMSfYw66T/u4nTwlWteQePsxe//LjudR1AMX4tZW3WFCh3Zqa/sjlqpbURQ==}
 
   follow-redirects@1.15.11:
     resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
@@ -2001,8 +2004,8 @@ packages:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
 
-  hono@4.12.5:
-    resolution: {integrity: sha512-3qq+FUBtlTHhtYxbxheZgY8NIFnkkC/MR8u5TTsr7YZ3wixryQ3cCwn3iZbg8p8B88iDBBAYSfZDS75t8MN7Vg==}
+  hono@4.12.7:
+    resolution: {integrity: sha512-jq9l1DM0zVIvsm3lv9Nw9nlJnMNPOcAtsbsgiUhWcFzPE99Gvo6yRTlszSLLYacMeQ6quHD6hMfId8crVHvexw==}
     engines: {node: '>=16.9.0'}
 
   hosted-git-info@9.0.2:
@@ -3694,9 +3697,9 @@ snapshots:
   '@harperfast/extended-iterable@1.0.3':
     optional: true
 
-  '@hono/node-server@1.19.11(hono@4.12.5)':
+  '@hono/node-server@1.19.11(hono@4.12.7)':
     dependencies:
-      hono: 4.12.5
+      hono: 4.12.7
 
   '@inquirer/ansi@1.0.2': {}
 
@@ -3943,7 +3946,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.26.0(zod@4.3.6)':
     dependencies:
-      '@hono/node-server': 1.19.11(hono@4.12.5)
+      '@hono/node-server': 1.19.11(hono@4.12.7)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5
@@ -3953,7 +3956,7 @@ snapshots:
       eventsource-parser: 3.0.6
       express: 5.2.1
       express-rate-limit: 8.3.0(express@5.2.1)
-      hono: 4.12.5
+      hono: 4.12.7
       jose: 6.2.0
       json-schema-typed: 8.0.2
       pkce-challenge: 5.0.1
@@ -4383,6 +4386,11 @@ snapshots:
   '@types/supercluster@7.1.3':
     dependencies:
       '@types/geojson': 7946.0.16
+
+  '@types/ws@8.18.1':
+    dependencies:
+      '@types/node': 24.9.2
+    optional: true
 
   '@vitejs/plugin-basic-ssl@2.1.4(vite@7.3.1(@types/node@24.9.2)(sass@1.97.3))':
     dependencies:
@@ -4829,10 +4837,11 @@ snapshots:
   engine.io-parser@5.2.3:
     optional: true
 
-  engine.io@6.6.5:
+  engine.io@6.6.6:
     dependencies:
       '@types/cors': 2.8.19
       '@types/node': 24.9.2
+      '@types/ws': 8.18.1
       accepts: 1.3.8
       base64id: 2.0.0
       cookie: 0.7.2
@@ -5008,7 +5017,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  flatted@3.4.0:
+  flatted@3.4.1:
     optional: true
 
   follow-redirects@1.15.11:
@@ -5117,7 +5126,7 @@ snapshots:
     dependencies:
       function-bind: 1.1.2
 
-  hono@4.12.5: {}
+  hono@4.12.7: {}
 
   hosted-git-info@9.0.2:
     dependencies:
@@ -5408,7 +5417,7 @@ snapshots:
     dependencies:
       date-format: 4.0.14
       debug: 4.4.3
-      flatted: 3.4.0
+      flatted: 3.4.1
       rfdc: 1.4.1
       streamroller: 3.1.5
     transitivePeerDependencies:
@@ -6091,7 +6100,7 @@ snapshots:
       base64id: 2.0.0
       cors: 2.8.6
       debug: 4.4.3
-      engine.io: 6.6.5
+      engine.io: 6.6.6
       socket.io-adapter: 2.5.6
       socket.io-parser: 4.2.5
     transitivePeerDependencies:
