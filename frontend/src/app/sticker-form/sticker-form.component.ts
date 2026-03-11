@@ -1,9 +1,9 @@
 import { Component, OnInit, output, signal } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
-import { StickerService, GPSInfo, StickerData } from '../services/sticker.service';
+import { StickerService } from '../services/sticker.service';
 import { AuthService } from '../services/auth.service';
-
+import type { GPSInfo, StickerData } from '../models/sticker.model';
 @Component({
   selector: 'app-sticker-form',
   standalone: true,

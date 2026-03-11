@@ -1,35 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import Keycloak from 'keycloak-js';
-
-/**
- * Token to inject Keycloak instance from keycloak-angular.
- * Re-exported from keycloak-angular for convenience.
- */
+import { StickerMapRoles, KeycloakUserInfo } from '../models/auth.model';
 export { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
-
-/**
- * Application role constants matching Keycloak realm roles.
- */
-export const StickerMapRoles = {
-  VIEWER: 'sm-viewer',
-  UPLOADER: 'sm-uploader',
-  EDITOR: 'sm-editor',
-  ADMIN: 'sm-admin',
-} as const;
-
-/**
- * User info interface matching Keycloak token claims.
- */
-export interface KeycloakUserInfo {
-  sub?: string;
-  name?: string;
-  given_name?: string;
-  family_name?: string;
-  preferred_username?: string;
-  email?: string;
-  email_verified?: boolean;
-  [key: string]: unknown;
-}
 
 /**
  * AuthService provides authentication functionality using keycloak-angular.

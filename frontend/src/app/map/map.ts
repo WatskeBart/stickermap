@@ -2,7 +2,8 @@ import { Component, OnInit, computed, effect, input, output, signal } from '@ang
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
-import { StickerService, UpdateStickerRequest } from '../services/sticker.service';
+import { StickerService } from '../services/sticker.service';
+import type { UpdateStickerRequest } from '../models/sticker.model';
 import maplibregl from 'maplibre-gl';
 import {
   MapComponent as MglMapComponent,
