@@ -14,6 +14,12 @@ keycloakInternalUrl: ""
 keycloakRealm: "stickermap"
 keycloakClientId: "stickermap-client"
 
+migrations:
+  image:
+    repository: ghcr.io/watskebart/stickermap/stickermap-migrations
+    tag: main
+    pullPolicy: IfNotPresent
+
 replicaCount: 1
 
 uploads:
@@ -23,7 +29,6 @@ uploads:
 
 env:
   logLevel: "INFO"
-  initNewDatabase: "false"
   corsAllowedOrigins: "*"
   corsAllowedMethods: "*"
   corsAllowedHeaders: "*"
