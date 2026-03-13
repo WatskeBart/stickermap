@@ -1,8 +1,25 @@
-[![Dependabot Updates](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/dependabot/dependabot-updates) [![Build & Push Images](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml/badge.svg?branch=develop)](https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml) [![Backend Tests](https://github.com/WatskeBart/stickermap/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/WatskeBart/stickermap/actions/workflows/backend-tests.yml)
+<h1 align="center">
+StickerMap
+</h1>
 
-# StickerMap
+<p align="center">
+<a href="https://github.com/WatskeBart/stickermap/actions/workflows/build-images.yml">
+  <img src="https://img.shields.io/github/actions/workflow/status/WatskeBart/stickermap/build-images.yml?branch=develop" />
+</a>
+<a href="https://github.com/WatskeBart/stickermap/releases">
+  <img src="https://img.shields.io/github/v/release/WatskeBart/stickermap?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Latest Release" />
+</a>
+<a href="https://github.com/WatskeBart/stickermap/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-AGPL2-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="AGPL2 License" />
+</a>
+<a href="https://github.com/WatskeBart/stickermap/issues">
+    <img src="https://img.shields.io/github/issues/WatskeBart/stickermap?style=flat-square&color=fb5437&labelColor=1f1f1f" alt="Issues" />
+  </a>
+</p>
 
+<p align="center">
 A web application for uploading, viewing, and managing sticker locations across the world with automatic GPS extraction from images.
+</p>
 
 ## Table of Contents
 
