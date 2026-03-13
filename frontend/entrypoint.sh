@@ -1,6 +1,9 @@
 #!/bin/sh
 
-# Inject environment variables into the Angular app
-ngssc insert /var/www/html
+# Copy to emptyDir to prevent permission issues with Caddy
+cp -rv /app/html/* /var/www/html/
 
-exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+# Inject environment variables into the Angular app
+ngssc insert /var/www/html/
+
+exec caddy run --config /appy/Caddyfile --adapter caddyfile
