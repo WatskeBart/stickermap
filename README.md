@@ -10,7 +10,7 @@ StickerMap
   <img src="https://img.shields.io/github/v/release/WatskeBart/stickermap?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Latest Release" />
 </a>
 <a href="https://github.com/WatskeBart/stickermap/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-AGPL2-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="AGPL2 License" />
+    <img src="https://img.shields.io/badge/license-AGPL3-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="AGPL3 License" />
 </a>
 <a href="https://github.com/WatskeBart/stickermap/issues">
     <img src="https://img.shields.io/github/issues/WatskeBart/stickermap?style=flat-square&color=fb5437&labelColor=1f1f1f" alt="Issues" />
