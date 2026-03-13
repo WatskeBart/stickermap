@@ -1,6 +1,5 @@
 import os
 import secrets
-import sys
 import uvicorn
 from datetime import UTC, datetime
 from pathlib import Path
@@ -11,7 +10,6 @@ from fastapi.staticfiles import StaticFiles
 from logger import get_logger, setup_logging
 from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, get_user_identity, get_user_roles, require_role
 from connections import DatabaseManager
-from database_setup import initialize_database
 from environment import Config
 from file_handlers import FileValidator, GPSExtractor
 from models import CreateStickersRequest, UpdateStickerRequest
@@ -23,13 +21,6 @@ logger = get_logger(__name__)
 
 Config.validate_db()
 Config.validate_keycloak()
-
-# Automatically initialize database on startup
-try:
-    initialize_database()
-except Exception as e:
-    logger.critical(f"Startup failed: {e}")
-    sys.exit(1)
 
 url_prefix = "/api/v1"
 

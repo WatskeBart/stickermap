@@ -54,6 +54,23 @@ services:
     networks:
       - stickermap-network
 
+  # Database migrations (runs once before backend starts)
+  migrations:
+    build:
+      context: ./database_migrations
+    container_name: stickermap-migrations
+    environment:
+      DB_HOST: postgis
+      DB_PORT: 5432
+      DB_DBNAME: stickermap
+      DB_USER: user
+      DB_PASSWORD: password
+    depends_on:
+      postgis:
+        condition: service_healthy
+    networks:
+      - stickermap-network
+
   # Backend API
   backend:
     build:
@@ -72,15 +89,14 @@ services:
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-stickermap}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-stickermap-client}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-clientsecret}
-      INIT_NEW_DATABASE: ${INIT_NEW_DATABASE:-false}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     ports:
       - "5555:5555"
     volumes:
       - backend_uploads:/app/uploads
     depends_on:
-      postgis:
-        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
       keycloak:
         condition: service_healthy
     healthcheck:
