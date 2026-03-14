@@ -22,8 +22,10 @@ ADD --chmod=755 https://github.com/kyubisation/angular-server-side-configuration
 
 COPY Caddyfile /app/Caddyfile
 COPY --from=builder --chown=1000:1000 /app/dist/frontend/browser /app/html
-COPY --from=builder --chown=1000:1000 /app/dist/ngssc.json /app/ngssc.json
+COPY --from=builder --chown=1000:1000 /app/dist/ngssc.json /app/html
 COPY --chown=1000:1000 entrypoint.sh /entrypoint.sh
+
+RUN chown 1000:1000 /srv
 
 USER 1000
 

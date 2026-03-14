@@ -1,18 +1,14 @@
 # Global options
 {
 	skip_install_trust
-}
-
-# HTTP → HTTPS redirect
-http://{$FRONTEND_URL} {
-	redir https://{$FRONTEND_URL}:{$FRONTEND_PORT:8282}{uri} permanent
+	http_port 8181
+	https_port 8282
 }
 
 # Site configuration
-{$FRONTEND_URL}:{$FRONTEND_PORT:8282} {
-	tls internal
+https://{$FQDN:localhost}, http://{$FQDN:localhost} {
 
-	root * /var/www/html
+	root * /srv
 
 	encode gzip
 
