@@ -6,4 +6,4 @@ cp -rv /app/html/* /var/www/html/
 # Inject environment variables into the Angular app
 ngssc insert /var/www/html/
 
-exec caddy run --config /appy/Caddyfile --adapter caddyfile
+exec caddy run --config /app/Caddyfile --adapter caddyfile
