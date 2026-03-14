@@ -8,7 +8,7 @@ import { AuthService } from '../services/auth.service';
   standalone: true,
   imports: [MapComponent],
   templateUrl: './map-view.component.html',
-  styleUrls: ['./map-view.component.css']
+  styleUrls: ['./map-view.component.scss']
 })
 export class MapViewComponent {
   constructor(

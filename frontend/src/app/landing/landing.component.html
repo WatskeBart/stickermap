@@ -5,18 +5,30 @@
 
   <div class="landing-content">
     <div class="action-cards">
-      <div class="action-card" (click)="navigateToMap()">
-        <div class="card-icon">🗺️</div>
-        <p>Bekijk alle sticker locaties</p>
-        <button class="btn-primary">Bekijk Kaart</button>
-      </div>
+      <mat-card class="action-card" (click)="navigateToMap()">
+        <mat-card-content>
+          <div class="card-icon">🗺️</div>
+          <p>Bekijk alle sticker locaties</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-flat-button color="accent" (click)="navigateToMap(); $event.stopPropagation()">
+            Bekijk Kaart
+          </button>
+        </mat-card-actions>
+      </mat-card>
 
       @if (authService.isUploader()) {
-        <div class="action-card" (click)="navigateToAddSticker()">
-          <div class="card-icon">📍</div>
-          <p>Nieuwe sticker toevoegen aan de kaart</p>
-          <button class="btn-primary">Sticker Toevoegen</button>
-        </div>
+        <mat-card class="action-card" (click)="navigateToAddSticker()">
+          <mat-card-content>
+            <div class="card-icon">📍</div>
+            <p>Nieuwe sticker toevoegen aan de kaart</p>
+          </mat-card-content>
+          <mat-card-actions>
+            <button mat-flat-button color="accent" (click)="navigateToAddSticker(); $event.stopPropagation()">
+              Sticker Toevoegen
+            </button>
+          </mat-card-actions>
+        </mat-card>
       }
     </div>
   </div>

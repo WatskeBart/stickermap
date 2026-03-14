@@ -1,0 +1,107 @@
+@use '@angular/material' as mat;
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/700.css';
+@import 'material-icons/iconfont/material-icons.css';
+
+@include mat.core();
+
+// --- Custom navy palette (primary) ---
+$navy-palette: (
+  50: #e1e8f0,
+  100: #b4c5d9,
+  200: #839fc1,
+  300: #5279a8,
+  400: #2d5d95,
+  500: #0d3662,
+  600: #0b2f58,
+  700: #08274d,
+  800: #061f42,
+  900: #041830,
+  A100: #7aadff,
+  A200: #478fff,
+  A400: #1472ff,
+  A700: #0065fa,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: white,
+    400: white,
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: white,
+    A400: white,
+    A700: white,
+  ),
+);
+
+// --- Custom orange palette (accent) ---
+$orange-palette: (
+  50: #fdf0e0,
+  100: #f9d9b3,
+  200: #f5c080,
+  300: #f0a74d,
+  400: #ec9426,
+  500: #e17000,
+  600: #d96500,
+  700: #cf5700,
+  800: #c54900,
+  900: #b55800,
+  A100: #ffd9b3,
+  A200: #ffba80,
+  A400: #ff9a4d,
+  A700: #ff8a33,
+  contrast: (
+    50: rgba(0, 0, 0, 0.87),
+    100: rgba(0, 0, 0, 0.87),
+    200: rgba(0, 0, 0, 0.87),
+    300: rgba(0, 0, 0, 0.87),
+    400: rgba(0, 0, 0, 0.87),
+    500: white,
+    600: white,
+    700: white,
+    800: white,
+    900: white,
+    A100: rgba(0, 0, 0, 0.87),
+    A200: rgba(0, 0, 0, 0.87),
+    A400: rgba(0, 0, 0, 0.87),
+    A700: rgba(0, 0, 0, 0.87),
+  ),
+);
+
+$stickermap-primary: mat.m2-define-palette($navy-palette, 500, 300, 900);
+$stickermap-accent: mat.m2-define-palette($orange-palette, 500, 300, 900);
+$stickermap-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+$stickermap-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $stickermap-primary,
+      accent: $stickermap-accent,
+      warn: $stickermap-warn,
+    ),
+    typography:
+      mat.m2-define-typography-config(
+        $font-family: 'Roboto, "Helvetica Neue", Arial, sans-serif',
+      ),
+    density: 0,
+  )
+);
+
+@include mat.all-component-themes($stickermap-theme);
+
+// --- Global base styles ---
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+  font-family: Roboto, 'Helvetica Neue', Arial, sans-serif;
+}

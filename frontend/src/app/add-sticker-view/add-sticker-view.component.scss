@@ -1,0 +1,67 @@
+.add-sticker-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.content-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.form-section {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem 2rem 2rem 2rem;
+  background-image: url('/images/bg-clouds.webp');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.form-section.hidden {
+  display: none;
+}
+
+.map-section {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: none;
+  flex-direction: column;
+  background: white;
+  z-index: 999;
+}
+
+.map-section.visible {
+  display: flex;
+}
+
+.map-overlay-header {
+  .overlay-hint {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-left: 0.5rem;
+  }
+}
+
+.map-section app-map {
+  flex: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .form-section {
+    padding: 1rem;
+  }
+
+  .map-overlay-header .overlay-hint {
+    display: none;
+  }
+}

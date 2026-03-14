@@ -22,6 +22,42 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+      initContainers:
+        - name: migrations
+          image: "{{ required "backend.migrations.image.repository is required" .Values.migrations.image.repository }}:{{ required "backend.migrations.image.tag is required" .Values.migrations.image.tag }}"
+          imagePullPolicy: {{ .Values.migrations.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-stickermap
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-stickermap
+                  key: port
+            - name: DB_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-stickermap
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-stickermap
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-db-stickermap
+                  key: password
       containers:
         - name: backend
           image: "{{ required "backend.image.repository is required" .Values.image.repository }}:{{ required "backend.image.tag is required" .Values.image.tag }}"
@@ -99,8 +135,6 @@ spec:
               value: "/app/uploads"
             - name: LOG_LEVEL
               value: {{ .Values.env.logLevel | quote }}
-            - name: INIT_NEW_DATABASE
-              value: {{ .Values.env.initNewDatabase | quote }}
             - name: CORS_ALLOWED_ORIGINS
               value: {{ .Values.env.corsAllowedOrigins | quote }}
             - name: CORS_ALLOWED_METHODS

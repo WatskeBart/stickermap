@@ -6,6 +6,7 @@ __pycache__/
 *.py[cod]
 .venv/
 *.egg-info/
+.pytest_cache/
 
 # Node / Angular
 node_modules/
@@ -18,3 +19,9 @@ dist/
 # IDE
 .idea/
 *.iml
+
+# Helm chart .tgz files
+*.tgz
+
+# Local claude settings
+.claude/

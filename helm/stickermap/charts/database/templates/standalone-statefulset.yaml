@@ -1,4 +1,5 @@
-{{- if eq .Values.type "standalone" }}
+{{- $dbType := default .Values.type .Values.global.database.type -}}
+{{- if eq $dbType "standalone" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:

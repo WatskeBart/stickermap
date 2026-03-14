@@ -23,11 +23,8 @@ import pytest
 from fastapi.testclient import TestClient
 from PIL import Image
 
-# ── App import (database init is patched so no real DB is needed) ─────────────
-# main.py calls initialize_database() at module level; patch its reference
-# before the import so the module-level call becomes a no-op.
-with patch("database_setup.initialize_database", return_value=None):
-    from main import app
+# ── App import ────────────────────────────────────────────────────────────────
+from main import app
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────

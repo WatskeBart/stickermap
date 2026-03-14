@@ -50,11 +50,10 @@ podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
 cp .env.example .env
 # Edit .env with your configuration
 
-# Initialize database
-uv run python database_setup.py
-
-# Optional: Load test data
-uv run python migrate_data.py
+# Run database migrations (from project root)
+cd ../database_migrations
+uv run alembic upgrade head
+cd ../backend
 
 # Run development server
 uv run uvicorn main:app --port 5555 --reload
@@ -187,35 +186,3 @@ uv run pytest tests/test_auth.py -v
 
 - Swagger UI: <http://localhost:5555/api/v1/docs>
 - ReDoc: <http://localhost:5555/api/v1/redoc>
-
-## Example curl Requests
-
-**Get all stickers:**
-
-```bash
-curl -s http://localhost:5555/api/v1/get_all_stickers | jq
-```
-
-**Upload image (requires token):**
-
-```bash
-curl -X POST http://localhost:5555/api/v1/upload \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -F "file=@photo.jpg"
-```
-
-**Create sticker (requires token):**
-
-```bash
-curl -X POST http://localhost:5555/api/v1/create_sticker \
-  -H "Authorization: Bearer YOUR_TOKEN" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "stickers": [{
-      "location": {"lon": -74.006, "lat": 40.7128},
-      "poster": "Artist Name",
-      "post_date": "2024-01-04T12:00:00Z",
-      "image": "photo.jpg"
-    }]
-  }'
-```

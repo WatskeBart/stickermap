@@ -1,0 +1,15 @@
+dependencies:
+- name: backend
+  repository: file://charts/backend
+  version: 0.1.0
+- name: frontend
+  repository: file://charts/frontend
+  version: 0.1.0
+- name: keycloak
+  repository: file://charts/keycloak
+  version: 0.1.0
+- name: database
+  repository: file://charts/database
+  version: 0.1.0
+digest: sha256:0ed900b46225162b1483257bb26d21f2eac61990a13560f7fbbeefc299dfea03
+generated: "2026-03-14T18:42:20.8510911+01:00"

@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Sticker Verwijderen</h2>
+<mat-dialog-content>
+  <p>Weet je zeker dat je deze sticker wilt verwijderen?</p>
+  <p><strong>{{ data.poster }}</strong></p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="deleting()">Annuleren</button>
+  <button mat-flat-button color="warn" (click)="confirmDelete()" [disabled]="deleting()">
+    {{ deleting() ? 'Verwijderen...' : 'Ja, Verwijderen' }}
+  </button>
+</mat-dialog-actions>
