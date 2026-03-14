@@ -1,5 +1,6 @@
 import { Component, ViewChild, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MapComponent } from '../map/map';
 import { StickerFormComponent } from '../sticker-form/sticker-form.component';
 import { AuthService } from '../services/auth.service';
@@ -7,9 +8,9 @@ import { AuthService } from '../services/auth.service';
 @Component({
   selector: 'app-add-sticker-view',
   standalone: true,
-  imports: [MapComponent, StickerFormComponent],
+  imports: [MapComponent, StickerFormComponent, MatToolbarModule],
   templateUrl: './add-sticker-view.component.html',
-  styleUrls: ['./add-sticker-view.component.css']
+  styleUrls: ['./add-sticker-view.component.scss']
 })
 export class AddStickerViewComponent {
   @ViewChild(MapComponent) mapComponent!: MapComponent;

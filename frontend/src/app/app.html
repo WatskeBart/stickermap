@@ -1,38 +1,38 @@
-<header class="app-header">
-  <div class="header-left">
-    <h1 (click)="navigateHome()">StickerMap</h1>
+<mat-toolbar color="primary" class="app-toolbar">
+  <div class="toolbar-left">
+    <span class="app-title" (click)="navigateHome()">StickerMap</span>
     @if (showViewMapButton()) {
-      <button class="btn-view-map" (click)="navigateToMap()">
+      <button mat-button (click)="navigateToMap()">
+        <mat-icon>map</mat-icon>
         Bekijk Kaart
       </button>
     }
     @if (showAddStickerButton()) {
-      <button class="btn-add" (click)="navigateToAddSticker()">
+      <button mat-button (click)="navigateToAddSticker()">
+        <mat-icon>add_location_alt</mat-icon>
         Sticker Toevoegen
       </button>
     }
   </div>
-  <div class="header-center">
+  <span class="toolbar-spacer"></span>
+  <div class="toolbar-center">
     @if (pageTitle()) {
-      <h2>{{ pageTitle() }}</h2>
+      <span class="page-title">{{ pageTitle() }}</span>
     }
     @if (!pageTitle()) {
-      <p class="header-subtitle">{{ pageSubtitle() }}</p>
+      <span class="page-subtitle">{{ pageSubtitle() }}</span>
     }
   </div>
-  <div class="auth-controls">
+  <span class="toolbar-spacer"></span>
+  <div class="toolbar-right">
     @if (!authService.isAuthenticated()) {
-      <button (click)="login()" class="btn-secondary">
-        Login
-      </button>
+      <button mat-stroked-button (click)="login()">Login</button>
     }
     @if (authService.isAuthenticated()) {
-      <div class="user-info">
-        <span>{{ authService.getUserInfo()?.given_name || 'User' }}</span>
-        <button (click)="logout()" class="btn-secondary">Logout</button>
-      </div>
+      <span class="user-name">{{ authService.getUserInfo()?.given_name || 'User' }}</span>
+      <button mat-stroked-button (click)="logout()">Logout</button>
     }
   </div>
-</header>
+</mat-toolbar>
 
 <router-outlet></router-outlet>

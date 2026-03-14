@@ -22,3 +22,6 @@ dist/
 
 # Helm chart .tgz files
 *.tgz
+
+# Local claude settings
+.claude/
