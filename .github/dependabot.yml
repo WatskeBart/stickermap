@@ -27,6 +27,11 @@ updates:
       interval: "weekly"
 
   - package-ecosystem: "docker"
+    directory: "/database_migrations"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "docker"
     directory: "/frontend"
     schedule:
       interval: "weekly"
