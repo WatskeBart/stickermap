@@ -130,6 +130,7 @@ See the individual module READMEs for detailed setup:
 
 - [backend/README.md](backend/README.md) — Python / uv / FastAPI
 - [frontend/README.md](frontend/README.md) — Angular / pnpm
+- [database_migrations/README.md](database_migrations/README.md) — Alembic schema migrations
 
 <details>
 <summary>Backend quick setup</summary>
@@ -148,7 +149,7 @@ podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
   quay.io/keycloak/keycloak:26.5 start-dev
 
 cp .env.example .env
-uv run python database_setup.py
+cd ../database_migrations && uv run alembic upgrade head && cd ../backend
 uv run uvicorn main:app --port 5555 --reload
 ```
 

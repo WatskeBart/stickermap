@@ -67,7 +67,7 @@ After `compose up`, the app is available at `https://localhost:8282`. Keycloak a
 
 StickerMap is a geo-tagged sticker tracker. Users upload photos, the backend extracts GPS data from EXIF, and stickers are shown on a MapLibre GL map.
 
-```
+```text
 Frontend (Angular 21) ──HTTP──▶ Backend (FastAPI :5555)
                                        │
                    Keycloak (OIDC) ◀──┤──▶ PostgreSQL + PostGIS
@@ -80,7 +80,6 @@ Frontend (Angular 21) ──HTTP──▶ Backend (FastAPI :5555)
 - **`main.py`** — FastAPI app, all route handlers. URL prefix: `/api/v1`. The API docs are at `/api/v1/docs`.
 - **`auth.py`** — JWT validation via Keycloak JWKS endpoint. `require_role(ROLE_X)` is a FastAPI dependency factory. `get_user_identity()` returns `preferred_username` for ownership tracking. Public keys are cached with a 1-hour TTL.
 - **`environment.py`** — `Config` class validates required env vars at startup.
-- **`database_setup.py`** — Schema auto-initialized on startup; `INIT_NEW_DATABASE=true` forces re-init.
 - **`connections.py`** — `DatabaseManager` for psycopg connection pooling.
 - **`file_handlers.py`** — `FileValidator` (MIME + magic bytes + size) and `GPSExtractor` (EXIF parsing with exifread/Pillow).
 - **`models.py`** — Pydantic request models: `CreateStickersRequest`, `UpdateStickerRequest`.
@@ -102,7 +101,7 @@ Frontend environment variables are injected at container start via `angular-serv
 
 Roles live in Keycloak as realm roles with the `sm-` prefix (avoids collision with Keycloak built-ins). They are hierarchical composite roles in Keycloak:
 
-```
+```text
 sm-admin ⊇ sm-editor ⊇ sm-uploader ⊇ sm-viewer
 ```
 
