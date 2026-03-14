@@ -19,3 +19,6 @@ dist/
 # IDE
 .idea/
 *.iml
+
+# Helm chart .tgz files
+*.tgz

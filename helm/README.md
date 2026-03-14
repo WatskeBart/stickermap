@@ -194,6 +194,33 @@ helm upgrade stickermap helm/stickermap \
   -f my-values.yaml
 ```
 
+## OCI Registry
+
+To package and distribute the chart via an OCI registry:
+
+```bash
+# 1. Build sub-chart dependencies (creates Chart.lock + charts/*.tgz)
+helm dependency build helm/stickermap
+
+# 2. Package into a tarball
+helm package helm/stickermap
+
+# 3. Push to your OCI registry
+helm push stickermap-0.1.0.tgz oci://your-registry.example.com/charts
+```
+
+Install directly from the registry (no local clone needed):
+
+```bash
+helm install stickermap oci://your-registry.example.com/charts/stickermap \
+  --version 0.1.0 \
+  --namespace stickermap \
+  --create-namespace \
+  -f my-values.yaml
+```
+
+> `Chart.lock` is committed to the repository. The generated `charts/*.tgz` files are excluded from git (`.gitignore`) and must be recreated by running `helm dependency build` before each `helm package`.
+
 ## Notes
 
 ### Database
