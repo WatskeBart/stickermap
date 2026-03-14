@@ -1,0 +1,52 @@
+name: Bump Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New version (e.g. 1.1.0)"
+        required: true
+        type: string
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update versions
+        run: |
+          VERSION="${{ inputs.version }}"
+
+          # frontend/package.json
+          sed -i "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" frontend/package.json
+
+          # backend/pyproject.toml
+          sed -i "s/^version = \"[^\"]*\"/version = \"$VERSION\"/" backend/pyproject.toml
+
+          # backend/main.py (FastAPI app version)
+          sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" backend/main.py
+
+          # database_migrations/pyproject.toml
+          sed -i "s/^version = \"[^\"]*\"/version = \"$VERSION\"/" database_migrations/pyproject.toml
+
+          # helm umbrella chart - appVersion only (chart version tracks chart changes separately)
+          sed -i "s/^appVersion: .*/appVersion: \"$VERSION\"/" helm/stickermap/Chart.yaml
+
+      - name: Commit and tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            frontend/package.json \
+            backend/pyproject.toml \
+            backend/main.py \
+            database_migrations/pyproject.toml \
+            helm/stickermap/Chart.yaml
+          git commit -m "chore: bump version to ${{ inputs.version }}"
+          git tag "${{ inputs.version }}"
+          git push origin HEAD
+          git push origin "${{ inputs.version }}"
