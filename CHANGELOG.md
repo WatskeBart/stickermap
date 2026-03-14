@@ -7,9 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-03-14
+
+### Added
+
+- Angular Material library integrated into the frontend UI components
+- Database migration support via Alembic for schema versioning
+- CI workflow to automatically bump version across all project files
+
+### Changed
+
 - Refactored backend to separate models from services for cleaner code structure
-- Bumped frontend dependencies (tar, hono)
-- Added backend tests badge to README
+- Refactored frontend configuration and removed unused datasets
+- Caddy now runs as an unprivileged user with adjusted port configuration
+- Updated environment variable example file
+
+### Fixed
+
+- Helm chart packaging and global values corrected
+- Frontend container image: fixed Dockerfile and entrypoint script for proper file handling and permissions
+- Backend tests updated to work with the new Alembic migration setup
+
+### Docs
+
+- Updated README with improved layout and badge visibility
+- Added authentication troubleshooting guide to README
+
+### Dependencies
+
+- Bumped `tar` and `hono` frontend packages (Dependabot)
+- Updated `uv.lock`
 
 ## [1.0.0] - 2026-03-08
 
@@ -22,5 +49,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/WatskeBart/stickermap/releases/tag/v1.0.0
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/WatskeBart/stickermap/compare/1.0.0...1.1.0
+[1.0.0]: https://github.com/WatskeBart/stickermap/releases/tag/1.0.0
