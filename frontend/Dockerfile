@@ -25,10 +25,11 @@ COPY --from=builder --chown=1000:1000 /app/dist/frontend/browser /app/html
 COPY --from=builder --chown=1000:1000 /app/dist/ngssc.json /app/html
 COPY --chown=1000:1000 entrypoint.sh /entrypoint.sh
 
-RUN chown 1000:1000 /srv
+RUN chown 1000:1000 /srv /data /config
 
 USER 1000
 
+EXPOSE 8181/tcp
 EXPOSE 8282/tcp
 
 ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]

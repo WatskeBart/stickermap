@@ -123,10 +123,12 @@ services:
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-stickermap}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-stickermap-client}
     ports:
-      - "80:80"
+      - "8181:8181"
       - "8282:8282"
     volumes:
       - caddy_data:/data
+      - caddy_srv:/srv
+      - caddy_config:/config
     depends_on:
       backend:
         condition: service_healthy
@@ -148,6 +150,10 @@ volumes:
   backend_uploads:
     driver: local
   caddy_data:
+    driver: local
+  caddy_srv:
+    driver: local
+  caddy_config:
     driver: local
 
 networks:

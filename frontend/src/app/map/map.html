@@ -51,7 +51,7 @@
                   </button>
                 }
                 @if (sticker.canDelete) {
-                  <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id)">
+                  <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id, sticker.poster)">
                     Verwijderen
                   </button>
                 }
@@ -95,7 +95,7 @@
   @if (isLoading()) {
     <div class="loading-overlay">
       <div class="loading-content">
-        <div class="spinner"></div>
+        <mat-progress-spinner mode="indeterminate" color="accent" diameter="50"></mat-progress-spinner>
         <p>Stickers worden geladen uit de database...</p>
         @if (stickerCount() > 0) {
           <small>{{ stickerCount() }} stickers geladen</small>
@@ -116,96 +116,69 @@
 @if (editSelectingLocation()) {
   <div class="edit-location-banner">
     <span>Klik op de kaart om een nieuwe locatie te selecteren</span>
-    <button (click)="cancelEditLocationSelection()">Annuleren</button>
+    <button mat-stroked-button (click)="cancelEditLocationSelection()">Annuleren</button>
   </div>
 }
 
-<!-- Edit Modal Overlay -->
+<!-- Edit Modal Overlay (inline to preserve "Kies op kaart" map interaction) -->
 @if (editingSticker() && !editSelectingLocation()) {
   <div class="modal-overlay" (click)="closeEditModal()">
     <div class="edit-modal" (click)="$event.stopPropagation()">
       <button class="modal-close" (click)="closeEditModal()">&times;</button>
       <h3>Sticker Bewerken</h3>
-      @if (editError()) {
-        <div class="modal-message error">{{ editError() }}</div>
-      }
-      @if (editSuccess()) {
-        <div class="modal-message success">{{ editSuccess() }}</div>
-      }
       @if (editForm(); as form) {
         <div class="edit-form">
-          <div class="form-group">
-            <label>Geplakt door</label>
-            <input type="text" [(ngModel)]="form.poster" />
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geplakt door</mat-label>
+            <input matInput type="text" [(ngModel)]="form.poster" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Plak datum</mat-label>
+            <input matInput type="datetime-local" [(ngModel)]="form.post_date" />
+          </mat-form-field>
+
+          <div class="form-location">
+            <mat-form-field appearance="outline" class="location-field">
+              <mat-label>Latitude</mat-label>
+              <input matInput type="number" [(ngModel)]="form.location.lat" step="0.000001" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="location-field">
+              <mat-label>Longitude</mat-label>
+              <input matInput type="number" [(ngModel)]="form.location.lon" step="0.000001" />
+            </mat-form-field>
+            <button type="button" mat-stroked-button color="accent" (click)="startEditLocationSelection()">
+              Kies op kaart
+            </button>
           </div>
-          <div class="form-group">
-            <label>Plak datum</label>
-            <input type="datetime-local" [(ngModel)]="form.post_date" />
-          </div>
-          <div class="form-group">
-            <label>Locatie</label>
-            @if (editSelectingLocation()) {
-              <div class="location-selection-hint">Klik op de kaart om de locatie te selecteren</div>
-            }
-            @if (!editSelectingLocation()) {
-              <div class="form-location">
-                <div class="form-location-field">
-                  <label>Latitude</label>
-                  <input type="number" [(ngModel)]="form.location.lat" step="0.000001" />
-                </div>
-                <div class="form-location-field">
-                  <label>Longitude</label>
-                  <input type="number" [(ngModel)]="form.location.lon" step="0.000001" />
-                </div>
-                <button type="button" class="btn-location-select" (click)="startEditLocationSelection()">
-                  Kies op kaart
-                </button>
-              </div>
-            }
-          </div>
+
           <!-- Admin-only field -->
           @if (isAdmin()) {
-            <div class="form-group">
-              <label>Uploader</label>
-              <select [(ngModel)]="form.uploader">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Uploader</mat-label>
+              <mat-select [(ngModel)]="form.uploader">
                 @if (!uploaderList().includes(form.uploader)) {
-                  <option [value]="form.uploader">
-                    {{ form.uploader }}
-                  </option>
+                  <mat-option [value]="form.uploader">{{ form.uploader }}</mat-option>
                 }
                 @for (uploader of uploaderList(); track uploader) {
-                  <option [value]="uploader">
-                    {{ uploader }}
-                  </option>
+                  <mat-option [value]="uploader">{{ uploader }}</mat-option>
                 }
-              </select>
-            </div>
+              </mat-select>
+            </mat-form-field>
           }
+
           <div class="modal-actions">
-            <button class="btn-save" (click)="saveEdit()" [disabled]="editSaving()">
-              {{ editSaving() ? 'Opslaan...' : 'Opslaan' }}
+            <button mat-flat-button color="accent" (click)="saveEdit()" [disabled]="editSaving()">
+              @if (editSaving()) {
+                <mat-progress-spinner mode="indeterminate" diameter="18" color="accent" class="inline-spinner"></mat-progress-spinner>
+              } @else {
+                Opslaan
+              }
             </button>
-            <button class="btn-cancel" (click)="closeEditModal()">Annuleren</button>
+            <button mat-button (click)="closeEditModal()">Annuleren</button>
           </div>
         </div>
       }
-    </div>
-  </div>
-}
-
-<!-- Delete Confirmation Overlay -->
-@if (showDeleteConfirm()) {
-  <div class="modal-overlay" (click)="closeDeleteConfirm()">
-    <div class="delete-modal" (click)="$event.stopPropagation()">
-      <h3>Sticker Verwijderen</h3>
-      <p>Weet je zeker dat je deze sticker wilt verwijderen?</p>
-      @if (deletingSticker(); as sticker) {
-        <p><strong>{{ sticker.poster }}</strong></p>
-      }
-      <div class="modal-actions">
-        <button class="btn-delete-confirm" (click)="confirmDelete()">Ja, Verwijderen</button>
-        <button class="btn-cancel" (click)="closeDeleteConfirm()">Annuleren</button>
-      </div>
     </div>
   </div>
 }

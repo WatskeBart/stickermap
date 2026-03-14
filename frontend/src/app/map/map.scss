@@ -1,0 +1,294 @@
+/* Ensure the host and map container have proper dimensions */
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+mgl-map {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom marker icon wrapper */
+.marker-icon {
+  cursor: pointer;
+  width: 25px;
+  height: 41px;
+  display: block;
+}
+
+.marker-icon img {
+  width: 25px;
+  height: 41px;
+}
+
+/* MapLibre popup wrapper styling (needs ::ng-deep — MapLibre's own DOM) */
+::ng-deep .maplibregl-popup-content {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+/* Popup inner content */
+.sticker-popup-content {
+  min-width: 200px;
+}
+
+.sticker-popup-image {
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+  display: block;
+  cursor: pointer;
+}
+
+.sticker-popup-info {
+  padding: 12px;
+  background: white;
+}
+
+.sticker-popup-info p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.sticker-popup-anon {
+  color: #999;
+  font-style: italic;
+}
+
+.sticker-popup-actions {
+  padding: 8px 12px;
+  border-top: 1px solid #eee;
+  display: flex;
+  gap: 8px;
+}
+
+.popup-btn {
+  flex: 1;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.popup-btn-edit {
+  background: #e17000;
+  color: white;
+
+  &:hover {
+    background: #c56200;
+  }
+}
+
+.popup-btn-delete {
+  background: #dc3545;
+  color: white;
+
+  &:hover {
+    background: #c82333;
+  }
+}
+
+/* Full-size image overlay */
+.image-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+.image-overlay img {
+  max-width: 90vw;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 4px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.image-overlay-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 36px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+
+  &:hover {
+    color: #ccc;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Map container with loading overlay */
+.map-container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+/* Loading overlay */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.loading-content {
+  text-align: center;
+  padding: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+
+  p {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  small {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #0d3662;
+    font-weight: 500;
+  }
+}
+
+/* Edit location selection banner */
+.edit-location-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: rgba(13, 54, 98, 0.95);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 24px;
+  z-index: 1500;
+  font-weight: 600;
+  font-size: 15px;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Modal overlay (for inline edit modal) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.2s ease;
+}
+
+/* Edit modal container */
+.edit-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 480px;
+  width: 90%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+
+  h3 {
+    margin: 0 0 16px 0;
+    font-size: 18px;
+    color: #333;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  line-height: 1;
+  padding: 4px 8px;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.form-location {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.location-field {
+  flex: 1;
+  min-width: 120px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+.inline-spinner {
+  display: inline-block;
+  vertical-align: middle;
+}

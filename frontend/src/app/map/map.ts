@@ -1,5 +1,12 @@
-import { Component, OnInit, computed, effect, input, output, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { environment } from '../../environments/environment';
 import { AuthService } from '../services/auth.service';
 import { StickerService } from '../services/sticker.service';
@@ -10,6 +17,11 @@ import {
   MarkerComponent as MglMarkerComponent,
   PopupComponent as MglPopupComponent,
 } from '@maplibre/ngx-maplibre-gl';
+import {
+  DeleteStickerDialogComponent,
+  type DeleteDialogData,
+  type DeleteDialogResult,
+} from './delete-sticker-dialog.component';
 
 interface ProcessedSticker {
   id: number;
@@ -29,9 +41,19 @@ interface ProcessedSticker {
 @Component({
   selector: 'app-map',
   standalone: true,
-  imports: [FormsModule, MglMapComponent, MglMarkerComponent, MglPopupComponent],
+  imports: [
+    FormsModule,
+    MglMapComponent,
+    MglMarkerComponent,
+    MglPopupComponent,
+    MatProgressSpinnerModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+  ],
   templateUrl: './map.html',
-  styleUrls: ['./map.css'],
+  styleUrls: ['./map.scss'],
 })
 export class MapComponent implements OnInit {
   readonly locationSelectionMode = input(false);
@@ -42,6 +64,8 @@ export class MapComponent implements OnInit {
   readonly locationSelected = output<{ lat: number; lon: number }>();
 
   private mapInstance?: maplibregl.Map;
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
   // Loading state
   isLoading = signal(false);
@@ -78,14 +102,8 @@ export class MapComponent implements OnInit {
     uploader: string;
   } | null>(null);
   editSaving = signal(false);
-  editError = signal('');
-  editSuccess = signal('');
   editSelectingLocation = signal(false);
   uploaderList = signal<string[]>([]);
-
-  // Delete confirmation state
-  deletingSticker = signal<any>(null);
-  showDeleteConfirm = signal(false);
 
   // MapLibre style for OSM raster tiles
   readonly mapStyle = {
@@ -237,12 +255,10 @@ export class MapComponent implements OnInit {
     this.mapInstance?.jumpTo({ center: [lon, lat], zoom: 13 });
   }
 
-  // --- Edit Modal ---
+  // --- Edit Modal (inline) ---
 
   openEditModal(stickerId: number): void {
     this.openPopupStickerId.set(null);
-    this.editError.set('');
-    this.editSuccess.set('');
     this.editSelectingLocation.set(false);
 
     // Fetch uploaders list
@@ -285,8 +301,6 @@ export class MapComponent implements OnInit {
     this.editingSticker.set(null);
     this.editForm.set(null);
     this.editSaving.set(false);
-    this.editError.set('');
-    this.editSuccess.set('');
     this.editSelectingLocation.set(false);
   }
 
@@ -296,7 +310,6 @@ export class MapComponent implements OnInit {
     if (!currentEditingSticker || !currentEditForm) return;
 
     this.editSaving.set(true);
-    this.editError.set('');
 
     // Build update payload with only changed fields
     const updates: UpdateStickerRequest = {};
@@ -321,7 +334,7 @@ export class MapComponent implements OnInit {
     }
 
     if (Object.keys(updates).length === 0) {
-      this.editError.set('Geen wijzigingen gedetecteerd');
+      this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
       this.editSaving.set(false);
       return;
     }
@@ -329,15 +342,17 @@ export class MapComponent implements OnInit {
     this.stickerService.updateSticker(currentEditingSticker.id, updates).subscribe({
       next: () => {
         this.editSaving.set(false);
-        this.editSuccess.set('Sticker succesvol bijgewerkt!');
-        setTimeout(() => {
-          this.closeEditModal();
-          this.refreshStickers();
-        }, 1000);
+        this.closeEditModal();
+        this.refreshStickers();
+        this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
       },
       error: (err: any) => {
         this.editSaving.set(false);
-        this.editError.set(`Bijwerken mislukt: ${err.error?.detail || err.message}`);
+        this.snackBar.open(
+          `Bijwerken mislukt: ${err.error?.detail || err.message}`,
+          'Sluiten',
+          { duration: 5000, panelClass: ['snackbar-error'] },
+        );
       },
     });
   }
@@ -367,43 +382,19 @@ export class MapComponent implements OnInit {
     }
   }
 
-  // --- Delete Confirmation ---
+  // --- Delete Confirmation (MatDialog) ---
 
-  openDeleteConfirm(stickerId: number): void {
+  openDeleteConfirm(stickerId: number, poster: string): void {
     this.openPopupStickerId.set(null);
-    this.stickerService.getSticker(stickerId).subscribe({
-      next: (sticker: any) => {
-        this.deletingSticker.set({
-          id: sticker[0],
-          poster: sticker[2],
-          image: sticker[6],
-        });
-        this.showDeleteConfirm.set(true);
-      },
-      error: (err: any) => {
-        console.error('Failed to fetch sticker:', err);
-      },
+    const ref = this.dialog.open(DeleteStickerDialogComponent, {
+      width: '400px',
+      data: { stickerId, poster } satisfies DeleteDialogData,
     });
-  }
-
-  closeDeleteConfirm(): void {
-    this.deletingSticker.set(null);
-    this.showDeleteConfirm.set(false);
-  }
-
-  confirmDelete(): void {
-    const currentDeletingSticker = this.deletingSticker();
-    if (!currentDeletingSticker) return;
-
-    this.stickerService.deleteSticker(currentDeletingSticker.id).subscribe({
-      next: () => {
-        this.closeDeleteConfirm();
+    ref.afterClosed().subscribe((result: DeleteDialogResult | undefined) => {
+      if (result?.deleted) {
         this.refreshStickers();
-      },
-      error: (err: any) => {
-        console.error('Delete failed:', err);
-        this.closeDeleteConfirm();
-      },
+        this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });
+      }
     });
   }
 }
