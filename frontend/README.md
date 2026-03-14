@@ -36,7 +36,13 @@ pnpm test
 
 ## Environment Variables
 
-Variables are injected at runtime via `angular-server-side-configuration`.
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `BACKEND_URL` | Backend API for nginx proxy | `http://backend:5555` |
+| `FQDN` | Fully Qualified Domain Name aka hostname | `localhost` |
+
+These ariables are injected at runtime via angular-server-side-configuration binary called `ngssc`.
 
 | Variable | Description | Default |
 | -------- | ----------- | ------- |
@@ -44,5 +50,3 @@ Variables are injected at runtime via `angular-server-side-configuration`.
 | `KEYCLOAK_REALM` | Realm name | `stickermap` |
 | `KEYCLOAK_CLIENT_ID` | Client ID | `stickermap-client` |
 | `TILESERVER_URL` | Map tile server | `https://tile.openstreetmap.org/{z}/{x}/{y}.png` |
-| `FRONTEND_PORT` | Nginx listen port | `8282` |
-| `BACKEND_URL` | Backend API for nginx proxy | `http://backend:5555` |

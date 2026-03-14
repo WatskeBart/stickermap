@@ -6,6 +6,7 @@ __pycache__/
 *.py[cod]
 .venv/
 *.egg-info/
+.pytest_cache/
 
 # Node / Angular
 node_modules/
