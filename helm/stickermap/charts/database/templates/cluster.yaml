@@ -1,4 +1,5 @@
-{{- if eq .Values.type "cnpg" }}
+{{- $dbType := default .Values.type .Values.global.database.type -}}
+{{- if eq $dbType "cnpg" }}
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
