@@ -1,0 +1,59 @@
+# .github/workflows/tests.yml
+#
+# Runs the backend and migration test suites on every pull request.
+# No database or Keycloak instance is required — all external
+# dependencies are mocked by the test suites themselves.
+
+name: Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backend-tests:
+    name: pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Install dependencies (incl. dev group)
+        working-directory: backend
+        run: uv sync --group dev
+
+      - name: Run tests
+        working-directory: backend
+        run: uv run pytest -v
+
+  migration-tests:
+    name: migration structural tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: database_migrations/uv.lock
+
+      - name: Install dependencies (incl. dev group)
+        working-directory: database_migrations
+        run: uv sync --group dev
+
+      - name: Run tests
+        working-directory: database_migrations
+        run: uv run pytest -v

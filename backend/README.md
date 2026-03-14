@@ -50,11 +50,10 @@ podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
 cp .env.example .env
 # Edit .env with your configuration
 
-# Initialize database
-uv run python database_setup.py
-
-# Optional: Load test data
-uv run python migrate_data.py
+# Run database migrations (from project root)
+cd ../database_migrations
+uv run alembic upgrade head
+cd ../backend
 
 # Run development server
 uv run uvicorn main:app --port 5555 --reload
