@@ -48,7 +48,7 @@ podman compose up -d
 
 ```bash
 podman compose -f compose.prod.yml up -d
-# Then import general/extra/stickermap-realm.json via the Keycloak Admin Console
+# Then import general/keycloak_realm/stickermap-realm.json via the Keycloak Admin Console
 ```
 
 Wait 30–60 seconds for all services to initialize.
