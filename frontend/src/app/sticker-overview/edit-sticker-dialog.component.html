@@ -1,0 +1,74 @@
+<h2 mat-dialog-title>Sticker Bewerken</h2>
+
+<mat-dialog-content>
+  <div class="edit-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Geplakt door</mat-label>
+      <input matInput type="text" [ngModel]="poster()" (ngModelChange)="poster.set($event)" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Plakdatum</mat-label>
+      <input matInput type="datetime-local" [ngModel]="postDate()" (ngModelChange)="postDate.set($event)" />
+    </mat-form-field>
+
+    <div class="location-row">
+      <mat-form-field appearance="outline" class="location-field">
+        <mat-label>Latitude</mat-label>
+        <input matInput type="number" [ngModel]="lat()" (ngModelChange)="lat.set(+$event)" step="0.000001" />
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="location-field">
+        <mat-label>Longitude</mat-label>
+        <input matInput type="number" [ngModel]="lon()" (ngModelChange)="lon.set(+$event)" step="0.000001" />
+      </mat-form-field>
+    </div>
+
+    @if (data.isAdmin) {
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Uploader</mat-label>
+        <mat-select [ngModel]="uploader()" (ngModelChange)="uploader.set($event)">
+          @if (!uploaderList().includes(uploader())) {
+            <mat-option [value]="uploader()">{{ uploader() }}</mat-option>
+          }
+          @for (u of uploaderList(); track u) {
+            <mat-option [value]="u">{{ u }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving()">Annuleren</button>
+  <button mat-flat-button color="accent" (click)="save()" [disabled]="saving()">
+    @if (saving()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+    } @else {
+      Opslaan
+    }
+  </button>
+</mat-dialog-actions>
+
+<style>
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 400px;
+    padding-top: 0.5rem;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .location-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .location-field {
+    flex: 1;
+  }
+</style>

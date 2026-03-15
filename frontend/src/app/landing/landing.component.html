@@ -5,31 +5,26 @@
 
   <div class="landing-content">
     <div class="action-cards">
-      <mat-card class="action-card" (click)="navigateToMap()">
+      <mat-card class="action-card nav-card">
         <mat-card-content>
-          <div class="card-icon">🗺️</div>
-          <p>Bekijk alle sticker locaties</p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button mat-flat-button color="accent" (click)="navigateToMap(); $event.stopPropagation()">
-            Bekijk Kaart
-          </button>
-        </mat-card-actions>
-      </mat-card>
-
-      @if (authService.isUploader()) {
-        <mat-card class="action-card" (click)="navigateToAddSticker()">
-          <mat-card-content>
-            <div class="card-icon">📍</div>
-            <p>Nieuwe sticker toevoegen aan de kaart</p>
-          </mat-card-content>
-          <mat-card-actions>
-            <button mat-flat-button color="accent" (click)="navigateToAddSticker(); $event.stopPropagation()">
-              Sticker Toevoegen
+          <div class="nav-buttons">
+            <button mat-flat-button color="accent" (click)="navigateToMap()">
+              <mat-icon>map</mat-icon>
+              Bekijk Kaart
             </button>
-          </mat-card-actions>
-        </mat-card>
-      }
+            @if (authService.isUploader()) {
+              <button mat-flat-button color="accent" (click)="navigateToAddSticker()">
+                <mat-icon>add_location_alt</mat-icon>
+                Sticker Toevoegen
+              </button>
+            }
+            <button mat-flat-button color="accent" (click)="navigateToOverview()">
+              <mat-icon>table_view</mat-icon>
+              Sticker Overzicht
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
 
       <mat-card class="action-card stats-card">
         <mat-card-content>

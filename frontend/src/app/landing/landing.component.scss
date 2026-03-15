@@ -40,34 +40,30 @@
 }
 
 .action-card {
-  flex: 1;
-  min-width: 300px;
-  max-width: 400px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 1 1 100%;
+  max-width: 900px;
+}
 
-  &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
-  }
-
+.nav-card {
   mat-card-content {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 1.5rem;
-  }
-
-  mat-card-actions {
     justify-content: center;
-    padding-bottom: 1.5rem;
+    padding: 1.5rem;
   }
 }
 
-.card-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  button {
+    flex: 1;
+    min-width: 160px;
+    height: 48px;
+    font-size: 0.95rem;
+  }
 }
 
 .stats-card {
@@ -118,7 +114,7 @@
 
 .stat-label {
   font-size: 0.85rem;
-  color: #555;
+  color: var(--sm-text-muted);
   text-align: center;
 }
 

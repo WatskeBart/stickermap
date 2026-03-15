@@ -8,5 +8,12 @@ export const routes: Routes = [
   { path: '', component: LandingComponent },
   { path: 'map', component: MapViewComponent },
   { path: 'add-sticker', component: AddStickerViewComponent, canActivate: [authGuard] },
+  {
+    path: 'sticker-overview',
+    loadComponent: () =>
+      import('./sticker-overview/sticker-overview.component').then(
+        (m) => m.StickerOverviewComponent,
+      ),
+  },
   { path: '**', redirectTo: '' }
 ];

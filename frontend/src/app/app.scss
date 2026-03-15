@@ -10,7 +10,7 @@ body::before {
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  opacity: 0.15;
+  opacity: var(--sm-bg-image-opacity, 0.15);
   z-index: -2;
   pointer-events: none;
 }
@@ -27,6 +27,20 @@ body::before {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+
+  button[mat-button] {
+    color: white;
+    border: 1px solid rgba(225, 112, 0, 0.7);
+    border-radius: 4px;
+
+    mat-icon {
+      color: white;
+    }
+
+    &:hover {
+      background: rgba(225, 112, 0, 0.15);
+    }
+  }
 }
 
 .toolbar-spacer {
@@ -62,6 +76,20 @@ body::before {
   font-style: italic;
   opacity: 0.9;
   font-size: 1rem;
+}
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  mat-icon {
+    color: white;
+    font-size: 1.2rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    opacity: 0.85;
+  }
 }
 
 .user-name {
