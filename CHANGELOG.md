@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-15
+
+### Added
+
+- Sticker overview page with sortable/filterable table, inline editing, and bulk delete
+- Edit sticker dialog component for updating sticker fields
+- Bulk delete dialog with confirmation
+- Dark theme support with a theme toggle (persisted via `ThemeService`)
+- Map deep-linking: URL hash updates on map move/zoom and restores position on load
+- Statistics dashboard on the landing page showing sticker counts per uploader and total
+- New backend endpoint `GET /api/v1/stats` returning sticker statistics
+- `StickerStats` and `UploaderStat` models added to the frontend
+
+### Changed
+
+- Landing page layout updated to accommodate the statistics dashboard
+- Map component extended with deep-link hash handling and sticker overview navigation
+- App routing updated to include the sticker overview route
+
 ## [1.1.0] - 2026-03-14
 
 ### Added
@@ -49,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.1.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/WatskeBart/stickermap/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/WatskeBart/stickermap/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/WatskeBart/stickermap/releases/tag/1.0.0
