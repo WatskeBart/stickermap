@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest } from '../models/sticker.model';
+import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats } from '../models/sticker.model';
 
 @Injectable({
   providedIn: 'root'
@@ -44,5 +44,9 @@ export class StickerService {
 
   getUploaders(): Observable<{ uploaders: string[] }> {
     return this.http.get<{ uploaders: string[] }>(`${this.apiUrl}/uploaders`);
+  }
+
+  getStats(): Observable<StickerStats> {
+    return this.http.get<StickerStats>(`${this.apiUrl}/stats`);
   }
 }

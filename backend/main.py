@@ -269,6 +269,54 @@ def update_sticker(
         cursor.close()
 
 
+@router.get("/stats")
+def get_stats(conn=Depends(get_db)):
+    """Get sticker statistics"""
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM stickers")
+        total = cursor.fetchone()[0]
+
+        cursor.execute(
+            "SELECT COUNT(*) FROM stickers WHERE DATE_TRUNC('month', upload_date) = DATE_TRUNC('month', NOW())"
+        )
+        stickers_this_month = cursor.fetchone()[0]
+
+        cursor.execute(
+            "SELECT poster, COUNT(*) as cnt FROM stickers GROUP BY poster ORDER BY cnt DESC LIMIT 1"
+        )
+        top_row = cursor.fetchone()
+        top_poster = {"name": top_row[0], "count": top_row[1]} if top_row else None
+
+        cursor.execute(
+            "SELECT uploaded_by, COUNT(*) as cnt FROM stickers WHERE uploaded_by IS NOT NULL GROUP BY uploaded_by ORDER BY cnt DESC LIMIT 1"
+        )
+        top_uploader_row = cursor.fetchone()
+        top_uploader = {"name": top_uploader_row[0], "count": top_uploader_row[1]} if top_uploader_row else None
+
+        cursor.execute("SELECT COUNT(DISTINCT uploaded_by) FROM stickers WHERE uploaded_by IS NOT NULL")
+        total_uploaders = cursor.fetchone()[0]
+
+        cursor.execute(
+            "SELECT poster, upload_date FROM stickers ORDER BY upload_date DESC LIMIT 1"
+        )
+        last_row = cursor.fetchone()
+
+        return {
+            "total_stickers": total,
+            "stickers_this_month": stickers_this_month,
+            "top_poster": top_poster,
+            "top_uploader": top_uploader,
+            "total_uploaders": total_uploaders,
+            "last_sticker_date": str(last_row[1].date()) if last_row else None,
+            "last_sticker_poster": last_row[0] if last_row else None,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+
+
 @router.delete("/sticker/{sticker_id}", status_code=200)
 def delete_sticker(
     sticker_id: int,

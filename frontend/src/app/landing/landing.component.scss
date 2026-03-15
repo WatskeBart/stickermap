@@ -70,6 +70,58 @@
   margin-bottom: 1rem;
 }
 
+.stats-card {
+  flex: 1 1 100%;
+  max-width: 900px;
+  cursor: default;
+
+  &:hover {
+    transform: none;
+    box-shadow: none !important;
+  }
+
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 1.5rem;
+    gap: 1rem;
+  }
+}
+
+.stats-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+
+  mat-divider {
+    align-self: stretch;
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e17000;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #555;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .action-cards {
     flex-direction: column;
