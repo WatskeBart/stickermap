@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -127,7 +128,10 @@ export class MapComponent implements OnInit {
     ],
   };
 
-  constructor(private stickerService: StickerService, private authService: AuthService) {
+  targetFocus = signal<{ lat: number; lon: number } | null>(null);
+  focusStickerId = signal<number | null>(null);
+
+  constructor(private stickerService: StickerService, private authService: AuthService, private route: ActivatedRoute) {
     // Watch locationSelectionMode to manage cursor and map state
     effect(() => {
       const selectionMode = this.locationSelectionMode();
@@ -147,15 +151,27 @@ export class MapComponent implements OnInit {
   }
 
   ngOnInit() {
+    const params = this.route.snapshot.queryParams;
+    if (params['lat'] && params['lon']) {
+      this.targetFocus.set({ lat: +params['lat'], lon: +params['lon'] });
+    }
+    if (params['id']) {
+      this.focusStickerId.set(+params['id']);
+    }
     this.loadStickers();
   }
 
   onMapLoad(map: maplibregl.Map): void {
     this.mapInstance = map;
-    // Handle race: stickers may have loaded before map was ready
-    const s = this.stickers();
-    if (s.length > 0) {
-      this.fitBoundsToStickers(s);
+    const target = this.targetFocus();
+    if (target) {
+      this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
+    } else {
+      // Handle race: stickers may have loaded before map was ready
+      const s = this.stickers();
+      if (s.length > 0) {
+        this.fitBoundsToStickers(s);
+      }
     }
   }
 
@@ -193,7 +209,21 @@ export class MapComponent implements OnInit {
 
         this.stickers.set(processed);
         this.stickerCount.set(processed.length);
-        this.fitBoundsToStickers(processed);
+
+        const focusId = this.focusStickerId();
+        if (focusId !== null) {
+          const target = processed.find((s) => s.id === focusId);
+          if (target) {
+            this.openPopupStickerId.set(focusId);
+            if (this.mapInstance) {
+              this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
+            }
+          } else {
+            this.fitBoundsToStickers(processed);
+          }
+        } else {
+          this.fitBoundsToStickers(processed);
+        }
 
         setTimeout(() => {
           this.isLoading.set(false);

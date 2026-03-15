@@ -40,16 +40,40 @@
 }
 
 .action-card {
-  flex: 1;
-  min-width: 300px;
-  max-width: 400px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex: 1 1 100%;
+  max-width: 900px;
+}
+
+.nav-card {
+  mat-card-content {
+    display: flex;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  button {
+    flex: 1;
+    min-width: 160px;
+    height: 48px;
+    font-size: 0.95rem;
+  }
+}
+
+.stats-card {
+  flex: 1 1 100%;
+  max-width: 900px;
+  cursor: default;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3) !important;
+    transform: none;
+    box-shadow: none !important;
   }
 
   mat-card-content {
@@ -57,17 +81,41 @@
     flex-direction: column;
     align-items: center;
     padding-top: 1.5rem;
-  }
-
-  mat-card-actions {
-    justify-content: center;
-    padding-bottom: 1.5rem;
+    gap: 1rem;
   }
 }
 
-.card-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+.stats-grid {
+  display: flex;
+  align-items: stretch;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  width: 100%;
+
+  mat-divider {
+    align-self: stretch;
+  }
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 120px;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e17000;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--sm-text-muted);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
