@@ -1,0 +1,166 @@
+<div class="overview-container">
+
+  <div class="overview-header">
+    <div class="header-left">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Zoeken op naam of uploader</mat-label>
+        <input matInput [ngModel]="filterValue()" (ngModelChange)="applyFilter($event)" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+    <div class="header-right">
+      @if (bulkDeleteEnabled()) {
+        <button mat-flat-button color="warn" (click)="openBulkDelete()">
+          <mat-icon>delete_sweep</mat-icon>
+          Geselecteerde verwijderen ({{ selection.selected.length }})
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-progress-spinner mode="indeterminate" diameter="50" />
+      <p>Stickers worden geladen...</p>
+    </div>
+  } @else {
+    <div class="table-wrapper mat-elevation-z2">
+      <table mat-table [dataSource]="dataSource" matSort class="sticker-table">
+
+        <!-- Checkbox column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              [checked]="isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()"
+              (change)="toggleAllRows()"
+            />
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox
+              [checked]="selection.isSelected(row)"
+              (change)="selection.toggle(row)"
+              (click)="$event.stopPropagation()"
+            />
+          </td>
+        </ng-container>
+
+        <!-- Thumbnail column -->
+        <ng-container matColumnDef="thumbnail">
+          <th mat-header-cell *matHeaderCellDef>Foto</th>
+          <td mat-cell *matCellDef="let row">
+            <img
+              [src]="row.imageUrl"
+              class="sticker-thumb"
+              alt="Sticker foto"
+              (click)="openFullSize(row.imageUrl)"
+              (error)="$any($event.target).style.display='none'"
+            />
+          </td>
+        </ng-container>
+
+        <!-- Poster column -->
+        <ng-container matColumnDef="poster">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Geplakt door</th>
+          <td mat-cell *matCellDef="let row">{{ row.poster }}</td>
+        </ng-container>
+
+        <!-- Uploader column -->
+        <ng-container matColumnDef="uploader">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploader</th>
+          <td mat-cell *matCellDef="let row">{{ row.uploader }}</td>
+        </ng-container>
+
+        <!-- Post date column -->
+        <ng-container matColumnDef="post_date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Plakdatum</th>
+          <td mat-cell *matCellDef="let row">{{ row.post_date }}</td>
+        </ng-container>
+
+        <!-- Upload date column -->
+        <ng-container matColumnDef="upload_date">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaddatum</th>
+          <td mat-cell *matCellDef="let row">{{ row.upload_date }}</td>
+        </ng-container>
+
+        <!-- Location column -->
+        <ng-container matColumnDef="location">
+          <th mat-header-cell *matHeaderCellDef>Locatie</th>
+          <td mat-cell *matCellDef="let row" class="location-cell">
+            {{ row.lat.toFixed(5) }}, {{ row.lon.toFixed(5) }}
+          </td>
+        </ng-container>
+
+        <!-- View on map column -->
+        <ng-container matColumnDef="view-on-map">
+          <th mat-header-cell *matHeaderCellDef>Kaart</th>
+          <td mat-cell *matCellDef="let row">
+            <button
+              mat-icon-button
+              (click)="goToMap(row); $event.stopPropagation()"
+              matTooltip="Bekijk op kaart"
+            >
+              <mat-icon>map</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Actions column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acties</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="action-buttons">
+              @if (row.canEdit) {
+                <button
+                  mat-icon-button
+                  color="accent"
+                  (click)="openEdit(row); $event.stopPropagation()"
+                  matTooltip="Bewerken"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              }
+              @if (row.canDelete) {
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="openDelete(row); $event.stopPropagation()"
+                  matTooltip="Verwijderen"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns().length">
+            @if (filterValue()) {
+              Geen stickers gevonden voor "{{ filterValue() }}".
+            } @else {
+              Geen stickers gevonden.
+            }
+          </td>
+        </tr>
+
+      </table>
+
+      <mat-paginator
+        [pageSizeOptions]="[10, 25, 50, 100]"
+        showFirstLastButtons
+      />
+    </div>
+  }
+
+</div>
+
+<!-- Full-size image overlay -->
+@if (fullSizeImageUrl()) {
+  <div class="fullsize-overlay" (click)="closeFullSize()">
+    <img [src]="fullSizeImageUrl()!" class="fullsize-image" alt="Volledige afbeelding" />
+  </div>
+}

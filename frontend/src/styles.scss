@@ -96,6 +96,38 @@ $stickermap-theme: mat.m2-define-light-theme(
 
 @include mat.all-component-themes($stickermap-theme);
 
+// --- Dark theme ---
+$stickermap-dark-theme: mat.m2-define-dark-theme(
+  (
+    color: (
+      primary: $stickermap-primary,
+      accent: $stickermap-accent,
+      warn: $stickermap-warn,
+    ),
+  )
+);
+
+.dark-theme {
+  @include mat.all-component-colors($stickermap-dark-theme);
+}
+
+// --- CSS custom properties for light / dark ---
+:root {
+  --sm-text-muted: #555555;
+  --sm-heading-color: #0d3662;
+  --sm-bg-image-opacity: 0.15;
+}
+
+.dark-theme {
+  --sm-text-muted: rgba(255, 255, 255, 0.5);
+  --sm-heading-color: #90b4d9;
+  --sm-bg-image-opacity: 0.05;
+
+  body {
+    background-color: #121212;
+  }
+}
+
 // --- Global base styles ---
 html,
 body {

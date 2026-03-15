@@ -3,13 +3,16 @@ import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { AuthService } from './services/auth.service';
+import { ThemeService } from './services/theme.service';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatToolbarModule, MatButtonModule, MatIconModule],
+  imports: [RouterOutlet, MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSlideToggleModule],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
@@ -48,8 +51,15 @@ export class App implements OnInit {
     return !route.includes('/add-sticker') && !isLandingPage && this.authService.isUploader();
   });
 
+  showOverviewButton = computed(() => {
+    const route = this.currentRoute();
+    const isLandingPage = route === '/' || route.startsWith('/?') || route.startsWith('/#');
+    return !route.includes('/sticker-overview') && !isLandingPage;
+  });
+
   constructor(
     public authService: AuthService,
+    public themeService: ThemeService,
     private router: Router,
   ) {
     this.pageSubtitle.set(this.getRandomSubtitle());
@@ -80,6 +90,8 @@ export class App implements OnInit {
       this.pageTitle.set('Nieuwe Sticker Toevoegen');
     } else if (route.includes('/map')) {
       this.pageTitle.set('Kaart');
+    } else if (route.includes('/sticker-overview')) {
+      this.pageTitle.set('Sticker Overzicht');
     } else {
       this.pageTitle.set('');
     }
@@ -103,5 +115,9 @@ export class App implements OnInit {
 
   navigateToAddSticker(): void {
     this.router.navigate(['/add-sticker']);
+  }
+
+  navigateToOverview(): void {
+    this.router.navigate(['/sticker-overview']);
   }
 }

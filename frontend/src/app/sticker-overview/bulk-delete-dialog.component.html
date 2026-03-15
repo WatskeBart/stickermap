@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Meerdere Stickers Verwijderen</h2>
+<mat-dialog-content>
+  <p>
+    Weet je zeker dat je <strong>{{ data.count }} sticker(s)</strong> wilt verwijderen?
+    Dit kan niet ongedaan worden gemaakt.
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Annuleren</button>
+  <button mat-flat-button color="warn" (click)="confirm()">
+    Ja, verwijder {{ data.count }} sticker(s)
+  </button>
+</mat-dialog-actions>

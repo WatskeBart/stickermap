@@ -43,3 +43,18 @@ export interface StickerStats {
   last_sticker_date: string | null;
   last_sticker_poster: string | null;
 }
+
+export interface ParsedSticker {
+  id: number;
+  lat: number;
+  lon: number;
+  poster: string;
+  uploader: string;
+  post_date: string;
+  upload_date: string;
+  image: string;
+  uploaded_by: string;
+  imageUrl: string;
+  canEdit: boolean;
+  canDelete: boolean;
+}

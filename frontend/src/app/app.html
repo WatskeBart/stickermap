@@ -13,6 +13,12 @@
         Sticker Toevoegen
       </button>
     }
+    @if (showOverviewButton()) {
+      <button mat-button (click)="navigateToOverview()">
+        <mat-icon>table_view</mat-icon>
+        Sticker Overzicht
+      </button>
+    }
   </div>
   <span class="toolbar-spacer"></span>
   <div class="toolbar-center">
@@ -25,6 +31,15 @@
   </div>
   <span class="toolbar-spacer"></span>
   <div class="toolbar-right">
+    <div class="theme-toggle" matTooltip="Thema wisselen">
+      <mat-icon>light_mode</mat-icon>
+      <mat-slide-toggle
+        [checked]="themeService.isDarkMode()"
+        (change)="themeService.toggle()"
+        color="accent"
+      />
+      <mat-icon>dark_mode</mat-icon>
+    </div>
     @if (!authService.isAuthenticated()) {
       <button mat-stroked-button (click)="login()">Login</button>
     }
