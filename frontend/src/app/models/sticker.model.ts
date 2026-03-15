@@ -33,3 +33,13 @@ export interface UpdateStickerRequest {
   location?: StickerLocation;
   uploader?: string;
 }
+
+export interface StickerStats {
+  total_stickers: number;
+  stickers_this_month: number;
+  top_poster: { name: string; count: number } | null;
+  top_uploader: { name: string; count: number } | null;
+  total_uploaders: number;
+  last_sticker_date: string | null;
+  last_sticker_poster: string | null;
+}
