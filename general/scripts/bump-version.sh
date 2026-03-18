@@ -24,5 +24,14 @@ sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" backend/main.py
 # database_migrations/pyproject.toml
 sed -i "s/^version = \"[^\"]*\"/version = \"$VERSION\"/" database_migrations/pyproject.toml
 
+# backend/Dockerfile
+sed -i "s/^ARG IMAGE_VERSION=.*/ARG IMAGE_VERSION=$VERSION/" backend/Dockerfile
+
+# database_migrations/Dockerfile
+sed -i "s/^ARG IMAGE_VERSION=.*/ARG IMAGE_VERSION=$VERSION/" database_migrations/Dockerfile
+
+# frontend/Dockerfile
+sed -i "s/^ARG IMAGE_VERSION=.*/ARG IMAGE_VERSION=$VERSION/" frontend/Dockerfile
+
 # helm umbrella chart - appVersion only (chart version tracks chart changes separately)
 sed -i "s/^appVersion: .*/appVersion: \"$VERSION\"/" helm/stickermap/Chart.yaml

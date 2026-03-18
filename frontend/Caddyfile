@@ -6,8 +6,7 @@
 }
 
 # Site configuration
-https://{$FQDN:localhost}, http://{$FQDN:localhost} {
-
+{$PUBLIC_URL:https://localhost} {
 	root * /srv
 
 	encode gzip

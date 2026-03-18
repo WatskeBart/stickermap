@@ -1,2 +1,34 @@
-# Ensure shell scripts always have LF line endings on checkout
-*.sh text eol=lf
+# Auto-detect text files; normalize to LF on all platforms
+* text=auto eol=lf
+
+# Explicitly text + LF (these run in Linux containers)
+*.py    text eol=lf
+*.ts    text eol=lf
+*.html  text eol=lf
+*.css   text eol=lf
+*.scss  text eol=lf
+*.json  text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+*.sql   text eol=lf
+*.toml  text eol=lf
+*.sh    text eol=lf
+Dockerfile      text eol=lf
+*.dockerignore  text eol=lf
+Caddyfile       text eol=lf
+.env.example    text eol=lf
+
+# Lock files — treat as text but hide from diffs/language stats
+uv.lock         text eol=lf linguist-generated=true
+pnpm-lock.yaml  text eol=lf linguist-generated=true
+
+# Binary — never mangle
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.woff binary
+*.woff2 binary
+*.pdf  binary

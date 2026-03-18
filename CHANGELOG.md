@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-03-18
+
+### Added
+
+- OCI image labels (`title`, `version`, `source`, `authors`) to all Dockerfiles
+- `.dockerignore` for the `database_migrations` service
+- `CMD` instruction to frontend Dockerfile; `entrypoint.sh` now uses `exec "$@"` for proper signal handling
+
+### Changed
+
+- Renamed `FQDN` env var to `PUBLIC_URL` (now a full URL including protocol, e.g. `https://localhost`) in Caddyfile, Compose files, and `.env.example`
+- Switched from `uv pip install --system` to `uv sync --no-dev --no-install-project` in backend and database\_migrations Dockerfiles
+- Dev Compose (`compose.yml`) now uses `tmpfs` for Caddy data/config/srv volumes instead of named volumes
+- Frontend container user changed from `1000` to `11953` with OpenShift-compatible group permissions (`g=u`)
+- Expanded `.gitattributes` to enforce LF line endings for all text file types and mark lock files as generated
+- `bump-version.sh` now also patches the `ARG IMAGE_VERSION` in all Dockerfiles
+
 ## [1.2.0] - 2026-03-15
 
 ### Added
@@ -68,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.2.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.0...HEAD
+[1.3.0]: https://github.com/WatskeBart/stickermap/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/WatskeBart/stickermap/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/WatskeBart/stickermap/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/WatskeBart/stickermap/releases/tag/1.0.0

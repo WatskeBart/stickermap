@@ -1,10 +1,17 @@
 FROM docker.io/astral/uv:python3.14-alpine
 
+ARG IMAGE_VERSION=1.3.0
+
+LABEL org.opencontainers.image.title="Stickermap Database Migrations" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
+      org.opencontainers.image.source="https://github.com/WatskeBart/stickermap/" \
+      org.opencontainers.image.authors="WatskeBart"
+
 WORKDIR /app
 
-COPY pyproject.toml ./
-RUN uv pip install --system -r pyproject.toml
+COPY pyproject.toml uv.lock* ./
+RUN uv sync --no-dev --no-install-project
 
 COPY . .
 
-CMD ["alembic", "upgrade", "head"]
+CMD ["uv", "run", "alembic", "upgrade", "head"]

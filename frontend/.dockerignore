@@ -1,8 +1,10 @@
+# Docker
+Dockerfile
+.dockerignore
+
 # Dependencies
 node_modules/
-npm-debug.log
-yarn-error.log
-pnpm-debug.log
+*.log
 
 # Build output
 dist/
@@ -24,13 +26,21 @@ out-tsc/
 .git/
 .gitignore
 
+# CI
+.github/
+
 # Documentation
 README.md
 *.md
 
 # Tests
 *.spec.ts
+*.test.ts
 karma.conf.js
+vitest.config.*
+coverage/
+e2e/
+playwright-report/
 
 # Angular cache
 .angular/
