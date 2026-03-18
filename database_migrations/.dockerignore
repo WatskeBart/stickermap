@@ -31,10 +31,6 @@ ENV/
 .env.local
 .env.*.local
 
-# Uploads and datasets (will be mounted as volumes)
-uploads/
-datasets/
-
 # Git
 .git/
 .gitignore

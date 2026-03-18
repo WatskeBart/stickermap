@@ -40,7 +40,7 @@ pnpm test
 | Variable | Description | Default |
 | -------- | ----------- | ------- |
 | `BACKEND_URL` | Backend API for nginx proxy | `http://backend:5555` |
-| `FQDN` | Fully Qualified Domain Name aka hostname | `localhost` |
+| `PUBLIC_URL` | Public URL to host the application | `https://localhost` |
 
 These ariables are injected at runtime via angular-server-side-configuration binary called `ngssc`.
 

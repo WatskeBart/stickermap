@@ -116,7 +116,7 @@ services:
     environment:
       BACKEND_URL: ${BACKEND_URL:-http://backend:5555}
       PRODUCTION: "true"
-      FQDN: ${FQDN:-localhost}
+      PUBLIC_URL: ${PUBLIC_URL:-https://localhost:8181}
       TILESERVER_URL: ${TILESERVER_URL}
       KEYCLOAK_URL: ${KEYCLOAK_URL:-https://localhost:8282}
       KEYCLOAK_INTERNAL_URL: ${KEYCLOAK_INTERNAL_URL:-http://keycloak:8080}
@@ -126,9 +126,12 @@ services:
       - "8181:8181"
       - "8282:8282"
     volumes:
-      - caddy_data:/data
-      - caddy_srv:/srv
-      - caddy_config:/config
+      - type: tmpfs
+        target: /data
+      - type: tmpfs
+        target: /config
+      - type: tmpfs
+        target: /srv
     depends_on:
       backend:
         condition: service_healthy
@@ -148,12 +151,6 @@ volumes:
   keycloak_data:
     driver: local
   backend_uploads:
-    driver: local
-  caddy_data:
-    driver: local
-  caddy_srv:
-    driver: local
-  caddy_config:
     driver: local
 
 networks:
