@@ -10,7 +10,7 @@ LABEL org.opencontainers.image.title="Stickermap Database Migrations" \
 WORKDIR /app
 
 COPY pyproject.toml .
-RUN uv pip install --system -r project.toml
+RUN uv pip install --system -r pyproject.toml
 
 COPY . .
 

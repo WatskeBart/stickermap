@@ -13,7 +13,7 @@ RUN apk update && apk add --no-cache curl
 
 COPY pyproject.toml .
 
-RUN uv pip install --system -r project.toml
+RUN uv pip install --system -r pyproject.toml
 
 COPY . .
 
