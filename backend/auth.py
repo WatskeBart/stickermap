@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 from typing import Optional
 
+import jwt
 import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from jose import jwt, JWTError
+from jwt.algorithms import RSAAlgorithm
+from jwt.exceptions import PyJWTError
 
 from environment import Config
 from logger import get_logger
@@ -79,16 +81,10 @@ def decode_token(token: str) -> dict:
         unverified_header = jwt.get_unverified_header(token)
 
         # Find the matching public key
-        rsa_key = {}
+        rsa_key = None
         for key in jwks.get("keys", []):
             if key["kid"] == unverified_header.get("kid"):
-                rsa_key = {
-                    "kty": key["kty"],
-                    "kid": key["kid"],
-                    "use": key.get("use"),
-                    "n": key["n"],
-                    "e": key["e"],
-                }
+                rsa_key = key
                 break
 
         if not rsa_key:
@@ -98,16 +94,17 @@ def decode_token(token: str) -> dict:
             )
 
         # Decode and validate the token
+        public_key = RSAAlgorithm.from_jwk(rsa_key)
         payload = jwt.decode(
             token,
-            rsa_key,
+            public_key,
             algorithms=["RS256"],
             audience=Config.KEYCLOAK_CLIENT_ID,
             issuer=f"{Config.KEYCLOAK_URL}/realms/{Config.KEYCLOAK_REALM}",
         )
         return payload
 
-    except JWTError as e:
+    except PyJWTError as e:
         logger.warning("JWT validation failed: %s", e)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
