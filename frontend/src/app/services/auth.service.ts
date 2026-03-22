@@ -1,17 +1,26 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import Keycloak from 'keycloak-js';
+import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 import { StickerMapRoles, KeycloakUserInfo } from '../models/auth.model';
 export { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 
 /**
  * AuthService provides authentication functionality using keycloak-angular.
- * Delegates to the injected Keycloak instance managed by keycloak-angular.
+ * Role-check properties are computed signals so they re-evaluate reactively
+ * after the async check-sso completes in a zoneless Angular app.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private keycloak: Keycloak | null = null;
+
+  /**
+   * Reactive handle on Keycloak events. Used as a signal dependency so that
+   * computed role checks re-run whenever auth state changes (e.g. after
+   * check-sso resolves or a token refresh).
+   */
+  private readonly keycloakEvents = inject(KEYCLOAK_EVENT_SIGNAL, { optional: true });
 
   constructor() {
     try {
@@ -22,11 +31,12 @@ export class AuthService {
   }
 
   /**
-   * Check if user is authenticated.
+   * Reactive: true when the user is authenticated.
    */
-  isAuthenticated(): boolean {
+  readonly isAuthenticated = computed(() => {
+    this.keycloakEvents?.();
     return this.keycloak?.authenticated ?? false;
-  }
+  });
 
   /**
    * Get the current access token.
@@ -85,30 +95,34 @@ export class AuthService {
   }
 
   /**
-   * Check if user has viewer role (or higher).
+   * Reactive: true when user has viewer role (or higher).
    */
-  isViewer(): boolean {
+  readonly isViewer = computed(() => {
+    this.keycloakEvents?.();
     return this.hasRealmRole(StickerMapRoles.VIEWER);
-  }
+  });
 
   /**
-   * Check if user has uploader role (or higher, since editor composes uploader).
+   * Reactive: true when user has uploader role (or higher).
    */
-  isUploader(): boolean {
+  readonly isUploader = computed(() => {
+    this.keycloakEvents?.();
     return this.hasRealmRole(StickerMapRoles.UPLOADER);
-  }
+  });
 
   /**
-   * Check if user has editor role (or higher, since admin composes editor).
+   * Reactive: true when user has editor role (or higher).
    */
-  isEditor(): boolean {
+  readonly isEditor = computed(() => {
+    this.keycloakEvents?.();
     return this.hasRealmRole(StickerMapRoles.EDITOR);
-  }
+  });
 
   /**
-   * Check if user has admin role.
+   * Reactive: true when user has admin role.
    */
-  isAdmin(): boolean {
+  readonly isAdmin = computed(() => {
+    this.keycloakEvents?.();
     return this.hasRealmRole(StickerMapRoles.ADMIN);
-  }
+  });
 }

@@ -42,26 +42,28 @@
                 <span class="stat-value">{{ stats()!.stickers_this_month }}</span>
                 <span class="stat-label">Stickers deze maand</span>
               </div>
-              <mat-divider [vertical]="true" />
-              <div class="stat-item">
-                <span class="stat-value">{{ stats()!.top_poster?.name ?? '–' }}</span>
-                <span class="stat-label">Meest actieve plakker</span>
-                @if (stats()!.top_poster) {
-                  <mat-chip-set>
-                    <mat-chip>{{ stats()!.top_poster!.count }}×</mat-chip>
-                  </mat-chip-set>
-                }
-              </div>
-              <mat-divider [vertical]="true" />
-              <div class="stat-item">
-                <span class="stat-value">{{ stats()!.top_uploader?.name ?? '–' }}</span>
-                <span class="stat-label">Meest actieve uploader</span>
-                @if (stats()!.top_uploader) {
-                  <mat-chip-set>
-                    <mat-chip>{{ stats()!.top_uploader!.count }}×</mat-chip>
-                  </mat-chip-set>
-                }
-              </div>
+              @if (authService.isViewer()) {
+                <mat-divider [vertical]="true" />
+                <div class="stat-item">
+                  <span class="stat-value">{{ stats()!.top_poster?.name ?? '–' }}</span>
+                  <span class="stat-label">Meest actieve plakker</span>
+                  @if (stats()!.top_poster) {
+                    <mat-chip-set>
+                      <mat-chip>{{ stats()!.top_poster!.count }}×</mat-chip>
+                    </mat-chip-set>
+                  }
+                </div>
+                <mat-divider [vertical]="true" />
+                <div class="stat-item">
+                  <span class="stat-value">{{ stats()!.top_uploader?.name ?? '–' }}</span>
+                  <span class="stat-label">Meest actieve uploader</span>
+                  @if (stats()!.top_uploader) {
+                    <mat-chip-set>
+                      <mat-chip>{{ stats()!.top_uploader!.count }}×</mat-chip>
+                    </mat-chip-set>
+                  }
+                </div>
+              }
               <mat-divider [vertical]="true" />
               <div class="stat-item">
                 <span class="stat-value">{{ stats()!.total_uploaders }}</span>

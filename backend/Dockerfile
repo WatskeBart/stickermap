@@ -1,6 +1,6 @@
 FROM docker.io/astral/uv:python3.14-alpine
 
-ARG IMAGE_VERSION=1.3.0
+ARG IMAGE_VERSION=1.3.2
 
 LABEL org.opencontainers.image.title="Stickermap Backend" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
@@ -11,9 +11,9 @@ WORKDIR /app
 
 RUN apk update && apk add --no-cache curl
 
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml .
 
-RUN uv sync --no-dev --no-install-project
+RUN uv pip install --system -r pyproject.toml
 
 COPY . .
 
@@ -21,4 +21,4 @@ RUN mkdir -p uploads
 
 EXPOSE 5555/tcp
 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5555"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5555"]

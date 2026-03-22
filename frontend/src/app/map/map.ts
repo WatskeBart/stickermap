@@ -59,6 +59,7 @@ interface ProcessedSticker {
 export class MapComponent implements OnInit {
   readonly locationSelectionMode = input(false);
   readonly isAuthenticated = input(false);
+  readonly isViewer = input(false);
   readonly isUploader = input(false);
   readonly isEditor = input(false);
   readonly isAdmin = input(false);
