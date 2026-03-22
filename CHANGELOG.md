@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-03-22
+
+### Changed
+
+- Migrated JWT library from `python-jose` to `PyJWT` (`import jwt`) with `cryptography` backend for JWKS key handling
+- Updated frontend dependencies
+
+### Fixed
+
+- Backend tests updated to pass authenticated user context in API test fixtures
+
+## [1.3.1] - 2026-03-22
+
+### Added
+
+- `isViewer()` role checks in `AuthService`; UI elements gated on viewer role
+- Dark-mode CSS custom properties added to global styles and component stylesheets
+- Backend `/api/v1/stickers` (public endpoint) now restricts PII fields (`uploaded_by`) to authenticated viewers
+
+### Fixed
+
+- `PUBLIC_URL` default port in `compose.yml` aligned with `KEYCLOAK_URL` (both now use `8282`)
+- Reverted backend and database_migrations Dockerfiles to `uv pip install --system` (fixes regression from 1.3.0)
+- Typo in backend/database_migrations Dockerfiles
+
+### Docs
+
+- Removed incorrect note about `sm-viewer` being a default role for new users
+
 ## [1.3.0] - 2026-03-18
 
 ### Added
