@@ -1,13 +1,15 @@
 <div class="overview-container">
 
   <div class="overview-header">
-    <div class="header-left">
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Zoeken op naam of uploader</mat-label>
-        <input matInput [ngModel]="filterValue()" (ngModelChange)="applyFilter($event)" />
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
-    </div>
+    @if (isViewer()) {
+      <div class="header-left">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Zoeken op naam of uploader</mat-label>
+          <input matInput [ngModel]="filterValue()" (ngModelChange)="applyFilter($event)" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+      </div>
+    }
     <div class="header-right">
       @if (bulkDeleteEnabled()) {
         <button mat-flat-button color="warn" (click)="openBulkDelete()">

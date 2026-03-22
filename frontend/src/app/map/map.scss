@@ -31,6 +31,13 @@ mgl-map {
   overflow: hidden;
   min-width: 200px;
   max-width: 300px;
+  background: var(--sm-surface-color) !important;
+  color: var(--sm-text-primary);
+}
+
+::ng-deep .maplibregl-popup-tip {
+  border-bottom-color: var(--sm-surface-color) !important;
+  border-top-color: var(--sm-surface-color) !important;
 }
 
 /* Popup inner content */
@@ -50,24 +57,26 @@ mgl-map {
 
 .sticker-popup-info {
   padding: 12px;
-  background: white;
+  background: var(--sm-surface-color);
 }
 
 .sticker-popup-info p {
   margin: 4px 0;
   font-size: 13px;
+  color: var(--sm-text-primary);
 }
 
 .sticker-popup-anon {
-  color: #999;
+  color: var(--sm-text-muted);
   font-style: italic;
 }
 
 .sticker-popup-actions {
   padding: 8px 12px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--sm-border-color);
   display: flex;
   gap: 8px;
+  background: var(--sm-surface-color);
 }
 
 .popup-btn {
@@ -157,7 +166,7 @@ mgl-map {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--sm-overlay-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +177,7 @@ mgl-map {
 .loading-content {
   text-align: center;
   padding: 30px;
-  background: white;
+  background: var(--sm-surface-color);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   min-width: 250px;
@@ -177,14 +186,14 @@ mgl-map {
     margin: 10px 0 5px 0;
     font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: var(--sm-text-primary);
   }
 
   small {
     display: block;
     margin-top: 8px;
     font-size: 13px;
-    color: #0d3662;
+    color: var(--sm-heading-color);
     font-weight: 500;
   }
 }
@@ -225,7 +234,7 @@ mgl-map {
 
 /* Edit modal container */
 .edit-modal {
-  background: white;
+  background: var(--sm-surface-color);
   border-radius: 12px;
   padding: 24px;
   max-width: 480px;
@@ -237,7 +246,7 @@ mgl-map {
   h3 {
     margin: 0 0 16px 0;
     font-size: 18px;
-    color: #333;
+    color: var(--sm-text-primary);
   }
 }
 
@@ -249,12 +258,12 @@ mgl-map {
   border: none;
   font-size: 24px;
   cursor: pointer;
-  color: #666;
+  color: var(--sm-text-muted);
   line-height: 1;
   padding: 4px 8px;
 
   &:hover {
-    color: #333;
+    color: var(--sm-text-primary);
   }
 }
 

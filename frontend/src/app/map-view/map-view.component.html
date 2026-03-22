@@ -2,6 +2,7 @@
   <div class="map-content">
     <app-map
       [isAuthenticated]="authService.isAuthenticated()"
+      [isViewer]="authService.isViewer()"
       [isUploader]="authService.isUploader()"
       [isEditor]="authService.isEditor()"
       [isAdmin]="authService.isAdmin()">

@@ -116,7 +116,7 @@ services:
     environment:
       BACKEND_URL: ${BACKEND_URL:-http://backend:5555}
       PRODUCTION: "true"
-      PUBLIC_URL: ${PUBLIC_URL:-https://localhost:8181}
+      PUBLIC_URL: ${PUBLIC_URL:-https://localhost:8282}
       TILESERVER_URL: ${TILESERVER_URL}
       KEYCLOAK_URL: ${KEYCLOAK_URL:-https://localhost:8282}
       KEYCLOAK_INTERNAL_URL: ${KEYCLOAK_INTERNAL_URL:-http://keycloak:8080}

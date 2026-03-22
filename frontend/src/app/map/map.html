@@ -34,9 +34,11 @@
               (error)="$any($event.target).style.display = 'none'"
             />
             <div class="sticker-popup-info">
-              @if (isAuthenticated()) {
+              @if (isViewer()) {
                 <p><strong>Geplakt door:</strong> {{ sticker.poster }}</p>
                 <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
+              } @else if (isAuthenticated()) {
+                <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te zien</p>
               } @else {
                 <p class="sticker-popup-anon">Log in om te zien wie deze sticker heeft geplakt</p>
               }
