@@ -105,7 +105,7 @@ Roles live in Keycloak as realm roles with the `sm-` prefix (avoids collision wi
 sm-admin ⊇ sm-editor ⊇ sm-uploader ⊇ sm-viewer
 ```
 
-- `sm-viewer` — default for all new users; read-only access
+- `sm-viewer` — read-only access
 - `sm-uploader` — can upload and edit their own stickers (`uploaded_by` = `preferred_username`)
 - `sm-editor` — can edit any sticker
 - `sm-admin` — can delete stickers, change uploader field
