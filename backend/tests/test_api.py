@@ -89,6 +89,7 @@ class TestGetAllStickers:
 class TestGetSticker:
     def test_returns_sticker_when_found(self, db):
         conn, cursor = db
+        set_user(make_user([ROLE_UPLOADER]))
         cursor.fetchone.return_value = (
             1, '{"type":"Point","coordinates":[13.4,52.5]}',
             "Artist", "user1", "2024-01-01", "2024-01-02", "img.jpg", "user1",
@@ -99,6 +100,7 @@ class TestGetSticker:
 
     def test_returns_404_when_not_found(self, db):
         conn, cursor = db
+        set_user(make_user([ROLE_UPLOADER]))
         cursor.fetchone.return_value = None
         with TestClient(app) as client:
             resp = client.get("/api/v1/get_sticker/999")
@@ -110,6 +112,7 @@ class TestGetSticker:
 class TestGetUploaders:
     def test_returns_uploader_list(self, db):
         conn, cursor = db
+        set_user(make_user([ROLE_UPLOADER]))
         cursor.fetchall.return_value = [("alice",), ("bob",)]
         with TestClient(app) as client:
             resp = client.get("/api/v1/uploaders")
@@ -117,6 +120,7 @@ class TestGetUploaders:
         assert resp.json() == {"uploaders": ["alice", "bob"]}
 
     def test_returns_empty_uploaders_list(self, db):
+        set_user(make_user([ROLE_UPLOADER]))
         with TestClient(app) as client:
             resp = client.get("/api/v1/uploaders")
         assert resp.status_code == 200
