@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from logger import get_logger, setup_logging
-from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, get_user_identity, get_user_roles, require_role
+from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER, get_current_user, get_user_identity, get_user_roles, require_role
 from connections import DatabaseManager
 from environment import Config
 from file_handlers import FileValidator, GPSExtractor
@@ -132,14 +132,21 @@ def create_sticker(
 
 
 @router.get("/get_all_stickers")
-def get_all_stickers(conn=Depends(get_db)):
-    """Retrieve all stickers"""
+def get_all_stickers(
+    conn=Depends(get_db),
+    current_user: dict | None = Depends(get_current_user),
+):
+    """Retrieve all stickers. Poster, uploader and uploaded_by fields are omitted for non-viewers."""
+    is_viewer = ROLE_VIEWER in get_user_roles(current_user) if current_user else False
     cursor = conn.cursor()
     try:
         cursor.execute(
             "SELECT id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by FROM stickers"
         )
-        return cursor.fetchall()
+        rows = cursor.fetchall()
+        if not is_viewer:
+            rows = [(r[0], r[1], None, None, r[4], r[5], r[6], None) for r in rows]
+        return rows
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     finally:
@@ -147,8 +154,8 @@ def get_all_stickers(conn=Depends(get_db)):
 
 
 @router.get("/get_sticker/{id}")
-def get_sticker(id: int, conn=Depends(get_db)):
-    """Retrieve single sticker by ID"""
+def get_sticker(id: int, conn=Depends(get_db), current_user: dict = Depends(require_role(ROLE_UPLOADER))):
+    """Retrieve single sticker by ID. Requires sm-uploader role (used only in edit flows)."""
     cursor = conn.cursor()
     try:
         cursor.execute(
@@ -163,8 +170,8 @@ def get_sticker(id: int, conn=Depends(get_db)):
 
 
 @router.get("/uploaders")
-def get_uploaders(conn=Depends(get_db)):
-    """Get list of all unique uploaders in the database"""
+def get_uploaders(conn=Depends(get_db), current_user: dict = Depends(require_role(ROLE_UPLOADER))):
+    """Get list of all unique uploaders in the database. Requires sm-uploader role (used only in edit flows)."""
     cursor = conn.cursor()
     try:
         cursor.execute(
@@ -270,8 +277,12 @@ def update_sticker(
 
 
 @router.get("/stats")
-def get_stats(conn=Depends(get_db)):
-    """Get sticker statistics"""
+def get_stats(
+    conn=Depends(get_db),
+    current_user: dict | None = Depends(get_current_user),
+):
+    """Get sticker statistics. Name fields are omitted for non-viewers."""
+    is_viewer = ROLE_VIEWER in get_user_roles(current_user) if current_user else False
     cursor = conn.cursor()
     try:
         cursor.execute("SELECT COUNT(*) FROM stickers")
@@ -286,13 +297,13 @@ def get_stats(conn=Depends(get_db)):
             "SELECT poster, COUNT(*) as cnt FROM stickers GROUP BY poster ORDER BY cnt DESC LIMIT 1"
         )
         top_row = cursor.fetchone()
-        top_poster = {"name": top_row[0], "count": top_row[1]} if top_row else None
+        top_poster = {"name": top_row[0], "count": top_row[1]} if (top_row and is_viewer) else None
 
         cursor.execute(
             "SELECT uploaded_by, COUNT(*) as cnt FROM stickers WHERE uploaded_by IS NOT NULL GROUP BY uploaded_by ORDER BY cnt DESC LIMIT 1"
         )
         top_uploader_row = cursor.fetchone()
-        top_uploader = {"name": top_uploader_row[0], "count": top_uploader_row[1]} if top_uploader_row else None
+        top_uploader = {"name": top_uploader_row[0], "count": top_uploader_row[1]} if (top_uploader_row and is_viewer) else None
 
         cursor.execute("SELECT COUNT(DISTINCT uploaded_by) FROM stickers WHERE uploaded_by IS NOT NULL")
         total_uploaders = cursor.fetchone()[0]
@@ -309,7 +320,7 @@ def get_stats(conn=Depends(get_db)):
             "top_uploader": top_uploader,
             "total_uploaders": total_uploaders,
             "last_sticker_date": str(last_row[1].date()) if last_row else None,
-            "last_sticker_poster": last_row[0] if last_row else None,
+            "last_sticker_poster": last_row[0] if (last_row and is_viewer) else None,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
