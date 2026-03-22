@@ -116,16 +116,37 @@ $stickermap-dark-theme: mat.m2-define-dark-theme(
   --sm-text-muted: #555555;
   --sm-heading-color: #0d3662;
   --sm-bg-image-opacity: 0.15;
+  --sm-surface-color: #ffffff;
+  --sm-surface-alt: #f5f5f5;
+  --sm-accent-surface: #fff5e6;
+  --sm-accent-text: #b55800;
+  --sm-border-color: #e0e0e0;
+  --sm-text-primary: rgba(0, 0, 0, 0.87);
+  --sm-text-secondary: rgba(0, 0, 0, 0.6);
+  --sm-overlay-bg: rgba(255, 255, 255, 0.95);
 }
 
 .dark-theme {
   --sm-text-muted: rgba(255, 255, 255, 0.5);
   --sm-heading-color: #90b4d9;
   --sm-bg-image-opacity: 0.05;
+  --sm-surface-color: #1e1e1e;
+  --sm-surface-alt: #2a2a2a;
+  --sm-accent-surface: #2a1800;
+  --sm-accent-text: #e17000;
+  --sm-border-color: rgba(255, 255, 255, 0.12);
+  --sm-text-primary: rgba(255, 255, 255, 0.87);
+  --sm-text-secondary: rgba(255, 255, 255, 0.6);
+  --sm-overlay-bg: rgba(18, 18, 18, 0.95);
 
   body {
     background-color: #121212;
   }
+}
+
+// --- Angular Material hint color fix ---
+.mat-mdc-form-field-hint {
+  color: var(--sm-text-muted) !important;
 }
 
 // --- Global base styles ---

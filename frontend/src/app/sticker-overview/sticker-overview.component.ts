@@ -85,6 +85,7 @@ export class StickerOverviewComponent implements OnInit {
   fullSizeImageUrl = signal<string | null>(null);
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
+  isViewer = computed(() => this.authService.isViewer());
   isAdmin = computed(() => this.authService.isAdmin());
   isUploader = computed(() => this.authService.isUploader());
   isEditor = computed(() => this.authService.isEditor());
@@ -92,7 +93,8 @@ export class StickerOverviewComponent implements OnInit {
   bulkDeleteEnabled = computed(() => this.isAdmin() && this.hasSelection());
 
   displayedColumns = computed<string[]>(() => {
-    const base: string[] = ['thumbnail', 'poster', 'uploader', 'post_date', 'upload_date', 'location', 'view-on-map'];
+    const base: string[] = ['thumbnail', 'post_date', 'upload_date', 'location', 'view-on-map'];
+    if (this.isViewer()) base.splice(1, 0, 'poster', 'uploader');
     if (this.isAuthenticated()) base.push('actions');
     return this.isAdmin() ? ['select', ...base] : base;
   });

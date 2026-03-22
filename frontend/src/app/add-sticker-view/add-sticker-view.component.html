@@ -18,6 +18,7 @@
       <app-map
         [locationSelectionMode]="locationSelectionMode()"
         [isAuthenticated]="authService.isAuthenticated()"
+        [isViewer]="authService.isViewer()"
         [isUploader]="authService.isUploader()"
         [isEditor]="authService.isEditor()"
         [isAdmin]="authService.isAdmin()"
