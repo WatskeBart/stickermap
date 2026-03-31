@@ -32,19 +32,8 @@ export function provideKeycloakConfig(): (Provider | EnvironmentProviders)[] {
       },
       initOptions: {
         onLoad: 'check-sso',
-        ...(!(/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) && {
-          silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
-        }),
         checkLoginIframe: false,
       },
-      // No silent SSO at all — always redirects to Keycloak if unauthenticated.
-      // Desktop users with an active IDP session still get transparent SSO via redirect.
-      // Mobile users see the Keycloak login form with the SSO button.
-      // silent-check-sso.html can be removed from public/ and the initOptions below can be used instead.
-      // initOptions: {
-      //   onLoad: 'login-required',
-      //   checkLoginIframe: false,
-      // },
       features: [
         withAutoRefreshToken({
           onInactivityTimeout: 'logout',
