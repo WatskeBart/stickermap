@@ -6,8 +6,7 @@ export { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 
 /**
  * AuthService provides authentication functionality using keycloak-angular.
- * Role-check properties are computed signals so they re-evaluate reactively
- * after the async check-sso completes in a zoneless Angular app.
+ * Role-check properties are computed signals so they re-evaluate reactively in a zoneless Angular app.
  */
 @Injectable({
   providedIn: 'root',
