@@ -32,8 +32,6 @@ export function provideKeycloakConfig(): (Provider | EnvironmentProviders)[] {
       },
       initOptions: {
         onLoad: 'check-sso',
-        silentCheckSsoRedirectUri:
-          window.location.origin + '/silent-check-sso.html',
         checkLoginIframe: false,
       },
       features: [
