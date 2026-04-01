@@ -14,7 +14,7 @@ RUN pnpm exec ng run frontend:ngsscbuild:production
 
 FROM docker.io/caddy:alpine AS final
 
-ARG IMAGE_VERSION=1.3.4
+ARG IMAGE_VERSION=1.3.5
 
 LABEL org.opencontainers.image.title="Stickermap Frontend" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
