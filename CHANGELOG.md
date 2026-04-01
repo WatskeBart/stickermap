@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.4] - 2026-04-01
+
+## Changed
+
+- Display first and lastname for top uploader stats, instead of preferred_username
+
+## [1.3.3] - 2026-03-31
+
+### Changed
+
+- Removed silent sso check
+
 ## [1.3.2] - 2026-03-22
 
 ### Changed
@@ -114,7 +126,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.4...HEAD
+[1.3.4]: https://github.com/WatskeBart/stickermap/compare/1.3.3...1.3.4
+[1.3.3]: https://github.com/WatskeBart/stickermap/compare/1.3.2...1.3.3
+[1.3.2]: https://github.com/WatskeBart/stickermap/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/WatskeBart/stickermap/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/WatskeBart/stickermap/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/WatskeBart/stickermap/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/WatskeBart/stickermap/compare/1.0.0...1.1.0
