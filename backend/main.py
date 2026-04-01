@@ -26,7 +26,7 @@ url_prefix = "/api/v1"
 
 app = FastAPI(
     title="StickerMap API",
-    version="1.3.3",
+    version="1.3.4",
     debug=True,
     docs_url=url_prefix + "/docs",
     redoc_url=url_prefix + "/redoc",
@@ -300,7 +300,7 @@ def get_stats(
         top_poster = {"name": top_row[0], "count": top_row[1]} if (top_row and is_viewer) else None
 
         cursor.execute(
-            "SELECT uploaded_by, COUNT(*) as cnt FROM stickers WHERE uploaded_by IS NOT NULL GROUP BY uploaded_by ORDER BY cnt DESC LIMIT 1"
+            "SELECT MAX(uploader), COUNT(*) as cnt FROM stickers WHERE uploaded_by IS NOT NULL GROUP BY uploaded_by ORDER BY cnt DESC LIMIT 1"
         )
         top_uploader_row = cursor.fetchone()
         top_uploader = {"name": top_uploader_row[0], "count": top_uploader_row[1]} if (top_uploader_row and is_viewer) else None
