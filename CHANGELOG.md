@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.5] - 2026-04-01
+
+## Changed
+
+- Always show keycloak login form
+
 ## [1.3.4] - 2026-04-01
 
 ## Changed
@@ -126,7 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.4...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.5...HEAD
+[1.3.5]: https://github.com/WatskeBart/stickermap/compare/1.3.4...1.3.5
 [1.3.4]: https://github.com/WatskeBart/stickermap/compare/1.3.3...1.3.4
 [1.3.3]: https://github.com/WatskeBart/stickermap/compare/1.3.2...1.3.3
 [1.3.2]: https://github.com/WatskeBart/stickermap/compare/1.3.1...1.3.2

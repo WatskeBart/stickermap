@@ -62,6 +62,7 @@ export class AuthService {
 
     await this.keycloak.login({
       redirectUri: window.location.origin + window.location.pathname,
+      prompt: 'login',
     });
   }
 
