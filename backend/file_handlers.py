@@ -26,6 +26,11 @@ class FileValidator:
 
     @staticmethod
     def validate_size(file_content: bytes):
+        if len(file_content) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="File is empty"
+            )
         if len(file_content) > MAX_FILE_SIZE:
             logger.warning("Rejected upload exceeding size limit: %d bytes", len(file_content))
             raise HTTPException(
@@ -42,7 +47,10 @@ class FileValidator:
             logger.debug("Image content validation passed")
         except Exception as e:
             logger.warning("Image content validation failed: %s", e)
-            raise HTTPException(status_code=400, detail=f"Invalid image file: {str(e)}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid image file: {str(e)}"
+            )
 
 
 class GPSExtractor:
@@ -85,7 +93,13 @@ class GPSExtractor:
                 gps_date = tags.get("GPS GPSDate")
                 gps_time = tags.get("GPS GPSTimeStamp")
 
-                if not all([gps_latitude, gps_longitude, gps_date, gps_time]):
+                if not all([gps_latitude, gps_longitude, gps_time]):
+                    return {}
+                if not (gps_latitude_ref
+                        and gps_latitude_ref.values
+                        and gps_longitude_ref
+                        and gps_longitude_ref.values
+                        and gps_date and gps_date.values):
                     return {}
 
                 lat_value = GPSExtractor.convert_to_degrees(gps_latitude)
