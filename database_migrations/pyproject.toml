@@ -15,5 +15,8 @@ dev = [
     "pytest>=8",
 ]
 
+[tool.uv]
+constraint-dependencies = ["pygments>=2.20.0"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
