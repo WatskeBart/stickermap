@@ -12,9 +12,9 @@ dependencies = [
     "psycopg[binary]>=3.3.3",
     "python-dotenv>=1.2.1",
     "PyJWT>=2.10.0",
-    "cryptography>=42.0.0",
+    "cryptography>=46.0.6",
     "python-multipart>=0.0.22",
-    "requests>=2.32.5",
+    "requests>=2.33.0",
     "uvicorn[standard]>=0.41.0",
 ]
 
@@ -25,6 +25,9 @@ dev = [
     "httpx>=0.28",
     "pytest-mock>=3.14",
 ]
+
+[tool.uv]
+constraint-dependencies = ["pygments>=2.20.0"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
