@@ -167,6 +167,24 @@ class TestGPSExtractorExtract:
         result = GPSExtractor.extract(img_path)
         assert result == {}
 
+    def test_returns_exif_date_without_gps_location(self, tmp_path):
+        """No GPS coordinates, but Image DateTime present — returns date only."""
+        img_path = str(tmp_path / "no_gps_with_date.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        exif_dt = MagicMock()
+        exif_dt.values = "2024:03:09 00:41:50"
+
+        fake_tags = {"Image DateTime": exif_dt}
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert "latitude" not in result
+        assert "longitude" not in result
+        assert result["DateTimestamp"] == "2024-03-09 00:41:50"
+        assert result["date_source"] == "exif"
+
     def test_returns_gps_dict_when_tags_present(self, tmp_path):
         img_path = str(tmp_path / "gps.jpg")
         Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
@@ -194,6 +212,122 @@ class TestGPSExtractorExtract:
         assert result["latitude"] == pytest.approx(52.5)
         assert result["longitude"] == pytest.approx(13.4)
         assert result["DateTimestamp"] == "2024-06-01 10:30:00"
+        assert result["date_source"] == "gps"
+
+    def test_returns_coords_without_timestamp_when_no_date_tags(self, tmp_path):
+        """GPS location found but no date anywhere — returns coords only."""
+        img_path = str(tmp_path / "no_date.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        lat = _MockGPSValue((52, 1), (30, 1), (0, 1))
+        lon = _MockGPSValue((13, 1), (24, 1), (0, 1))
+
+        fake_tags = {
+            "GPS GPSLatitude": lat,
+            "GPS GPSLatitudeRef": _MockStringValue("N"),
+            "GPS GPSLongitude": lon,
+            "GPS GPSLongitudeRef": _MockStringValue("E"),
+        }
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert result["latitude"] == pytest.approx(52.5)
+        assert result["longitude"] == pytest.approx(13.4)
+        assert "DateTimestamp" not in result
+        assert "date_source" not in result
+
+    def test_falls_back_to_exif_datetime_original(self, tmp_path):
+        """GPS present but no GPS date — falls back to EXIF DateTimeOriginal."""
+        img_path = str(tmp_path / "exif_date.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        exif_dt = MagicMock()
+        exif_dt.values = "2023:11:20 15:45:30"
+
+        fake_tags = {
+            "GPS GPSLatitude": _MockGPSValue((52, 1), (0, 1), (0, 1)),
+            "GPS GPSLatitudeRef": _MockStringValue("N"),
+            "GPS GPSLongitude": _MockGPSValue((5, 1), (0, 1), (0, 1)),
+            "GPS GPSLongitudeRef": _MockStringValue("E"),
+            "EXIF DateTimeOriginal": exif_dt,
+        }
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert result["DateTimestamp"] == "2023-11-20 15:45:30"
+        assert result["date_source"] == "exif"
+
+    def test_falls_back_to_exif_datetime_digitized(self, tmp_path):
+        """Falls back to EXIF DateTimeDigitized when DateTimeOriginal is absent."""
+        img_path = str(tmp_path / "digitized.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        exif_dt = MagicMock()
+        exif_dt.values = "2022:07:04 08:00:00"
+
+        fake_tags = {
+            "GPS GPSLatitude": _MockGPSValue((48, 1), (0, 1), (0, 1)),
+            "GPS GPSLatitudeRef": _MockStringValue("N"),
+            "GPS GPSLongitude": _MockGPSValue((2, 1), (0, 1), (0, 1)),
+            "GPS GPSLongitudeRef": _MockStringValue("E"),
+            "EXIF DateTimeDigitized": exif_dt,
+        }
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert result["DateTimestamp"] == "2022-07-04 08:00:00"
+        assert result["date_source"] == "exif"
+
+    def test_falls_back_to_image_datetime(self, tmp_path):
+        """Falls back to Image DateTime as last resort."""
+        img_path = str(tmp_path / "image_dt.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        exif_dt = MagicMock()
+        exif_dt.values = "2021:03:15 12:00:00"
+
+        fake_tags = {
+            "GPS GPSLatitude": _MockGPSValue((51, 1), (0, 1), (0, 1)),
+            "GPS GPSLatitudeRef": _MockStringValue("N"),
+            "GPS GPSLongitude": _MockGPSValue((4, 1), (0, 1), (0, 1)),
+            "GPS GPSLongitudeRef": _MockStringValue("E"),
+            "Image DateTime": exif_dt,
+        }
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert result["DateTimestamp"] == "2021-03-15 12:00:00"
+        assert result["date_source"] == "exif"
+
+    def test_gps_timestamp_takes_priority_over_exif(self, tmp_path):
+        """GPS date/time takes priority even when EXIF tags are also present."""
+        img_path = str(tmp_path / "both.jpg")
+        Image.new("RGB", (10, 10)).save(img_path, format="JPEG")
+
+        gps_date = MagicMock()
+        gps_date.values = "2024:06:01"
+        exif_dt = MagicMock()
+        exif_dt.values = "2020:01:01 00:00:00"
+
+        fake_tags = {
+            "GPS GPSLatitude": _MockGPSValue((52, 1), (0, 1), (0, 1)),
+            "GPS GPSLatitudeRef": _MockStringValue("N"),
+            "GPS GPSLongitude": _MockGPSValue((13, 1), (0, 1), (0, 1)),
+            "GPS GPSLongitudeRef": _MockStringValue("E"),
+            "GPS GPSDate": gps_date,
+            "GPS GPSTimeStamp": _MockGPSValue((10, 1), (0, 1), (0, 1)),
+            "EXIF DateTimeOriginal": exif_dt,
+        }
+
+        with patch("file_handlers.exifread.process_file", return_value=fake_tags):
+            result = GPSExtractor.extract(img_path)
+
+        assert result["DateTimestamp"] == "2024-06-01 10:00:00"
+        assert result["date_source"] == "gps"
 
     def test_south_latitude_is_negated(self, tmp_path):
         img_path = str(tmp_path / "south.jpg")
