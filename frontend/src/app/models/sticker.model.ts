@@ -2,6 +2,7 @@ export interface GPSInfo {
   latitude?: number;
   longitude?: number;
   DateTimestamp?: string;
+  date_source?: 'gps' | 'exif';
 }
 
 export interface UploadResponse {
