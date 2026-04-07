@@ -79,19 +79,6 @@
         </div>
       </mgl-marker>
     }
-
-    <!-- Info popup for empty map clicks -->
-    @if (!locationSelectionMode() && !editSelectingLocation() && clickedLoc()) {
-      <mgl-popup
-        [lngLat]="[clickedLoc()!.lon, clickedLoc()!.lat]"
-        [closeOnClick]="true"
-        [closeButton]="true"
-        (popupClose)="clickedLoc.set(null)"
-      >
-        Locatie:<br /><br />
-        Lat/Lon: {{ clickedLoc()!.lat.toFixed(6) }},{{ clickedLoc()!.lon.toFixed(6) }}
-      </mgl-popup>
-    }
   </mgl-map>
 
   @if (isLoading()) {
