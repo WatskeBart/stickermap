@@ -7,15 +7,15 @@ requires-python = ">=3.14"
 dependencies = [
     "datetime>=6.0",
     "exifread>=3.5.1",
-    "fastapi>=0.133.1",
-    "pillow>=12.1.1",
+    "fastapi>=0.135.3",
+    "pillow>=12.2.0",
     "psycopg[binary]>=3.3.3",
-    "python-dotenv>=1.2.1",
-    "PyJWT>=2.10.0",
+    "python-dotenv>=1.2.2",
+    "PyJWT>=2.12.1",
     "cryptography>=46.0.6",
-    "python-multipart>=0.0.22",
-    "requests>=2.33.0",
-    "uvicorn[standard]>=0.41.0",
+    "python-multipart>=0.0.24",
+    "requests>=2.33.1",
+    "uvicorn[standard]>=0.44.0",
 ]
 
 [dependency-groups]
