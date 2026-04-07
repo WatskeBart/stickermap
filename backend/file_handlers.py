@@ -26,6 +26,11 @@ class FileValidator:
 
     @staticmethod
     def validate_size(file_content: bytes):
+        if len(file_content) == 0:
+            raise HTTPException(
+                status_code=400,
+                detail="File is empty"
+            )
         if len(file_content) > MAX_FILE_SIZE:
             logger.warning("Rejected upload exceeding size limit: %d bytes", len(file_content))
             raise HTTPException(
@@ -42,7 +47,10 @@ class FileValidator:
             logger.debug("Image content validation passed")
         except Exception as e:
             logger.warning("Image content validation failed: %s", e)
-            raise HTTPException(status_code=400, detail=f"Invalid image file: {str(e)}")
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid image file: {str(e)}"
+            )
 
 
 class GPSExtractor:
@@ -72,40 +80,77 @@ class GPSExtractor:
         return f"{year}-{month}-{day}"
 
     @staticmethod
+    def _parse_exif_datetime(tag) -> str | None:
+        """Parse a standard EXIF datetime tag (format: '2024:01:15 14:30:00') to 'YYYY-MM-DD HH:MM:SS'."""
+        try:
+            dt_str = str(tag.values)
+            date_part, time_part = dt_str.split(" ", 1)
+            year, month, day = date_part.split(":")
+            return f"{year}-{month}-{day} {time_part}"
+        except Exception:
+            return None
+
+    @staticmethod
     def extract(filepath: str) -> dict:
-        """Extract GPS data from image, return empty dict if not present"""
+        """Extract GPS location and datetime from image EXIF.
+
+        GPS coordinates are optional. Date/time is always extracted
+        independently, even when no GPS location is present.
+        Date/time priority: GPS timestamp > EXIF DateTimeOriginal >
+        EXIF DateTimeDigitized > Image DateTime.
+        Returns empty dict only when no usable data is found at all.
+        """
         try:
             with open(filepath, "rb") as f:
                 tags = exifread.process_file(f, details=False)
 
+                result: dict = {}
+
+                # Extract GPS coordinates if present
                 gps_latitude = tags.get("GPS GPSLatitude")
                 gps_latitude_ref = tags.get("GPS GPSLatitudeRef")
                 gps_longitude = tags.get("GPS GPSLongitude")
                 gps_longitude_ref = tags.get("GPS GPSLongitudeRef")
-                gps_date = tags.get("GPS GPSDate")
-                gps_time = tags.get("GPS GPSTimeStamp")
 
-                if not all([gps_latitude, gps_longitude, gps_date, gps_time]):
-                    return {}
+                has_gps_location = bool(
+                    gps_latitude and gps_longitude
+                    and gps_latitude_ref and gps_latitude_ref.values
+                    and gps_longitude_ref and gps_longitude_ref.values
+                )
 
-                lat_value = GPSExtractor.convert_to_degrees(gps_latitude)
-                if gps_latitude_ref.values != "N":
-                    lat_value = -lat_value
+                if has_gps_location:
+                    lat_value = GPSExtractor.convert_to_degrees(gps_latitude)
+                    if gps_latitude_ref.values != "N":
+                        lat_value = -lat_value
+                    lon_value = GPSExtractor.convert_to_degrees(gps_longitude)
+                    if gps_longitude_ref.values != "E":
+                        lon_value = -lon_value
+                    result["latitude"] = lat_value
+                    result["longitude"] = lon_value
 
-                lon_value = GPSExtractor.convert_to_degrees(gps_longitude)
-                if gps_longitude_ref.values != "E":
-                    lon_value = -lon_value
+                    gps_date = tags.get("GPS GPSDate")
+                    gps_time = tags.get("GPS GPSTimeStamp")
+                    if gps_date and gps_date.values and gps_time:
+                        try:
+                            date_str = GPSExtractor.convert_to_date_str(gps_date)
+                            time_str = GPSExtractor.convert_to_time_str(gps_time)
+                            result["DateTimestamp"] = f"{date_str} {time_str}"
+                            result["date_source"] = "gps"
+                            return result
+                        except Exception:
+                            logger.debug("GPS date/time parsing failed for %s, trying EXIF fallback", filepath)
 
-                date_str = GPSExtractor.convert_to_date_str(gps_date)
-                time_str = GPSExtractor.convert_to_time_str(gps_time)
+                for tag_name in ("EXIF DateTimeOriginal", "EXIF DateTimeDigitized", "Image DateTime"):
+                    exif_dt = tags.get(tag_name)
+                    if exif_dt and exif_dt.values:
+                        parsed = GPSExtractor._parse_exif_datetime(exif_dt)
+                        if parsed:
+                            result["DateTimestamp"] = parsed
+                            result["date_source"] = "exif"
+                            logger.debug("Used %s for datetime of %s", tag_name, filepath)
+                            break
 
-                f.close()
-
-                return {
-                    "latitude": lat_value,
-                    "longitude": lon_value,
-                    "DateTimestamp": f"{date_str} {time_str}",
-                }
+                return result
         except Exception as e:
             logger.error("Failed to extract GPS data from %s: %s", filepath, e)
             raise ValueError(f"Error: {str(e)}")

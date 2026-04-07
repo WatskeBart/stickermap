@@ -56,14 +56,18 @@
       <mat-card class="gps-info-card" appearance="outlined">
         <mat-card-content>
           <div class="info-header">
-            <span class="gps-found-label">✓ GPS Data gevonden!</span>
+            <span class="gps-found-label">✓ Locatiedata gevonden!</span>
             <span class="auto-fill-badge">Automatisch ingevuld</span>
           </div>
           <div class="gps-details">
             <p><strong>Latitude:</strong> {{ gps.latitude?.toFixed(6) }}</p>
             <p><strong>Longitude:</strong> {{ gps.longitude?.toFixed(6) }}</p>
             @if (gps.DateTimestamp) {
-              <p><strong>Datum & Tijd:</strong> {{ gps.DateTimestamp }}</p>
+              <p>
+                <strong>Datum & Tijd:</strong>
+                <span class="date-source-badge"> ({{ gps.date_source === 'gps' ? 'GPS' : 'EXIF' }})</span>
+                {{ gps.DateTimestamp }}
+              </p>
             }
           </div>
           <button type="button" mat-stroked-button color="accent" (click)="toggleLocationSelection()">

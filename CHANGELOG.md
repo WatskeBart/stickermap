@@ -7,23 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.3.5] - 2026-04-01
+## [1.4.0] - 2026-04-07
 
-## Changed
+### Added
 
-- Always show keycloak login form
-
-## [1.3.4] - 2026-04-01
-
-## Changed
-
-- Display first and lastname for top uploader stats, instead of preferred_username
-
-## [1.3.3] - 2026-03-31
+- F-35 silhouette custom cursor on the map that rotates to follow mouse movement
+- EXIF datetime extraction independent of GPS location — sticker date/time now read from image metadata even when GPS tags are absent (fixes #45)
 
 ### Changed
 
-- Removed silent sso check
+- Removed info popup shown on empty map clicks
+- Updated backend, frontend, and CI dependencies
+
+### Fixed
+
+- File upload now correctly rejects zero-byte files and guards against missing GPS EXIF tags (fixes #44)
+- Upgraded `lodash` to 4.18.1 via `pnpm` override to address CVE-2026-4800 (code injection) and CVE-2026-2950 (prototype pollution)
+- Various transitive dependency security updates (Dependabot)
+
+## [1.3.5] - 2026-04-01
+
+### Changed
+
+- Keycloak `onLoad` set to `login-required` to always show the login form instead of attempting silent authentication
+
+## [1.3.4] - 2026-04-01
+
+### Fixed
+
+- Uploader stats displayed `preferred_username` instead of first and last name
+
+## [1.3.3] - 2026-03-31
+
+### Fixed
+
+- Removed silent SSO check (`silent-check-sso.html`) and disabled `checkLoginIframe` to fix authentication failures in mobile browsers caused by iframe restrictions
 
 ## [1.3.2] - 2026-03-22
 
@@ -132,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.3.5...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.4.0...HEAD
+[1.4.0]: https://github.com/WatskeBart/stickermap/compare/1.3.5...1.4.0
 [1.3.5]: https://github.com/WatskeBart/stickermap/compare/1.3.4...1.3.5
 [1.3.4]: https://github.com/WatskeBart/stickermap/compare/1.3.3...1.3.4
 [1.3.3]: https://github.com/WatskeBart/stickermap/compare/1.3.2...1.3.3

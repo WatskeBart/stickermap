@@ -40,7 +40,8 @@ export class StickerFormComponent implements OnInit {
   // GPS data from EXIF
   extractedGPS = signal<GPSInfo | null>(null);
   hasGPSData = signal(false);
-  hasGPSDate = signal(false);
+  hasImageDate = signal(false);
+  dateSource = signal<'gps' | 'exif' | null>(null);
 
   // Manual location selection
   manualLocation = signal<{ lat: number | null; lon: number | null }>({ lat: null, lon: null });
@@ -162,12 +163,16 @@ export class StickerFormComponent implements OnInit {
 
           if (gpsInfo.DateTimestamp) {
             this.postDate.set(this.convertToInputFormat(gpsInfo.DateTimestamp));
-            this.hasGPSDate.set(true);
+            this.hasImageDate.set(true);
+            this.dateSource.set(gpsInfo.date_source ?? null);
             this.isDateAutoFilled.set(true);
           }
 
+          const dateMsg = this.hasImageDate()
+            ? (this.dateSource() === 'gps' ? ' en datum (GPS)' : ' en datum (EXIF)')
+            : '';
           this.snackBar.open(
-            `GPS data gevonden! Locatie${this.hasGPSDate() ? ' en datum' : ''} automatisch ingevuld.`,
+            `GPS locatie gevonden! Locatie${dateMsg} automatisch ingevuld.`,
             'OK',
             { duration: 4000 },
           );
@@ -175,8 +180,19 @@ export class StickerFormComponent implements OnInit {
           this.hasGPSData.set(false);
           this.isLocationAutoFilled.set(false);
           this.useManualLocation.set(true);
+
+          // No GPS location, but there may still be an EXIF date
+          const exifInfo = response.gps_info as GPSInfo;
+          if (exifInfo?.DateTimestamp) {
+            this.postDate.set(this.convertToInputFormat(exifInfo.DateTimestamp));
+            this.hasImageDate.set(true);
+            this.dateSource.set(exifInfo.date_source ?? null);
+            this.isDateAutoFilled.set(true);
+          }
+
+          const dateMsg = this.hasImageDate() ? ' Datum uit EXIF automatisch ingevuld.' : '';
           this.snackBar.open(
-            'Afbeelding geüpload. Geen GPS data gevonden — selecteer een locatie op de kaart.',
+            `Afbeelding geüpload. Geen GPS locatie gevonden — selecteer een locatie op de kaart.${dateMsg}`,
             'OK',
             { duration: 5000 },
           );
@@ -339,7 +355,8 @@ export class StickerFormComponent implements OnInit {
     this.uploadedFilename.set(null);
     this.extractedGPS.set(null);
     this.hasGPSData.set(false);
-    this.hasGPSDate.set(false);
+    this.hasImageDate.set(false);
+    this.dateSource.set(null);
     this.manualLocation.set({ lat: null, lon: null });
     this.manualLocationInput.set('');
     this.useManualLocation.set(false);
