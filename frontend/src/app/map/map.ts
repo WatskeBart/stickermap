@@ -84,9 +84,6 @@ export class MapComponent implements OnInit {
     null,
   );
 
-  // Info popup signal for empty map clicks
-  clickedLoc = signal<{ lat: number; lon: number } | null>(null);
-
   // Sticker popup: track which sticker's popup is open
   openPopupStickerId = signal<number | null>(null);
   openPopupSticker = computed(() => {
@@ -262,8 +259,6 @@ export class MapComponent implements OnInit {
     } else if (this.locationSelectionMode()) {
       this.activeSelectionMarker.set({ lat: e.lngLat.lat, lon: e.lngLat.lng, color: 'green' });
       this.locationSelected.emit({ lat: e.lngLat.lat, lon: e.lngLat.lng });
-    } else {
-      this.clickedLoc.set({ lat: e.lngLat.lat, lon: e.lngLat.lng });
     }
   }
 
