@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, output, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -7,9 +8,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
-import { StickerService } from '../services/sticker.service';
-import { AuthService } from '../services/auth.service';
-import type { GPSInfo, StickerData } from '../models/sticker.model';
+import { StickerService } from '../../core/services/sticker.service';
+import { AuthService } from '../../core/services/auth.service';
+import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
 
 @Component({
   selector: 'app-sticker-form',
@@ -63,6 +64,8 @@ export class StickerFormComponent implements OnInit {
   creating = signal(false);
   coordError = signal('');
   isSelectingLocation = signal(false);
+
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     private stickerService: StickerService,
@@ -146,7 +149,7 @@ export class StickerFormComponent implements OnInit {
 
     this.uploading.set(true);
 
-    this.stickerService.uploadImage(this.selectedFile()!, uploaderName).subscribe({
+    this.stickerService.uploadImage(this.selectedFile()!, uploaderName).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.uploading.set(false);
         this.uploadedFilename.set(response.filename);
@@ -329,7 +332,7 @@ export class StickerFormComponent implements OnInit {
       image: this.uploadedFilename()!,
     };
 
-    this.stickerService.createSticker(stickerData).subscribe({
+    this.stickerService.createSticker(stickerData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.creating.set(false);
         this.snackBar.open('Sticker succesvol toegevoegd!', 'OK', { duration: 3000 });

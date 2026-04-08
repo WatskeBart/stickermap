@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,10 +8,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { AuthService } from './services/auth.service';
-import { ThemeService } from './services/theme.service';
-import { DisclaimerDialogComponent } from './sticker-form/disclaimer-dialog/disclaimer-dialog.component';
+import { AuthService } from './core/services/auth.service';
+import { ThemeService } from './core/services/theme.service';
+import { DisclaimerDialogComponent } from './shared/components/disclaimer-dialog/disclaimer-dialog.component';
 import { filter } from 'rxjs/operators';
+import { version } from '../../package.json';
 
 const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
 
@@ -21,6 +23,7 @@ const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
   styleUrl: './app.scss',
 })
 export class App implements OnInit {
+  readonly appVersion = version;
   currentRoute = signal('');
   pageTitle = signal('');
   pageSubtitle = signal('');
@@ -62,6 +65,7 @@ export class App implements OnInit {
   });
 
   private dialog = inject(MatDialog);
+  private destroyRef = inject(DestroyRef);
 
   constructor(
     public authService: AuthService,
@@ -78,7 +82,7 @@ export class App implements OnInit {
 
   ngOnInit(): void {
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
+      .pipe(filter((event) => event instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
       .subscribe((event: NavigationEnd) => {
         this.currentRoute.set(event.urlAfterRedirects);
         this.updatePageTitle();
@@ -127,6 +131,7 @@ export class App implements OnInit {
 
     this.dialog.open(DisclaimerDialogComponent, { width: '600px', disableClose: true })
       .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((accepted: boolean) => {
         if (accepted) {
           this.router.navigate(['/add-sticker']);
