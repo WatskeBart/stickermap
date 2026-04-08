@@ -1,4 +1,5 @@
-import { Component, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, input, output, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,10 +9,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { environment } from '../../environments/environment';
-import { AuthService } from '../services/auth.service';
-import { StickerService } from '../services/sticker.service';
-import type { UpdateStickerRequest } from '../models/sticker.model';
+import { environment } from '../../../environments/environment';
+import { AuthService } from '../../core/services/auth.service';
+import { StickerService } from '../../core/services/sticker.service';
+import type { UpdateStickerRequest } from '../../core/models/sticker.model';
 import maplibregl from 'maplibre-gl';
 import {
   MapComponent as MglMapComponent,
@@ -22,7 +23,7 @@ import {
   DeleteStickerDialogComponent,
   type DeleteDialogData,
   type DeleteDialogResult,
-} from './delete-sticker-dialog.component';
+} from '../../shared/components/delete-sticker-dialog/delete-sticker-dialog.component';
 
 interface ProcessedSticker {
   id: number;
@@ -130,6 +131,8 @@ export class MapComponent implements OnInit {
   targetFocus = signal<{ lat: number; lon: number } | null>(null);
   focusStickerId = signal<number | null>(null);
 
+  private destroyRef = inject(DestroyRef);
+
   constructor(private stickerService: StickerService, private authService: AuthService, private route: ActivatedRoute) {
     // Watch locationSelectionMode to manage cursor and map state
     effect(() => {
@@ -200,7 +203,7 @@ export class MapComponent implements OnInit {
     this.isLoading.set(true);
     this.stickerCount.set(0);
 
-    this.stickerService.getAllStickers().subscribe({
+    this.stickerService.getAllStickers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (rawStickers: any[]) => {
         const currentUser = this.authService.getUserInfo()?.preferred_username;
 
@@ -311,7 +314,7 @@ export class MapComponent implements OnInit {
     this.editSelectingLocation.set(false);
 
     // Fetch uploaders list
-    this.stickerService.getUploaders().subscribe({
+    this.stickerService.getUploaders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (response) => {
         this.uploaderList.set(response.uploaders);
       },
@@ -320,7 +323,7 @@ export class MapComponent implements OnInit {
       },
     });
 
-    this.stickerService.getSticker(stickerId).subscribe({
+    this.stickerService.getSticker(stickerId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (sticker: any) => {
         const geom = JSON.parse(sticker[1]);
         this.editingSticker.set({
@@ -388,7 +391,7 @@ export class MapComponent implements OnInit {
       return;
     }
 
-    this.stickerService.updateSticker(currentEditingSticker.id, updates).subscribe({
+    this.stickerService.updateSticker(currentEditingSticker.id, updates).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.editSaving.set(false);
         this.closeEditModal();
@@ -457,7 +460,7 @@ export class MapComponent implements OnInit {
       width: '400px',
       data: { stickerId, poster } satisfies DeleteDialogData,
     });
-    ref.afterClosed().subscribe((result: DeleteDialogResult | undefined) => {
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: DeleteDialogResult | undefined) => {
       if (result?.deleted) {
         this.refreshStickers();
         this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });

@@ -92,6 +92,13 @@ body::before {
   }
 }
 
+.app-version {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
 .user-name {
   font-weight: 500;
   opacity: 0.9;

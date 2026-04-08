@@ -88,12 +88,53 @@ Frontend (Angular 21) ──HTTP──▶ Backend (FastAPI :5555)
 
 ### Frontend (`frontend/src/app/`)
 
+The frontend follows a **medium-sized Angular project structure**. Always place new files in the correct layer — do not add files directly under `src/app/` except for the root bootstrap files.
+
+```text
+src/app/
+├── core/                    ← singleton services, guards, config, models (imported once)
+│   ├── config/              ← keycloak.config.ts
+│   ├── guards/              ← auth.guard.ts
+│   ├── models/              ← auth.model.ts, sticker.model.ts
+│   └── services/            ← auth.service.ts, sticker.service.ts, theme.service.ts
+├── features/                ← one folder per route/feature
+│   ├── add-sticker/         ← add-sticker-view component
+│   ├── landing/             ← landing page component
+│   ├── map/                 ← MapComponent (MapLibre GL) + nested map-view/ page
+│   │   └── map-view/        ← route page wrapper for the map
+│   ├── sticker-form/        ← sticker upload form component
+│   └── sticker-overview/    ← overview table + edit/bulk-delete dialogs
+├── shared/                  ← reusable components used across multiple features
+│   └── components/
+│       ├── delete-sticker-dialog/
+│       └── disclaimer-dialog/
+└── app.ts / app.config.ts / app.routes.ts / app.spec.ts / app.html / app.scss
+```
+
+**Non-negotiable Angular standards — always apply these:**
+
+- **Angular 21** — use Angular 21 APIs only. No `NgModules`, no `BrowserModule`, no `BrowserAnimationsModule`, no `provideAnimationsAsync`/`provideAnimations` (animations are automatic). All components must be `standalone: true`.
+- **Angular Material** — use Angular Material components and theming for all UI. Do not introduce other UI libraries.
+- **Signals for local state** — use `signal()`, `computed()`, `effect()` for local synchronous component state. Do not use `BehaviorSubject` or store state as component-level Observable properties. RxJS/Observables remain the correct tool for async operations (HTTP calls, router events, dialog results, streams) — do not replace these with signals.
+- **Signal queries** — prefer `viewChild()` / `viewChild.required()` over `@ViewChild`, and `output()` over `@Output EventEmitter`. Use `toSignal()` from `@angular/core/rxjs-interop` to bridge an Observable into a signal for template binding where it simplifies the code.
+- **Subscription cleanup** — always pipe `takeUntilDestroyed(this.destroyRef)` on subscriptions inside components. Inject `DestroyRef` via `private destroyRef = inject(DestroyRef)`. Import `takeUntilDestroyed` from `@angular/core/rxjs-interop`.
+- **Zoneless** — the app runs without Zone.js. Do not use `ChangeDetectorRef.markForCheck()`, `NgZone.run()`, or any zone-dependent patterns. Signals drive change detection automatically.
+
+**Rules for new code:**
+
+- `core/` — singleton services, guards, interceptors, models. Never import `core/` files from each other in a circular way.
+- `features/` — one folder per route. Feature components may import from `core/` and `shared/`, but never from other feature folders.
+- `shared/` — components, directives, pipes used by 2+ features. No business logic or service calls that belong in `core/`.
+- Root `app/` files — only bootstrap-level files (`app.ts`, `app.config.ts`, `app.routes.ts`).
+
+**Key files:**
+
 - **`app.config.ts`** — Bootstrap config; Keycloak is initialized here before the app starts.
-- **`services/auth.service.ts`** — Wraps `keycloak-js`. Role checks: `isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`. The Angular app is zoneless.
-- **`services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Attaches the Keycloak Bearer token.
-- **`map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
-- **`config/keycloak.config.ts`** — Keycloak client configuration (realm, client ID, URLs via `ngssc` environment injection).
-- **`guards/auth.guard.ts`** — Redirects unauthenticated users to Keycloak login.
+- **`core/services/auth.service.ts`** — Wraps `keycloak-js`. Role checks: `isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`. The Angular app is zoneless.
+- **`core/services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Attaches the Keycloak Bearer token.
+- **`features/map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
+- **`core/config/keycloak.config.ts`** — Keycloak client configuration (realm, client ID, URLs via `ngssc` environment injection).
+- **`core/guards/auth.guard.ts`** — Redirects unauthenticated users to Keycloak login.
 
 Frontend environment variables are injected at container start via `angular-server-side-configuration` (ngssc), which replaces tokens in `index.html` at runtime — not at build time.
 

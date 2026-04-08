@@ -1,5 +1,6 @@
 import {
   Component,
+  DestroyRef,
   OnInit,
   computed,
   effect,
@@ -7,6 +8,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SelectionModel } from '@angular/cdk/collections';
 import { forkJoin } from 'rxjs';
 
@@ -25,14 +27,14 @@ import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
 
 import { Router } from '@angular/router';
-import { StickerService } from '../services/sticker.service';
-import { AuthService } from '../services/auth.service';
-import type { ParsedSticker } from '../models/sticker.model';
+import { StickerService } from '../../core/services/sticker.service';
+import { AuthService } from '../../core/services/auth.service';
+import type { ParsedSticker } from '../../core/models/sticker.model';
 import {
   DeleteStickerDialogComponent,
   type DeleteDialogData,
   type DeleteDialogResult,
-} from '../map/delete-sticker-dialog.component';
+} from '../../shared/components/delete-sticker-dialog/delete-sticker-dialog.component';
 import {
   EditStickerDialogComponent,
   type EditDialogData,
@@ -71,6 +73,7 @@ export class StickerOverviewComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
+  private destroyRef = inject(DestroyRef);
 
   private readonly _ = effect(() => {
     this.dataSource.sort = this.sort() ?? null;
@@ -100,7 +103,7 @@ export class StickerOverviewComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.selection.changed.subscribe(() => {
+    this.selection.changed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.hasSelection.set(this.selection.hasValue());
     });
     this.dataSource.filterPredicate = (data: ParsedSticker, filter: string) => {
@@ -124,7 +127,7 @@ export class StickerOverviewComponent implements OnInit {
   private loadStickers(): void {
     this.isLoading.set(true);
     this.selection.clear();
-    this.stickerService.getAllStickers().subscribe({
+    this.stickerService.getAllStickers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (raw: any[]) => {
         const currentUser = this.currentUser();
         const parsed: ParsedSticker[] = raw.map((s: any) => {
@@ -177,7 +180,7 @@ export class StickerOverviewComponent implements OnInit {
       width: '480px',
       data: { sticker, isAdmin: this.isAdmin() } satisfies EditDialogData,
     });
-    ref.afterClosed().subscribe((result: EditDialogResult | undefined) => {
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: EditDialogResult | undefined) => {
       if (result?.updated) {
         this.loadStickers();
         this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
@@ -190,7 +193,7 @@ export class StickerOverviewComponent implements OnInit {
       width: '400px',
       data: { stickerId: sticker.id, poster: sticker.poster } satisfies DeleteDialogData,
     });
-    ref.afterClosed().subscribe((result: DeleteDialogResult | undefined) => {
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: DeleteDialogResult | undefined) => {
       if (result?.deleted) {
         this.loadStickers();
         this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });
@@ -206,10 +209,10 @@ export class StickerOverviewComponent implements OnInit {
       width: '400px',
       data: { count: selected.length } satisfies BulkDeleteDialogData,
     });
-    ref.afterClosed().subscribe((confirmed: boolean | undefined) => {
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((confirmed: boolean | undefined) => {
       if (!confirmed) return;
       const ids = selected.map((s) => s.id);
-      forkJoin(ids.map((id) => this.stickerService.deleteSticker(id))).subscribe({
+      forkJoin(ids.map((id) => this.stickerService.deleteSticker(id))).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.loadStickers();
           this.snackBar.open(`${ids.length} sticker(s) verwijderd.`, 'Sluiten', { duration: 3000 });

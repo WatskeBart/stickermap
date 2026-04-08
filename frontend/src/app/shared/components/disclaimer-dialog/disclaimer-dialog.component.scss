@@ -3,6 +3,7 @@ h2[mat-dialog-title] {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding-top: 20px;
 
   mat-icon {
     font-size: 22px;
@@ -18,9 +19,10 @@ mat-dialog-content {
 
 .intro {
   margin: 0 0 16px;
-  color: var(--mat-sys-on-surface-variant, #444);
+  color: var(--mat-sys-on-surface-variant, #ffffff);
   font-size: 14px;
   line-height: 1.5;
+  text-align: center;
 }
 
 .disclaimer-list {

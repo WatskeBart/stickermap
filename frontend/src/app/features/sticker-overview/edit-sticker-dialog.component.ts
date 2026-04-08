@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,8 +9,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
-import { StickerService } from '../services/sticker.service';
-import type { ParsedSticker, UpdateStickerRequest } from '../models/sticker.model';
+import { StickerService } from '../../core/services/sticker.service';
+import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
 
 export interface EditDialogData {
   sticker: ParsedSticker;
@@ -39,6 +40,7 @@ export class EditStickerDialogComponent implements OnInit {
   data: EditDialogData = inject(MAT_DIALOG_DATA);
   private stickerService = inject(StickerService);
   private snackBar = inject(MatSnackBar);
+  private destroyRef = inject(DestroyRef);
 
   saving = signal(false);
   uploaderList = signal<string[]>([]);
@@ -58,7 +60,7 @@ export class EditStickerDialogComponent implements OnInit {
     this.uploader.set(s.uploader);
 
     if (this.data.isAdmin) {
-      this.stickerService.getUploaders().subscribe({
+      this.stickerService.getUploaders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: (res) => this.uploaderList.set(res.uploaders),
         error: (err) => console.error('Uploaders ophalen mislukt:', err),
       });
@@ -84,7 +86,7 @@ export class EditStickerDialogComponent implements OnInit {
     }
 
     this.saving.set(true);
-    this.stickerService.updateSticker(s.id, updates).subscribe({
+    this.stickerService.updateSticker(s.id, updates).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.saving.set(false);
         this.dialogRef.close({ updated: true } satisfies EditDialogResult);
