@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-04-08
+
+### Added
+
+- Upload disclaimer dialog shown before file upload (fixes #42)
+
+### Changed
+
+- Frontend restructured into `core/`, `features/`, and `shared/` layers for cleaner separation of concerns
+
 ## [1.4.0] - 2026-04-07
 
 ### Added
@@ -150,7 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.4.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.5.0...HEAD
+[1.5.0]: https://github.com/WatskeBart/stickermap/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/WatskeBart/stickermap/compare/1.3.5...1.4.0
 [1.3.5]: https://github.com/WatskeBart/stickermap/compare/1.3.4...1.3.5
 [1.3.4]: https://github.com/WatskeBart/stickermap/compare/1.3.3...1.3.4
