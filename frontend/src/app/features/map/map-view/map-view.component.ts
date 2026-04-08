@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { MapComponent } from '../map/map';
-import { AuthService } from '../services/auth.service';
+import { MapComponent } from '../map';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-map-view',

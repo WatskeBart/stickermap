@@ -1,7 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
-import { StickerService } from '../services/sticker.service';
+import { StickerService } from '../../../core/services/sticker.service';
 
 export interface DeleteDialogData {
   stickerId: number;
@@ -22,6 +23,7 @@ export class DeleteStickerDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<DeleteStickerDialogComponent>);
   data: DeleteDialogData = inject(MAT_DIALOG_DATA);
   private stickerService = inject(StickerService);
+  private destroyRef = inject(DestroyRef);
 
   deleting = signal(false);
 
@@ -29,7 +31,7 @@ export class DeleteStickerDialogComponent implements OnInit {
 
   confirmDelete(): void {
     this.deleting.set(true);
-    this.stickerService.deleteSticker(this.data.stickerId).subscribe({
+    this.stickerService.deleteSticker(this.data.stickerId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.deleting.set(false);
         this.dialogRef.close({ deleted: true } satisfies DeleteDialogResult);
