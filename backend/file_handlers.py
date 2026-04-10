@@ -53,6 +53,14 @@ class FileValidator:
             )
 
 
+def strip_exif(filepath: str) -> None:
+    """Strip all EXIF metadata from an image file in-place using Pillow."""
+    img = Image.open(filepath)
+    fmt = img.format
+    img.save(filepath, format=fmt)
+    logger.debug("Stripped EXIF metadata from %s", filepath)
+
+
 class GPSExtractor:
     """Extracts GPS data from image EXIF"""
 
