@@ -107,7 +107,7 @@ StickerMap uses Keycloak with four hierarchical realm roles:
 
 | Role | Permissions |
 | ---- | ----------- |
-| `sm-viewer` | View sticker details (default for all users) |
+| `sm-viewer` | View sticker details |
 | `sm-uploader` | Upload stickers, edit own stickers |
 | `sm-editor` | Edit any sticker's poster, date, and location |
 | `sm-admin` | Full access — edit all fields, delete stickers |

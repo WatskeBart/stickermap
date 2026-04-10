@@ -26,36 +26,46 @@
           (popupClose)="openPopupStickerId.set(null)"
         >
           <div class="sticker-popup-content">
-            <img
-              [src]="sticker.imageUrl"
-              class="sticker-popup-image"
-              alt="Sticker"
-              (click)="fullSizeImageUrl.set(sticker.imageUrl)"
-              (error)="$any($event.target).style.display = 'none'"
-            />
-            <div class="sticker-popup-info">
-              @if (isViewer()) {
+            @if (isViewer()) {
+              <img
+                [src]="sticker.imageUrl"
+                class="sticker-popup-image"
+                alt="Sticker"
+                (click)="fullSizeImageUrl.set(sticker.imageUrl)"
+                (error)="$any($event.target).style.display = 'none'"
+              />
+              <div class="sticker-popup-info">
                 <p><strong>Geplakt door:</strong> {{ sticker.poster }}</p>
                 <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
-              } @else if (isAuthenticated()) {
-                <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te zien</p>
-              } @else {
-                <p class="sticker-popup-anon">Log in om te zien wie deze sticker heeft geplakt</p>
+                <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
+                <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
+              </div>
+              @if (sticker.canEdit || sticker.canDelete) {
+                <div class="sticker-popup-actions">
+                  @if (sticker.canEdit) {
+                    <button class="popup-btn popup-btn-edit" (click)="openEditModal(sticker.id)">
+                      Bewerken
+                    </button>
+                  }
+                  @if (sticker.canDelete) {
+                    <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id, sticker.poster)">
+                      Verwijderen
+                    </button>
+                  }
+                </div>
               }
-              <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
-              <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
-            </div>
-            @if (sticker.canEdit || sticker.canDelete) {
-              <div class="sticker-popup-actions">
-                @if (sticker.canEdit) {
-                  <button class="popup-btn popup-btn-edit" (click)="openEditModal(sticker.id)">
-                    Bewerken
-                  </button>
-                }
-                @if (sticker.canDelete) {
-                  <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id, sticker.poster)">
-                    Verwijderen
-                  </button>
+            } @else {
+              <img
+                [src]="sticker.thumbnailUrl"
+                class="sticker-popup-image"
+                alt="Sticker"
+                (error)="$any($event.target).style.display = 'none'"
+              />
+              <div class="sticker-popup-info">
+                @if (isAuthenticated()) {
+                  <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te zien. Vraag toegang aan een beheerder.</p>
+                } @else {
+                  <p class="sticker-popup-anon">Volledige details zijn alleen beschikbaar voor gebruikers met een rol. Vraag toegang aan een beheerder.</p>
                 }
               </div>
             }
