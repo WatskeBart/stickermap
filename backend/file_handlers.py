@@ -53,6 +53,57 @@ class FileValidator:
             )
 
 
+class ImageProcessor:
+    """Resizes, compresses, and generates thumbnails for uploaded images."""
+
+    @staticmethod
+    def process(
+        image_bytes: bytes,
+        max_size: int = 1920,
+        thumbnail_size: int = 400,
+        fmt: str = "JPEG",
+        quality: int = 85,
+    ) -> tuple[bytes, bytes]:
+        """Resize and compress image, then generate a thumbnail.
+
+        Returns (full_image_bytes, thumbnail_bytes). EXIF data is not preserved.
+        """
+        img = Image.open(BytesIO(image_bytes))
+
+        if fmt.upper() == "JPEG" and img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+
+        img.thumbnail((max_size, max_size), Image.LANCZOS)
+
+        save_kwargs: dict = {"format": fmt}
+        if fmt.upper() in ("JPEG", "WEBP"):
+            save_kwargs["quality"] = quality
+            save_kwargs["optimize"] = True
+
+        full_buf = BytesIO()
+        img.save(full_buf, **save_kwargs)
+
+        thumb = img.copy()
+        thumb.thumbnail((thumbnail_size, thumbnail_size), Image.LANCZOS)
+        thumb_buf = BytesIO()
+        thumb.save(thumb_buf, **save_kwargs)
+
+        logger.debug(
+            "Processed image: full=%d bytes, thumbnail=%d bytes",
+            full_buf.tell(),
+            thumb_buf.tell(),
+        )
+        return full_buf.getvalue(), thumb_buf.getvalue()
+
+
+def strip_exif(filepath: str) -> None:
+    """Strip all EXIF metadata from an image file in-place using Pillow."""
+    img = Image.open(filepath)
+    fmt = img.format
+    img.save(filepath, format=fmt)
+    logger.debug("Stripped EXIF metadata from %s", filepath)
+
+
 class GPSExtractor:
     """Extracts GPS data from image EXIF"""
 

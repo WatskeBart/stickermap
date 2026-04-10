@@ -12,8 +12,17 @@ StickerMap
 <a href="https://github.com/WatskeBart/stickermap/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-AGPL3-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="AGPL3 License" />
 </a>
+<a href="https://github.com/WatskeBart/stickermap/stargazers">
+    <img src="https://img.shields.io/github/stars/WatskeBart/stickermap?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Stars" />
+  </a>
+<a href="https://github.com/WatskeBart/stickermap/commits/develop">
+    <img src="https://img.shields.io/github/last-commit/WatskeBart/stickermap/develop?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="Last Commit" />
+  </a>
 <a href="https://github.com/WatskeBart/stickermap/issues">
     <img src="https://img.shields.io/github/issues/WatskeBart/stickermap?style=flat-square&color=fb5437&labelColor=1f1f1f" alt="Issues" />
+  </a>
+<a href="https://github.com/WatskeBart/stickermap/pulls">
+    <img src="https://img.shields.io/github/issues-pr/WatskeBart/stickermap?style=flat-square&color=fb5437&labelColor=1f1f1f" alt="Open PRs" />
   </a>
 </p>
 
@@ -98,7 +107,7 @@ StickerMap uses Keycloak with four hierarchical realm roles:
 
 | Role | Permissions |
 | ---- | ----------- |
-| `sm-viewer` | View sticker details (default for all users) |
+| `sm-viewer` | View sticker details |
 | `sm-uploader` | Upload stickers, edit own stickers |
 | `sm-editor` | Edit any sticker's poster, date, and location |
 | `sm-admin` | Full access — edit all fields, delete stickers |

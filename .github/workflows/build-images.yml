@@ -74,6 +74,7 @@ jobs:
             echo "value=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
           elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
             echo "value=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+            echo "add_latest=true" >> $GITHUB_OUTPUT
           fi
           
       # ── Build & Push ──────────────────────────────────────────────────────────
@@ -94,6 +95,8 @@ jobs:
           file: ${{ matrix.dockerfile }}
           platforms: linux/amd64
           push: true
-          tags: ghcr.io/${{ env.REPO }}/stickermap-${{ matrix.service }}:${{ steps.tag.outputs.value }}
+          tags: |
+            ghcr.io/${{ env.REPO }}/stickermap-${{ matrix.service }}:${{ steps.tag.outputs.value }}
+            ${{ steps.tag.outputs.add_latest == 'true' && format('ghcr.io/{0}/stickermap-{1}:latest', env.REPO, matrix.service) || '' }}
           cache-from: type=registry,ref=ghcr.io/${{ env.REPO }}-cache:${{ matrix.service }}
           cache-to: type=registry,ref=ghcr.io/${{ env.REPO }}-cache:${{ matrix.service }},mode=max

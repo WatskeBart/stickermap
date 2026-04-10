@@ -14,6 +14,10 @@ class Config:
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
     UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+    IMAGE_FORMAT = os.getenv("IMAGE_FORMAT", "JPEG").upper()  # JPEG, WEBP, or PNG
+    IMAGE_QUALITY = int(os.getenv("IMAGE_QUALITY", "85"))
+    IMAGE_MAX_SIZE = int(os.getenv("IMAGE_MAX_SIZE", "1920"))
+    THUMBNAIL_SIZE = int(os.getenv("THUMBNAIL_SIZE", "400"))
 
     # Keycloak Configuration
     KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "")

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-04-10
+
+### Added
+
+- Server-side image optimization: uploaded images are resized and compressed before storage (fixes #57)
+- Non-GPS EXIF metadata is stripped from uploaded images to protect uploader privacy (fixes #58)
+
+### Changed
+
+- Map popup content is now restricted based on authentication and role — unauthenticated users see limited sticker details (fixes #61)
+- Allow inline HTML in Markdown-rendered content
+
 ## [1.5.0] - 2026-04-08
 
 ### Added
@@ -160,7 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.5.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/WatskeBart/stickermap/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/WatskeBart/stickermap/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/WatskeBart/stickermap/compare/1.3.5...1.4.0
 [1.3.5]: https://github.com/WatskeBart/stickermap/compare/1.3.4...1.3.5

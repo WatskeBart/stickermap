@@ -65,13 +65,14 @@ class TestIndex:
 
 # ── GET /api/v1/get_all_stickers ──────────────────────────────────────────────
 
+_FULL_ROW = (1, '{"type":"Point","coordinates":[13.4,52.5]}', "Artist",
+             "user1", "2024-01-01", "2024-01-02", "img.jpg", "user1")
+
+
 class TestGetAllStickers:
     def test_returns_list(self, db):
         conn, cursor = db
-        cursor.fetchall.return_value = [
-            (1, '{"type":"Point","coordinates":[13.4,52.5]}', "Artist",
-            "user1", "2024-01-01", "2024-01-02", "img.jpg", "user1"),
-        ]
+        cursor.fetchall.return_value = [_FULL_ROW]
         with TestClient(app) as client:
             resp = client.get("/api/v1/get_all_stickers")
         assert resp.status_code == 200
@@ -82,6 +83,48 @@ class TestGetAllStickers:
             resp = client.get("/api/v1/get_all_stickers")
         assert resp.status_code == 200
         assert resp.json() == []
+
+    def test_unauthenticated_user_gets_reduced_payload(self, db):
+        conn, cursor = db
+        set_user(None)
+        cursor.fetchall.return_value = [_FULL_ROW]
+        with TestClient(app) as client:
+            resp = client.get("/api/v1/get_all_stickers")
+        assert resp.status_code == 200
+        row = resp.json()[0]
+        assert row[0] == 1          # id preserved
+        assert row[6] == "img.jpg"  # image preserved
+        assert row[2] is None       # poster hidden
+        assert row[3] is None       # uploader hidden
+        assert row[4] is None       # post_date hidden
+        assert row[5] is None       # upload_date hidden
+        assert row[7] is None       # uploaded_by hidden
+
+    def test_authenticated_user_without_role_gets_reduced_payload(self, db):
+        conn, cursor = db
+        set_user(make_user([]))  # authenticated but no roles
+        cursor.fetchall.return_value = [_FULL_ROW]
+        with TestClient(app) as client:
+            resp = client.get("/api/v1/get_all_stickers")
+        assert resp.status_code == 200
+        row = resp.json()[0]
+        assert row[2] is None  # poster hidden
+        assert row[4] is None  # post_date hidden
+        assert row[5] is None  # upload_date hidden
+
+    def test_viewer_gets_full_payload(self, db):
+        conn, cursor = db
+        set_user(make_user([ROLE_VIEWER]))
+        cursor.fetchall.return_value = [_FULL_ROW]
+        with TestClient(app) as client:
+            resp = client.get("/api/v1/get_all_stickers")
+        assert resp.status_code == 200
+        row = resp.json()[0]
+        assert row[2] == "Artist"      # poster visible
+        assert row[3] == "user1"       # uploader visible
+        assert row[4] == "2024-01-01"  # post_date visible
+        assert row[5] == "2024-01-02"  # upload_date visible
+        assert row[7] == "user1"       # uploaded_by visible
 
 
 # ── GET /api/v1/get_sticker/{id} ──────────────────────────────────────────────
