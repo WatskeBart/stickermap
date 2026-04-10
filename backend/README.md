@@ -95,6 +95,15 @@ Copy `.env.example` and adjust as needed.
 | `CORS_ALLOWED_HEADERS` | Comma-separated allowed headers | `*` |
 | `CORS_ALLOW_CREDENTIALS` | Allow credentials in CORS | `true` |
 
+### Image Processing
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `IMAGE_FORMAT` | Output format for processed images. Allowed values: `JPEG`, `WEBP`, `PNG`. Quality compression applies to `JPEG` and `WEBP` only. | `JPEG` |
+| `IMAGE_QUALITY` | Compression quality for JPEG/WEBP (1–95) | `85` |
+| `IMAGE_MAX_SIZE` | Maximum pixels on the longest edge of the full-size image | `1920` |
+| `THUMBNAIL_SIZE` | Maximum pixels on the longest edge of the thumbnail | `400` |
+
 ### Note on `KEYCLOAK_URL` vs `KEYCLOAK_INTERNAL_URL`
 
 - **`KEYCLOAK_URL`**: The URL browsers use to authenticate. Must match the `iss` (issuer) claim in JWT tokens.
@@ -122,9 +131,9 @@ GET  /uploads/{filename}
 
 ```text
 POST  /api/v1/upload            (requires sm-uploader role)
-      Upload image with automatic EXIF GPS extraction
+      Upload image with automatic EXIF GPS extraction, resizing, and thumbnail generation
       Form data: file
-      Returns: filename, message, gps_info
+      Returns: filename, thumbnail, message, gps_info
 
 POST  /api/v1/create_sticker    (requires sm-uploader role)
       Create one or more stickers

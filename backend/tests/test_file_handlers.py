@@ -7,7 +7,7 @@ import pytest
 from fastapi import HTTPException
 from PIL import Image
 
-from file_handlers import FileValidator, GPSExtractor, MAX_FILE_SIZE, strip_exif
+from file_handlers import FileValidator, GPSExtractor, ImageProcessor, MAX_FILE_SIZE, strip_exif
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -380,6 +380,73 @@ class TestGPSExtractorExtract:
             result = GPSExtractor.extract(img_path)
 
         assert result["longitude"] == pytest.approx(-74.0)
+
+
+# ── ImageProcessor ───────────────────────────────────────────────────────────
+
+class TestImageProcessor:
+    def test_output_is_jpeg_by_default(self):
+        full, thumb = ImageProcessor.process(_jpeg_bytes())
+        assert Image.open(io.BytesIO(full)).format == "JPEG"
+        assert Image.open(io.BytesIO(thumb)).format == "JPEG"
+
+    def test_full_image_not_upscaled(self):
+        """A 10×10 image must not be enlarged."""
+        full, _ = ImageProcessor.process(_jpeg_bytes(), max_size=1920)
+        img = Image.open(io.BytesIO(full))
+        assert img.size == (10, 10)
+
+    def test_full_image_downscaled_to_max_size(self):
+        """Longest edge is reduced to max_size."""
+        buf = io.BytesIO()
+        Image.new("RGB", (3000, 2000)).save(buf, format="JPEG")
+        full, _ = ImageProcessor.process(buf.getvalue(), max_size=1920)
+        img = Image.open(io.BytesIO(full))
+        assert max(img.size) == 1920
+
+    def test_thumbnail_fits_within_thumbnail_size(self):
+        buf = io.BytesIO()
+        Image.new("RGB", (3000, 2000)).save(buf, format="JPEG")
+        _, thumb = ImageProcessor.process(buf.getvalue(), thumbnail_size=400)
+        img = Image.open(io.BytesIO(thumb))
+        assert max(img.size) == 400
+
+    def test_thumbnail_smaller_than_full(self):
+        buf = io.BytesIO()
+        Image.new("RGB", (3000, 2000)).save(buf, format="JPEG")
+        full, thumb = ImageProcessor.process(buf.getvalue(), max_size=1920, thumbnail_size=400)
+        full_img = Image.open(io.BytesIO(full))
+        thumb_img = Image.open(io.BytesIO(thumb))
+        assert max(thumb_img.size) < max(full_img.size)
+
+    def test_rgba_png_converted_for_jpeg(self):
+        """RGBA PNG input must not raise when output format is JPEG."""
+        buf = io.BytesIO()
+        Image.new("RGBA", (100, 100)).save(buf, format="PNG")
+        full, thumb = ImageProcessor.process(buf.getvalue(), fmt="JPEG")
+        assert Image.open(io.BytesIO(full)).mode == "RGB"
+
+    def test_webp_output_format(self):
+        full, thumb = ImageProcessor.process(_jpeg_bytes(), fmt="WEBP")
+        assert Image.open(io.BytesIO(full)).format == "WEBP"
+
+    def test_exif_not_preserved(self):
+        """Processed output must not carry EXIF data."""
+        img = Image.new("RGB", (10, 10))
+        exif = img.getexif()
+        exif[0x010F] = "TestCamera"
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG", exif=exif.tobytes())
+        full, _ = ImageProcessor.process(buf.getvalue())
+        result = Image.open(io.BytesIO(full))
+        assert not result.info.get("exif")
+
+    def test_aspect_ratio_preserved_for_full(self):
+        buf = io.BytesIO()
+        Image.new("RGB", (3000, 1000)).save(buf, format="JPEG")
+        full, _ = ImageProcessor.process(buf.getvalue(), max_size=1920)
+        img = Image.open(io.BytesIO(full))
+        assert abs(img.width / img.height - 3.0) < 0.01
 
 
 # ── strip_exif ────────────────────────────────────────────────────────────────

@@ -143,6 +143,14 @@ spec:
               value: {{ .Values.env.corsAllowedHeaders | quote }}
             - name: CORS_ALLOW_CREDENTIALS
               value: {{ .Values.env.corsAllowCredentials | quote }}
+            - name: IMAGE_FORMAT
+              value: {{ .Values.env.imageFormat | quote }}
+            - name: IMAGE_QUALITY
+              value: {{ .Values.env.imageQuality | quote }}
+            - name: IMAGE_MAX_SIZE
+              value: {{ .Values.env.imageMaxSize | quote }}
+            - name: THUMBNAIL_SIZE
+              value: {{ .Values.env.thumbnailSize | quote }}
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads

@@ -85,6 +85,10 @@ services:
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-stickermap-client}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-clientsecret}
       LOG_LEVEL: ${LOG_LEVEL:-info}
+      IMAGE_FORMAT: ${IMAGE_FORMAT:-JPEG}
+      IMAGE_QUALITY: ${IMAGE_QUALITY:-85}
+      IMAGE_MAX_SIZE: ${IMAGE_MAX_SIZE:-1920}
+      THUMBNAIL_SIZE: ${THUMBNAIL_SIZE:-400}
     ports:
       - "5555:5555"
     volumes:
