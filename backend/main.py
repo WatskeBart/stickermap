@@ -160,7 +160,7 @@ def get_all_stickers(
     conn=Depends(get_db),
     current_user: dict | None = Depends(get_current_user),
 ):
-    """Retrieve all stickers. Poster, uploader and uploaded_by fields are omitted for non-viewers."""
+    """Retrieve all stickers. Metadata fields are omitted for non-viewers; only id, location, and image are returned."""
     is_viewer = ROLE_VIEWER in get_user_roles(current_user) if current_user else False
     cursor = conn.cursor()
     try:
@@ -169,7 +169,7 @@ def get_all_stickers(
         )
         rows = cursor.fetchall()
         if not is_viewer:
-            rows = [(r[0], r[1], None, None, r[4], r[5], r[6], None) for r in rows]
+            rows = [(r[0], r[1], None, None, None, None, r[6], None) for r in rows]
         return rows
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

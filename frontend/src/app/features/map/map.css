@@ -61,6 +61,7 @@ mgl-map {
 .sticker-popup-anon {
   color: #999;
   font-style: italic;
+  text-align: center;
 }
 
 .sticker-popup-actions {

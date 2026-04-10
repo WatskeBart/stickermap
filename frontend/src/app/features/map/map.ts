@@ -36,6 +36,7 @@ interface ProcessedSticker {
   image: string;
   uploaded_by: string;
   imageUrl: string;
+  thumbnailUrl: string;
   canEdit: boolean;
   canDelete: boolean;
 }
@@ -214,6 +215,11 @@ export class MapComponent implements OnInit {
           const isOwner = uploadedBy != null && uploadedBy === currentUser;
           const canEdit = this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner);
           const canDelete = this.isAdmin();
+          const image: string = s[6];
+          const lastDot = image.lastIndexOf('.');
+          const thumbName = lastDot >= 0
+            ? `${image.slice(0, lastDot)}_thumb${image.slice(lastDot)}`
+            : `${image}_thumb`;
 
           return {
             id: s[0],
@@ -223,9 +229,10 @@ export class MapComponent implements OnInit {
             uploader: s[3],
             post_date: s[4],
             upload_date: s[5],
-            image: s[6],
+            image,
             uploaded_by: uploadedBy,
-            imageUrl: `/uploads/${s[6]}`,
+            imageUrl: `/uploads/${image}`,
+            thumbnailUrl: `/uploads/${thumbName}`,
             canEdit,
             canDelete,
           };
