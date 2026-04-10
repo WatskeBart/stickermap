@@ -11,7 +11,7 @@ from logger import get_logger, setup_logging
 from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER, get_current_user, get_user_identity, get_user_roles, require_role
 from connections import DatabaseManager
 from environment import Config
-from file_handlers import FileValidator, GPSExtractor
+from file_handlers import FileValidator, GPSExtractor, strip_exif
 from models import CreateStickersRequest, UpdateStickerRequest
 
 load_dotenv()
@@ -87,6 +87,7 @@ async def upload(
             f.write(contents)
 
         gps_info = GPSExtractor.extract(file_path)
+        strip_exif(file_path)
 
         return {
             "message": f"Successfully uploaded {file.filename}",

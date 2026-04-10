@@ -7,7 +7,7 @@ import pytest
 from fastapi import HTTPException
 from PIL import Image
 
-from file_handlers import FileValidator, GPSExtractor, MAX_FILE_SIZE
+from file_handlers import FileValidator, GPSExtractor, MAX_FILE_SIZE, strip_exif
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -380,3 +380,42 @@ class TestGPSExtractorExtract:
             result = GPSExtractor.extract(img_path)
 
         assert result["longitude"] == pytest.approx(-74.0)
+
+
+# ── strip_exif ────────────────────────────────────────────────────────────────
+
+class TestStripExif:
+    def test_strips_exif_from_jpeg(self, tmp_path):
+        img = Image.new("RGB", (10, 10))
+        exif = img.getexif()
+        exif[0x010F] = "TestCamera"  # ImageDescription / Make tag
+        img_path = str(tmp_path / "with_exif.jpg")
+        img.save(img_path, format="JPEG", exif=exif.tobytes())
+
+        with Image.open(img_path) as before:
+            assert before.info.get("exif")
+
+        strip_exif(img_path)
+
+        with Image.open(img_path) as after:
+            assert not after.info.get("exif")
+
+    def test_preserves_image_dimensions(self, tmp_path):
+        img = Image.new("RGB", (20, 30))
+        img_path = str(tmp_path / "dims.jpg")
+        img.save(img_path, format="JPEG")
+
+        strip_exif(img_path)
+
+        with Image.open(img_path) as after:
+            assert after.size == (20, 30)
+
+    def test_works_on_png(self, tmp_path):
+        img = Image.new("RGB", (10, 10))
+        img_path = str(tmp_path / "image.png")
+        img.save(img_path, format="PNG")
+
+        strip_exif(img_path)  # should not raise
+
+        with Image.open(img_path) as after:
+            assert after.size == (10, 10)
