@@ -11,7 +11,7 @@ from logger import get_logger, setup_logging
 from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER, get_current_user, get_user_identity, get_user_roles, require_role
 from connections import DatabaseManager
 from environment import Config
-from file_handlers import FileValidator, GPSExtractor, strip_exif
+from file_handlers import FileValidator, GPSExtractor, ImageProcessor
 from models import CreateStickersRequest, UpdateStickerRequest
 
 load_dotenv()
@@ -79,24 +79,47 @@ async def upload(
 
     timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
     random_suffix = secrets.token_hex(4)
-    filename = f"{timestamp}_{random_suffix}.{file.filename.split('.')[-1]}"
+    base_name = f"{timestamp}_{random_suffix}"
+
+    img_format = Config.IMAGE_FORMAT
+    ext = "jpg" if img_format == "JPEG" else img_format.lower()
+    filename = f"{base_name}.{ext}"
+    thumb_filename = f"{base_name}_thumb.{ext}"
+    raw_path = os.path.join(upload_dir, f"{base_name}.tmp")
     file_path = os.path.join(upload_dir, filename)
+    thumb_path = os.path.join(upload_dir, thumb_filename)
 
     try:
-        with open(file_path, "wb") as f:
+        # Write raw bytes temporarily so GPSExtractor can read the file
+        with open(raw_path, "wb") as f:
             f.write(contents)
 
-        gps_info = GPSExtractor.extract(file_path)
-        strip_exif(file_path)
+        gps_info = GPSExtractor.extract(raw_path)
+
+        full_bytes, thumb_bytes = ImageProcessor.process(
+            contents,
+            max_size=Config.IMAGE_MAX_SIZE,
+            thumbnail_size=Config.THUMBNAIL_SIZE,
+            fmt=img_format,
+            quality=Config.IMAGE_QUALITY,
+        )
+
+        with open(file_path, "wb") as f:
+            f.write(full_bytes)
+        with open(thumb_path, "wb") as f:
+            f.write(thumb_bytes)
 
         return {
             "message": f"Successfully uploaded {file.filename}",
             "filename": filename,
+            "thumbnail": thumb_filename,
             "gps_info": gps_info,
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save file: {str(e)}")
     finally:
+        if os.path.exists(raw_path):
+            os.remove(raw_path)
         await file.close()
 
 
@@ -346,14 +369,17 @@ def delete_sticker(
         cursor.execute(t"DELETE FROM stickers WHERE id = {sticker_id}")
         conn.commit()
 
-        # Remove associated image file
+        # Remove associated image file and thumbnail
         image_filename = sticker[1]
         if image_filename:
-            image_path = os.path.join(
-                os.getenv("UPLOAD_DIR", "uploads"), image_filename
-            )
+            upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+            image_path = os.path.join(upload_dir, image_filename)
             if os.path.exists(image_path):
                 os.remove(image_path)
+            base, ext = os.path.splitext(image_filename)
+            thumb_path = os.path.join(upload_dir, f"{base}_thumb{ext}")
+            if os.path.exists(thumb_path):
+                os.remove(thumb_path)
 
         return {"message": f"Sticker {sticker_id} deleted successfully"}
     except HTTPException:

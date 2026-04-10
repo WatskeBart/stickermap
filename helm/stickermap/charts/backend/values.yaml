@@ -33,5 +33,9 @@ env:
   corsAllowedMethods: "*"
   corsAllowedHeaders: "*"
   corsAllowCredentials: "true"
+  imageFormat: "JPEG"
+  imageQuality: "85"
+  imageMaxSize: "1920"
+  thumbnailSize: "400"
 
 resources: {}
