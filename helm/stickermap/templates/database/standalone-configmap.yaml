@@ -1,5 +1,4 @@
-{{- $dbType := default .Values.type .Values.global.database.type -}}
-{{- if eq $dbType "standalone" }}
+{{- if eq .Values.database.mode "standalone" }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,7 +20,7 @@ data:
     psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "stickermap" \
       -c "CREATE EXTENSION IF NOT EXISTS postgis;" \
       -c "CREATE EXTENSION IF NOT EXISTS postgis_topology;"
-    {{- if .Values.global.keycloak.enabled }}
+    {{- if .Values.keycloak.enabled }}
 
     # Create the keycloak user and database
     psql -v ON_ERROR_STOP=1 -U "$POSTGRES_USER" -d "$POSTGRES_DB" \

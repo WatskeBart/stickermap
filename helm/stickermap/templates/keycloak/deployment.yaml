@@ -1,3 +1,4 @@
+{{- if .Values.keycloak.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -6,7 +7,7 @@ metadata:
     app.kubernetes.io/name: keycloak
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.keycloak.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: keycloak
@@ -29,8 +30,8 @@ spec:
         # JSON from the ConfigMap into the shared emptyDir that Keycloak uses
         # as its data directory.
         - name: realm-import-setup
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
+          imagePullPolicy: {{ .Values.keycloak.image.pullPolicy }}
           command:
             - sh
             - -c
@@ -52,8 +53,8 @@ spec:
               mountPath: /tmp
       containers:
         - name: keycloak
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
+          imagePullPolicy: {{ .Values.keycloak.image.pullPolicy }}
           args:
             - start
             - --import-realm
@@ -72,7 +73,7 @@ spec:
             - name: KC_DB
               value: postgres
             - name: KC_DB_URL
-              {{- if eq .Values.global.database.type "standalone" }}
+              {{- if eq .Values.database.mode "standalone" }}
               value: "jdbc:postgresql://{{ .Release.Name }}-database:5432/keycloak"
               {{- else }}
               value: "jdbc:postgresql://{{ .Release.Name }}-db-rw/keycloak"
@@ -127,7 +128,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 10
-          {{- with .Values.resources }}
+          {{- with .Values.keycloak.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -141,3 +142,4 @@ spec:
           emptyDir: {}
         - name: tmp
           emptyDir: {}
+{{- end }}

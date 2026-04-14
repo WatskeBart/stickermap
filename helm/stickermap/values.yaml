@@ -9,17 +9,6 @@ global:
   # Example: stickermap.example.com
   hostname: ""
 
-  # Controls whether the embedded Keycloak sub-chart is deployed.
-  # Set to false when connecting to an existing external Keycloak instance.
-  keycloak:
-    enabled: true
-
-  # Database mode:
-  #   cnpg       — CloudNativePG Cluster (requires the CNPG operator in the cluster)
-  #   standalone — Plain PostgreSQL StatefulSet (no operator needed)
-  database:
-    type: cnpg
-
 # ------------------------------------------------------------------------------
 # Backend
 # ------------------------------------------------------------------------------
@@ -29,10 +18,22 @@ backend:
     tag: main
     pullPolicy: IfNotPresent
 
+  migrations:
+    image:
+      repository: ghcr.io/watskebart/stickermap/stickermap-migrations
+      tag: main
+      pullPolicy: IfNotPresent
+    resources:
+      requests:
+        cpu: 50m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
   # REQUIRED: Keycloak client secret configured in the realm (must match stickermap-realm.json)
   keycloakClientSecret: ""
 
-  # External Keycloak connection — only relevant when global.keycloak.enabled is false.
+  # External Keycloak connection — only relevant when keycloak.enabled is false.
   # keycloakUrl is REQUIRED in that case; keycloakInternalUrl falls back to keycloakUrl.
   keycloakUrl: ""
   keycloakInternalUrl: ""
@@ -44,18 +45,29 @@ backend:
   uploads:
     storage:
       size: 10Gi
+      # ReadWriteMany is required when replicaCount > 1
+      accessMode: ReadWriteOnce
       # Set to a specific StorageClass name if needed; leave empty for cluster default
       storageClassName: ""
 
   env:
     logLevel: "INFO"
-    initNewDatabase: "false"
     corsAllowedOrigins: "*"
     corsAllowedMethods: "*"
     corsAllowedHeaders: "*"
     corsAllowCredentials: "true"
+    imageFormat: "JPEG"
+    imageQuality: "85"
+    imageMaxSize: "1920"
+    thumbnailSize: "400"
 
-  resources: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
 
 # ------------------------------------------------------------------------------
 # Frontend
@@ -68,37 +80,57 @@ frontend:
 
   replicaCount: 1
 
+  # Override the Keycloak URL injected into the Angular build (what the browser reaches).
+  # Defaults to https://{{ global.hostname }} when keycloak.enabled is true,
+  # or backend.keycloakUrl when keycloak.enabled is false.
+  keycloakUrl: ""
+
+  publicUrl: ":8181"
+
+  # Internal backend URL Caddy uses to proxy /api and /uploads.
+  # Defaults to http://<release>-backend:5555 when empty.
+  backendUrl: ""
+
+  # Passed to ngssc as PRODUCTION; controls Angular production mode flag.
+  production: "true"
+
   # Optional: URL of a custom tile server (MapLibre/OpenStreetMap tile endpoint).
   # Leave empty to use the default OpenStreetMap tiles baked into the frontend build.
   tileserverUrl: https://tile.openstreetmap.org/{z}/{x}/{y}.png
 
-  resources: {}
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 128Mi
 
 # ------------------------------------------------------------------------------
-# Ingress (defined at umbrella level to route across all sub-chart services)
+# Ingress
 # ------------------------------------------------------------------------------
 ingress:
-  # Ingress class name — change to match your cluster's ingress controller
-  className: nginx
+  className: traefik
   annotations: {}
-    # cert-manager.io/cluster-issuer: letsencrypt-prod
-    # nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
-  tls: []
-  # Example TLS configuration:
-  # - secretName: stickermap-tls
-  #   hosts:
-  #     - stickermap.example.com
+    # cert-manager.io/cluster-issuer: stepca
+  tls:
+  - secretName: stickermap-tls
+    hosts:
+    - stickermap.example.com
 
 # ------------------------------------------------------------------------------
-# Keycloak (only deployed when global.keycloak.enabled is true)
+# Keycloak (only deployed when keycloak.enabled is true)
 # ------------------------------------------------------------------------------
 keycloak:
+  # Set to false to use an external Keycloak instance.
+  # When false, set backend.keycloakUrl (and optionally frontend.keycloakUrl).
+  enabled: true
+
   image:
     repository: quay.io/keycloak/keycloak
     tag: "26.5"
     pullPolicy: IfNotPresent
 
-  # REQUIRED: Password for the Keycloak admin console user
+  # REQUIRED when keycloak.enabled is true: Password for the Keycloak admin console user.
   adminPassword: ""
   adminUsername: admin
 
@@ -113,16 +145,55 @@ keycloak:
 # Database
 # ------------------------------------------------------------------------------
 database:
+  # Database backend mode:
+  #   cnpg       — CloudNativePG Cluster (requires the CNPG operator in the cluster)
+  #   standalone — Plain PostgreSQL StatefulSet (no operator needed)
+  mode: cnpg
+
   # cnpg mode: CloudNativePG Cluster with PostGIS.
   # Requires the CNPG operator to be installed in the cluster.
   cnpg:
-    # PostGIS-capable CNPG image. Change to match your air-gapped registry.
+    # PostGIS-capable CNPG image.
     imageName: ghcr.io/cloudnative-pg/postgis:18-3.6-standard-trixie
     instances: 1
     storage:
       size: 5Gi
       # Set to a specific StorageClass name if needed; leave empty for cluster default
       storageClassName: ""
+
+    # If set, skip creating the CNPG Cluster CR and use this existing cluster name.
+    # Useful when the cluster is managed outside of this chart (e.g. by a separate
+    # CloudNativePG operator deployment or another Helm release).
+    existingCluster: ""
+
+    # Override the secret name used by the backend to connect to the database.
+    # When empty, defaults to <release>-db-stickermap (the secret CNPG creates
+    # for a cluster named <release>-db with owner stickermap).
+    # Set this when using existingCluster to point at the CNPG-generated app secret.
+    secretName: ""
+
+    walStorage:
+      size: 5Gi
+      # Set to a specific StorageClass name if needed; leave empty for cluster default
+      storageClassName: ""
+
+    # Seconds to wait before starting/stopping the cluster during rolling operations.
+    startDelay: 300
+    stopDelay: 100
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
+
+    # Volume snapshot backup. Requires a VolumeSnapshot-capable CSI driver.
+    backup:
+      enabled: false
+      volumeSnapshot:
+        # StorageClass name for volume snapshots (e.g. csi-snapclass)
+        className: ""
 
   # standalone mode: plain PostgreSQL StatefulSet with PostGIS.
   # No operator required — works in any cluster.
@@ -137,4 +208,9 @@ database:
       storageClassName: ""
     # Password for the stickermap DB user. Leave empty to auto-generate.
     appPassword: ""
-    resources: {}
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        memory: 512Mi
