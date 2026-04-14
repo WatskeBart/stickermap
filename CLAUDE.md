@@ -159,7 +159,14 @@ PostGIS with SRID 4326. Sticker locations stored as `geometry(Point, 4326)`. Key
 
 ### Helm Chart (`helm/stickermap/`)
 
-Umbrella chart with 4 sub-charts (no external chart dependencies — air-gap friendly). Database sub-chart supports two modes: CNPG (`CloudNativePG` operator CRD) or standalone StatefulSet. Keycloak sub-chart supports embedded or external. The frontend sub-chart uses an init container to run ngssc before Caddy serves the files from an emptyDir. See `helm/README.md` for installation details.
+Single flat chart — **requires Helm v4** (`apiVersion: v2`). No sub-charts or external dependencies; all component templates are inlined under `templates/` (air-gap friendly). Components: backend, frontend, Keycloak (optional), and database.
+
+- **Database modes** (`database.mode`): `cnpg` (default, requires CloudNativePG operator) or `standalone` (plain StatefulSet, no operator needed). Both expose the same secret format to the backend.
+- **Keycloak modes** (`keycloak.enabled`): `true` (default, deploys Keycloak with realm auto-import) or `false` (external Keycloak — set `backend.keycloakUrl`).
+- **Migrations** run as a post-install/post-upgrade hook Job; retries handle CNPG bootstrap lag.
+- **Frontend** uses an init container to run ngssc before Caddy serves the SPA from an emptyDir.
+
+See `helm/README.md` for mandatory values, installation examples, and OCI packaging.
 
 ## Known Issues
 

@@ -181,7 +181,14 @@ Frontend: <http://localhost:4200>
 
 ## Kubernetes
 
-A Helm umbrella chart is available at [`helm/stickermap/`](helm/stickermap/) with sub-charts for the backend, frontend, Keycloak, and database (CNPG or standalone StatefulSet). See [helm/README.md](helm/README.md) for full deployment instructions.
+A Helm chart is available at [`helm/stickermap/`](helm/stickermap/). It requires **Helm v4** and has no external dependencies — all templates are inlined (air-gap friendly).
+
+| Feature | Options |
+| ------- | ------- |
+| Database | CNPG cluster *(default)* or standalone StatefulSet |
+| Keycloak | Embedded *(default)* or external |
+
+See [helm/README.md](helm/README.md) for mandatory values, configuration examples, and OCI packaging instructions.
 
 ## Troubleshooting
 
