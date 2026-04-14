@@ -37,7 +37,7 @@ spec:
                 name: {{ .Release.Name }}-backend
                 port:
                   number: 5555
-          {{- if .Values.global.keycloak.enabled }}
+          {{- if .Values.keycloak.enabled }}
           # Keycloak realm endpoints (used by browser for OIDC)
           - path: /realms
             pathType: Prefix
@@ -78,4 +78,4 @@ spec:
               service:
                 name: {{ .Release.Name }}-frontend
                 port:
-                  number: 8080
+                  number: 8181

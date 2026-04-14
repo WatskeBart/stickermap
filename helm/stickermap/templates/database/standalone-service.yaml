@@ -1,5 +1,4 @@
-{{- $dbType := default .Values.type .Values.global.database.type -}}
-{{- if eq $dbType "standalone" }}
+{{- if eq .Values.database.mode "standalone" }}
 apiVersion: v1
 kind: Service
 metadata:
