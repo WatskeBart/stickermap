@@ -3,6 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { map } from 'rxjs/operators';
 import { StickerMapRoles, UserInfo } from '../models/auth.model';
+import { environment } from '../../../environments/environment';
 
 /**
  * AuthService provides authentication functionality using angular-auth-oidc-client.
@@ -64,31 +65,32 @@ export class AuthService {
   }
 
   /**
-   * Check if user has a specific realm role (from Keycloak realm_access.roles in the JWT).
+   * Check if user has a specific client role (from Keycloak resource_access.<clientId>.roles in the JWT).
    */
-  hasRealmRole(role: string): boolean {
+  hasClientRole(role: string): boolean {
     const payload = this.accessTokenPayload() as any;
-    return payload?.realm_access?.roles?.includes(role) ?? false;
+    const clientId = environment.keycloak.clientId;
+    return payload?.resource_access?.[clientId]?.roles?.includes(role) ?? false;
   }
 
   /**
    * Reactive: true when user has viewer role (or higher).
    * Automatically re-evaluates when the access token payload signal updates.
    */
-  readonly isViewer = computed(() => this.hasRealmRole(StickerMapRoles.VIEWER));
+  readonly isViewer = computed(() => this.hasClientRole(StickerMapRoles.VIEWER));
 
   /**
    * Reactive: true when user has uploader role (or higher).
    */
-  readonly isUploader = computed(() => this.hasRealmRole(StickerMapRoles.UPLOADER));
+  readonly isUploader = computed(() => this.hasClientRole(StickerMapRoles.UPLOADER));
 
   /**
    * Reactive: true when user has editor role (or higher).
    */
-  readonly isEditor = computed(() => this.hasRealmRole(StickerMapRoles.EDITOR));
+  readonly isEditor = computed(() => this.hasClientRole(StickerMapRoles.EDITOR));
 
   /**
    * Reactive: true when user has admin role.
    */
-  readonly isAdmin = computed(() => this.hasRealmRole(StickerMapRoles.ADMIN));
+  readonly isAdmin = computed(() => this.hasClientRole(StickerMapRoles.ADMIN));
 }

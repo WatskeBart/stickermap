@@ -130,7 +130,7 @@ src/app/
 **Key files:**
 
 - **`app.config.ts`** — Bootstrap config; OIDC auth is initialized here before the app starts via `APP_INITIALIZER`.
-- **`core/services/auth.service.ts`** — Wraps `angular-auth-oidc-client`'s `OidcSecurityService`. Observables are bridged to signals via `toSignal()` for zoneless reactivity. Role checks (`isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`) read `realm_access.roles` from the decoded access token payload.
+- **`core/services/auth.service.ts`** — Wraps `angular-auth-oidc-client`'s `OidcSecurityService`. Observables are bridged to signals via `toSignal()` for zoneless reactivity. Role checks (`isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`) call `hasClientRole()` which reads `resource_access.<clientId>.roles` from the decoded access token payload.
 - **`core/services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Bearer token is attached automatically by the `authInterceptor()` for routes matching `/api/`.
 - **`features/map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
 - **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()` which registers the `APP_INITIALIZER` that calls `checkAuth()` and handles post-login redirects.
@@ -140,7 +140,7 @@ Frontend environment variables are injected at container start via `angular-serv
 
 ### Auth & RBAC
 
-Roles live in Keycloak as realm roles with the `sm-` prefix (avoids collision with Keycloak built-ins). They are hierarchical composite roles in Keycloak:
+Roles live in Keycloak as **client roles** scoped to `stickermap-client` with the `sm-` prefix (avoids collision with Keycloak built-ins). They are hierarchical composite roles in Keycloak:
 
 ```text
 sm-admin ⊇ sm-editor ⊇ sm-uploader ⊇ sm-viewer
@@ -151,7 +151,9 @@ sm-admin ⊇ sm-editor ⊇ sm-uploader ⊇ sm-viewer
 - `sm-editor` — can edit any sticker
 - `sm-admin` — can delete stickers, change uploader field
 
-Backend enforces roles via `require_role()` dependency. Frontend hides/shows UI elements via `AuthService.isX()` computed signals, which read `realm_access.roles` from the decoded JWT access token payload. Because composite roles are configured in Keycloak, a user with `sm-editor` also passes `isUploader()` checks.
+Backend enforces roles via `require_role()` dependency; it reads `resource_access.<KEYCLOAK_CLIENT_ID>.roles` from the decoded JWT. Frontend hides/shows UI elements via `AuthService.isX()` computed signals, which call `hasClientRole()` reading `resource_access.<clientId>.roles` from the token payload. Because composite roles are configured in Keycloak, a user with `sm-editor` also passes `isUploader()` checks.
+
+Group structure in the realm export: a `stickermap` parent group with sub-groups `/stickermap/sm-viewer`, `/stickermap/sm-uploader`, `/stickermap/sm-editor`, `/stickermap/sm-admin` — each with the corresponding client role assigned. `/stickermap/sm-viewer` is set as the realm's default group so all new users receive viewer access automatically.
 
 ### Database
 

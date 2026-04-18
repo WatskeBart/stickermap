@@ -4,7 +4,7 @@ StickerMap uses [Keycloak](https://www.keycloak.org/) for identity and access ma
 
 ## Roles
 
-Four hierarchical realm roles with the `sm-` prefix:
+Four hierarchical **client roles** (scoped to the `stickermap-client` client) with the `sm-` prefix:
 
 | Role | Name | Permissions |
 | ---- | ---- | ----------- |
@@ -18,7 +18,7 @@ Roles are implemented as Keycloak **composite roles** — each role includes the
 - `sm-admin` includes `sm-editor`
 - `sm-editor` includes `sm-uploader`
 - `sm-uploader` includes `sm-viewer`
-- `sm-viewer` is in the default realm roles (all new users receive it automatically)
+- `sm-viewer` is assigned by default to all new users via the `/stickermap/sm-viewer` sub-group (set as default group)
 
 Assign only the highest needed role per user.
 
@@ -40,7 +40,7 @@ If not using the realm export:
    - Redirect URIs: `http://localhost:4200/*`
    - Web origins: `http://localhost:4200`
    - Enable standard flow and direct access grants
-3. Create realm roles:
+3. Create client roles on the `stickermap-client` client:
 
    | Role | Description | Composite roles |
    | ---- | ----------- | --------------- |
@@ -49,14 +49,27 @@ If not using the realm export:
    | `sm-editor` | Can edit any sticker | `sm-uploader` |
    | `sm-admin` | Full access | `sm-editor` |
 
-4. Add `sm-viewer` to the default realm roles:
-   - **Realm settings** → **User registration** → **Default roles** → add `sm-viewer`
+4. Create a `stickermap` group with four sub-groups matching the roles:
+
+   | Group path | Client role assigned |
+   | ---------- | -------------------- |
+   | `/stickermap/sm-viewer` | `sm-viewer` |
+   | `/stickermap/sm-uploader` | `sm-uploader` |
+   | `/stickermap/sm-editor` | `sm-editor` |
+   | `/stickermap/sm-admin` | `sm-admin` |
+
+5. Set `/stickermap/sm-viewer` as the default group:
+   - **Realm settings** → **User registration** → **Default groups** → add `/stickermap/sm-viewer`
 
 ### Assigning roles to users
 
+Add the user to the appropriate sub-group under `/stickermap/`:
+
 1. **Users** → select a user
-2. **Role mapping** tab → **Assign role**
-3. Select the desired role and click **Assign**
+2. **Groups** tab → **Join Group**
+3. Select `/stickermap/sm-uploader` (or `sm-editor` / `sm-admin`) and click **Join**
+
+Remove the user from `/stickermap/sm-viewer` if you want to prevent viewer access while they hold a higher role — though in practice composite roles make this unnecessary.
 
 ## Protected routes and endpoints
 

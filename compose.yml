@@ -41,7 +41,7 @@ services:
       - "8080:8080"
     volumes:
       - keycloak_data:/opt/keycloak/data
-      - ./general/keycloak_realm/stickermap-realm.json:/opt/keycloak/data/import/stickermap-realm.json:Z
+      - ./general/keycloak_realm/stickermap-realm.json:/opt/keycloak/data/import/stickermap-realm.json:ro,Z
     healthcheck:
       test:
         [
