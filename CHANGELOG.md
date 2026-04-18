@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-04-18
+
+### Changed
+
+- Migrated Keycloak roles from realm scope to client scope under `stickermap-client` — backend now reads `resource_access.<clientId>.roles` from JWT instead of `realm_access.roles`
+- Keycloak group hierarchy restructured: `stickermap` parent group with sub-groups `/stickermap/sm-viewer`, `/stickermap/sm-uploader`, `/stickermap/sm-editor`, `/stickermap/sm-admin`; each sub-group carries the matching client role
+- `/stickermap/sm-viewer` set as realm default group so all new users receive viewer access automatically (fixes #71)
+- Added Helm chart CI workflow for automated chart linting and packaging
+- Updated backend and frontend dependencies
+
 ## [1.6.2] - 2026-04-18
 
 ### Added
@@ -197,7 +207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.6.2...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.7.0...HEAD
+[1.7.0]: https://github.com/WatskeBart/stickermap/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/WatskeBart/stickermap/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/WatskeBart/stickermap/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/WatskeBart/stickermap/compare/1.5.0...1.6.0
