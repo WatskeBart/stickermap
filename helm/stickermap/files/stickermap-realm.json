@@ -62,9 +62,15 @@
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
-          "realm": ["offline_access", "uma_authorization"],
+          "realm": [
+            "offline_access",
+            "uma_authorization"
+          ],
           "client": {
-            "account": ["view-profile", "manage-account"]
+            "account": [
+              "view-profile",
+              "manage-account"
+            ]
           }
         },
         "clientRole": false,
@@ -99,7 +105,10 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": ["query-groups", "query-users"]
+              "realm-management": [
+                "query-groups",
+                "query-users"
+              ]
             }
           },
           "clientRole": true,
@@ -200,7 +209,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "realm-management": ["query-clients"]
+              "realm-management": [
+                "query-clients"
+              ]
             }
           },
           "clientRole": true,
@@ -307,7 +318,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "stickermap-client": ["sm-viewer"]
+              "stickermap-client": [
+                "sm-viewer"
+              ]
             }
           },
           "clientRole": true,
@@ -321,7 +334,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "stickermap-client": ["sm-uploader"]
+              "stickermap-client": [
+                "sm-uploader"
+              ]
             }
           },
           "clientRole": true,
@@ -335,7 +350,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "stickermap-client": ["sm-editor"]
+              "stickermap-client": [
+                "sm-editor"
+              ]
             }
           },
           "clientRole": true,
@@ -400,7 +417,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": ["view-consent"]
+              "account": [
+                "view-consent"
+              ]
             }
           },
           "clientRole": true,
@@ -414,7 +433,9 @@
           "composite": true,
           "composites": {
             "client": {
-              "account": ["manage-account-links"]
+              "account": [
+                "manage-account-links"
+              ]
             }
           },
           "clientRole": true,
@@ -444,48 +465,66 @@
   },
   "groups": [
     {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567801",
-      "name": "viewers",
-      "path": "/viewers",
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567800",
+      "name": "stickermap",
+      "path": "/stickermap",
       "attributes": {},
       "realmRoles": [],
-      "clientRoles": {
-        "stickermap-client": ["sm-viewer"]
-      },
-      "subGroups": []
-    },
-    {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567802",
-      "name": "uploaders",
-      "path": "/uploaders",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {
-        "stickermap-client": ["sm-uploader"]
-      },
-      "subGroups": []
-    },
-    {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567803",
-      "name": "editors",
-      "path": "/editors",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {
-        "stickermap-client": ["sm-editor"]
-      },
-      "subGroups": []
-    },
-    {
-      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567804",
-      "name": "admins",
-      "path": "/admins",
-      "attributes": {},
-      "realmRoles": [],
-      "clientRoles": {
-        "stickermap-client": ["sm-admin"]
-      },
-      "subGroups": []
+      "clientRoles": {},
+      "subGroups": [
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567801",
+          "name": "sm-viewer",
+          "path": "/stickermap/sm-viewer",
+          "attributes": {},
+          "realmRoles": [],
+          "clientRoles": {
+            "stickermap-client": [
+              "sm-viewer"
+            ]
+          },
+          "subGroups": []
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567802",
+          "name": "sm-uploader",
+          "path": "/stickermap/sm-uploader",
+          "attributes": {},
+          "realmRoles": [],
+          "clientRoles": {
+            "stickermap-client": [
+              "sm-uploader"
+            ]
+          },
+          "subGroups": []
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567803",
+          "name": "sm-editor",
+          "path": "/stickermap/sm-editor",
+          "attributes": {},
+          "realmRoles": [],
+          "clientRoles": {
+            "stickermap-client": [
+              "sm-editor"
+            ]
+          },
+          "subGroups": []
+        },
+        {
+          "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567804",
+          "name": "sm-admin",
+          "path": "/stickermap/sm-admin",
+          "attributes": {},
+          "realmRoles": [],
+          "clientRoles": {
+            "stickermap-client": [
+              "sm-admin"
+            ]
+          },
+          "subGroups": []
+        }
+      ]
     }
   ],
   "defaultRole": {
@@ -496,7 +535,9 @@
     "clientRole": false,
     "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1"
   },
-  "requiredCredentials": ["password"],
+  "requiredCredentials": [
+    "password"
+  ],
   "otpPolicyType": "totp",
   "otpPolicyAlgorithm": "HmacSHA1",
   "otpPolicyInitialCounter": 0,
@@ -511,7 +552,10 @@
   ],
   "localizationTexts": {},
   "webAuthnPolicyRpEntityName": "keycloak",
-  "webAuthnPolicySignatureAlgorithms": ["ES256", "RS256"],
+  "webAuthnPolicySignatureAlgorithms": [
+    "ES256",
+    "RS256"
+  ],
   "webAuthnPolicyRpId": "",
   "webAuthnPolicyAttestationConveyancePreference": "not specified",
   "webAuthnPolicyAuthenticatorAttachment": "not specified",
@@ -522,7 +566,10 @@
   "webAuthnPolicyAcceptableAaguids": [],
   "webAuthnPolicyExtraOrigins": [],
   "webAuthnPolicyPasswordlessRpEntityName": "keycloak",
-  "webAuthnPolicyPasswordlessSignatureAlgorithms": ["ES256", "RS256"],
+  "webAuthnPolicyPasswordlessSignatureAlgorithms": [
+    "ES256",
+    "RS256"
+  ],
   "webAuthnPolicyPasswordlessRpId": "",
   "webAuthnPolicyPasswordlessAttestationConveyancePreference": "not specified",
   "webAuthnPolicyPasswordlessAuthenticatorAttachment": "not specified",
@@ -535,14 +582,19 @@
   "scopeMappings": [
     {
       "clientScope": "offline_access",
-      "roles": ["offline_access"]
+      "roles": [
+        "offline_access"
+      ]
     }
   ],
   "clientScopeMappings": {
     "account": [
       {
         "client": "account-console",
-        "roles": ["manage-account", "view-groups"]
+        "roles": [
+          "manage-account",
+          "view-groups"
+        ]
       }
     ]
   },
@@ -557,7 +609,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/stickermap/account/*"],
+      "redirectUris": [
+        "/realms/stickermap/account/*"
+      ],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -602,7 +656,9 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/realms/stickermap/account/*"],
+      "redirectUris": [
+        "/realms/stickermap/account/*"
+      ],
       "webOrigins": [],
       "notBefore": 0,
       "bearerOnly": false,
@@ -785,8 +841,12 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["/admin/stickermap/console/*"],
-      "webOrigins": ["+"],
+      "redirectUris": [
+        "/admin/stickermap/console/*"
+      ],
+      "webOrigins": [
+        "+"
+      ],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -852,8 +912,13 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "redirectUris": ["http://localhost:8282/*", "https://localhost:8282/*"],
-      "webOrigins": ["*"],
+      "redirectUris": [
+        "http://localhost:8282/*",
+        "https://localhost:8282/*"
+      ],
+      "webOrigins": [
+        "*"
+      ],
       "notBefore": 0,
       "bearerOnly": false,
       "consentRequired": false,
@@ -1620,7 +1685,9 @@
   },
   "smtpServer": {},
   "eventsEnabled": false,
-  "eventsListeners": ["jboss-logging"],
+  "eventsListeners": [
+    "jboss-logging"
+  ],
   "enabledEventTypes": [],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
@@ -1635,7 +1702,9 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "max-clients": ["200"]
+          "max-clients": [
+            "200"
+          ]
         }
       },
       {
@@ -1664,7 +1733,9 @@
         "subType": "authenticated",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": ["true"]
+          "allow-default-scopes": [
+            "true"
+          ]
         }
       },
       {
@@ -1674,7 +1745,9 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "allow-default-scopes": ["true"]
+          "allow-default-scopes": [
+            "true"
+          ]
         }
       },
       {
@@ -1719,8 +1792,12 @@
         "subType": "anonymous",
         "subComponents": {},
         "config": {
-          "host-sending-registration-request-must-match": ["true"],
-          "client-uris-must-match": ["true"]
+          "host-sending-registration-request-must-match": [
+            "true"
+          ],
+          "client-uris-must-match": [
+            "true"
+          ]
         }
       }
     ],
@@ -1731,8 +1808,12 @@
         "providerId": "hmac-generated",
         "subComponents": {},
         "config": {
-          "priority": ["100"],
-          "algorithm": ["HS512"]
+          "priority": [
+            "100"
+          ],
+          "algorithm": [
+            "HS512"
+          ]
         }
       },
       {
@@ -1741,7 +1822,9 @@
         "providerId": "rsa-generated",
         "subComponents": {},
         "config": {
-          "priority": ["100"]
+          "priority": [
+            "100"
+          ]
         }
       },
       {
@@ -1750,7 +1833,9 @@
         "providerId": "aes-generated",
         "subComponents": {},
         "config": {
-          "priority": ["100"]
+          "priority": [
+            "100"
+          ]
         }
       },
       {
@@ -1759,8 +1844,12 @@
         "providerId": "rsa-enc-generated",
         "subComponents": {},
         "config": {
-          "priority": ["100"],
-          "algorithm": ["RSA-OAEP"]
+          "priority": [
+            "100"
+          ],
+          "algorithm": [
+            "RSA-OAEP"
+          ]
         }
       }
     ]
@@ -2607,5 +2696,8 @@
   },
   "clientPolicies": {
     "policies": []
-  }
+  },
+  "defaultGroups": [
+    "/stickermap/sm-viewer"
+  ]
 }

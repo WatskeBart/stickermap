@@ -103,7 +103,7 @@ graph TD
 
 ## Authentication
 
-StickerMap uses Keycloak with four hierarchical realm roles:
+StickerMap uses Keycloak with four hierarchical client roles (scoped to the `stickermap-client` client):
 
 | Role | Permissions |
 | ---- | ----------- |
