@@ -30,10 +30,11 @@ from main import app
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def make_user(roles: list[str], username: str = "testuser") -> dict:
-    """Build a minimal decoded-JWT dict with the given realm roles."""
+    """Build a minimal decoded-JWT dict with the given client roles."""
+    client_id = os.environ.get("KEYCLOAK_CLIENT_ID", "stickermap-client")
     return {
         "preferred_username": username,
-        "realm_access": {"roles": roles},
+        "resource_access": {client_id: {"roles": roles}},
     }
 
 

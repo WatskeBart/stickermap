@@ -20,19 +20,19 @@ from conftest import make_user
 # ── get_user_roles ────────────────────────────────────────────────────────────
 
 class TestGetUserRoles:
-    def test_returns_roles_from_realm_access(self):
+    def test_returns_roles_from_resource_access(self):
         user = make_user([ROLE_VIEWER, ROLE_UPLOADER])
         assert get_user_roles(user) == [ROLE_VIEWER, ROLE_UPLOADER]
 
-    def test_returns_empty_list_when_no_realm_access(self):
+    def test_returns_empty_list_when_no_resource_access(self):
         assert get_user_roles({}) == []
 
-    def test_returns_empty_list_when_roles_key_missing(self):
-        user = {"realm_access": {}}
+    def test_returns_empty_list_when_client_key_missing(self):
+        user = {"resource_access": {}}
         assert get_user_roles(user) == []
 
     def test_returns_empty_list_for_empty_roles(self):
-        user = {"realm_access": {"roles": []}}
+        user = make_user([])
         assert get_user_roles(user) == []
 
 
