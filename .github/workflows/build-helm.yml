@@ -1,0 +1,50 @@
+# .github/workflows/build-helm.yml
+#
+# Packages the StickerMap Helm chart and pushes it to GHCR as an OCI artifact.
+#
+# Triggers:
+#   - push of semver tag  → chart version: <tag-name> (e.g. 1.0.0)
+
+name: Build & Push Helm Chart
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  helm:
+    name: Package & Push Helm chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Make repository owner lowercase
+        run: echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+
+      - name: Determine chart version from tag
+        id: tag
+        run: echo "value=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Update Chart.yaml version to match tag
+        run: |
+          sed -i "s/^version:.*/version: ${{ steps.tag.outputs.value }}/" helm/stickermap/Chart.yaml
+          sed -i "s/^appVersion:.*/appVersion: \"${{ steps.tag.outputs.value }}\"/" helm/stickermap/Chart.yaml
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io --username ${{ github.actor }} --password-stdin
+
+      - name: Package Helm chart
+        run: helm package helm/stickermap --version ${{ steps.tag.outputs.value }} --app-version ${{ steps.tag.outputs.value }}
+
+      - name: Push Helm chart to GHCR
+        run: helm push stickermap-${{ steps.tag.outputs.value }}.tgz oci://ghcr.io/${{ env.REPO }}/stickermap-helm

@@ -25,9 +25,9 @@ ALL_ROLES = [ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER]
 
 
 def get_user_roles(user: dict) -> list[str]:
-    """Extract realm roles from decoded JWT token."""
-    realm_access = user.get("realm_access", {})
-    return realm_access.get("roles", [])
+    """Extract client roles from decoded JWT token (resource_access.<client_id>.roles)."""
+    resource_access = user.get("resource_access", {})
+    return resource_access.get(Config.KEYCLOAK_CLIENT_ID, {}).get("roles", [])
 
 
 def get_user_identity(user: dict) -> str:
