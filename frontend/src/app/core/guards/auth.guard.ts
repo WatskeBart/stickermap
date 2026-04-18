@@ -1,33 +1,28 @@
-import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { createAuthGuard, AuthGuardData } from 'keycloak-angular';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from '@angular/router';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { map, take } from 'rxjs/operators';
 
 /**
- * Auth guard access check function.
- * Checks if user is authenticated and triggers login if not.
+ * Auth guard that checks OIDC authentication state.
+ * Stores the target URL in localStorage so initializeAuth() can redirect there after login.
  */
-const isAccessAllowed = async (
+export const authGuard: CanActivateFn = (
   _route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
-  authData: AuthGuardData
-): Promise<boolean | UrlTree> => {
-  const { authenticated, keycloak } = authData;
+) => {
+  const oidcSecurityService = inject(OidcSecurityService);
 
-  if (authenticated) {
-    return true;
-  }
+  return oidcSecurityService.isAuthenticated$.pipe(
+    take(1),
+    map(({ isAuthenticated }) => {
+      if (isAuthenticated) {
+        return true;
+      }
 
-  // Store the attempted URL for redirecting after login
-  localStorage.setItem('redirect_url', state.url);
-
-  // Trigger login
-  await keycloak.login({
-    redirectUri: window.location.origin + state.url,
-  });
-
-  return false;
+      localStorage.setItem('redirect_url', state.url);
+      oidcSecurityService.authorize();
+      return false;
+    }),
+  );
 };
-
-/**
- * Auth guard using keycloak-angular's createAuthGuard.
- */
-export const authGuard = createAuthGuard(isAccessAllowed);

@@ -1,128 +1,94 @@
 import { Injectable, computed, inject } from '@angular/core';
-import Keycloak from 'keycloak-js';
-import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
-import { StickerMapRoles, KeycloakUserInfo } from '../models/auth.model';
-export { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { OidcSecurityService } from 'angular-auth-oidc-client';
+import { map } from 'rxjs/operators';
+import { StickerMapRoles, UserInfo } from '../models/auth.model';
 
 /**
- * AuthService provides authentication functionality using keycloak-angular.
- * Role-check properties are computed signals so they re-evaluate reactively in a zoneless Angular app.
+ * AuthService provides authentication functionality using angular-auth-oidc-client.
+ * Observables from OidcSecurityService are bridged to signals for reactive, zoneless usage.
  */
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private keycloak: Keycloak | null = null;
-
-  /**
-   * Reactive handle on Keycloak events. Used as a signal dependency so that
-   * computed role checks re-run whenever auth state changes (e.g. after
-   * check-sso resolves or a token refresh).
-   */
-  private readonly keycloakEvents = inject(KEYCLOAK_EVENT_SIGNAL, { optional: true });
-
-  constructor() {
-    try {
-      this.keycloak = inject(Keycloak);
-    } catch {
-      console.warn('Keycloak not available - running without authentication');
-    }
-  }
+  private readonly oidcSecurityService = inject(OidcSecurityService);
 
   /**
    * Reactive: true when the user is authenticated.
    */
-  readonly isAuthenticated = computed(() => {
-    this.keycloakEvents?.();
-    return this.keycloak?.authenticated ?? false;
+  readonly isAuthenticated = toSignal(
+    this.oidcSecurityService.isAuthenticated$.pipe(map((state) => state.isAuthenticated)),
+    { initialValue: false },
+  );
+
+  /**
+   * Decoded access token payload — re-emits on every token refresh.
+   * Used as a synchronous signal for role checks.
+   */
+  private readonly accessTokenPayload = toSignal(
+    this.oidcSecurityService.getPayloadFromAccessToken(),
+    { initialValue: null },
+  );
+
+  private readonly accessToken = toSignal(this.oidcSecurityService.getAccessToken(), {
+    initialValue: '',
   });
 
   /**
-   * Get the current access token.
+   * Get the current access token string.
    */
   getToken(): string | null {
-    return this.keycloak?.token ?? null;
+    return this.accessToken() || null;
   }
 
   /**
-   * Get user info from the parsed token.
+   * Get user info from the decoded access token payload.
    */
-  getUserInfo(): KeycloakUserInfo | null {
-    return (this.keycloak?.tokenParsed as KeycloakUserInfo) ?? null;
+  getUserInfo(): UserInfo | null {
+    return (this.accessTokenPayload() as UserInfo) ?? null;
   }
 
   /**
    * Trigger login flow.
    */
-  async login(): Promise<void> {
-    if (!this.keycloak) {
-      console.error('Keycloak not initialized');
-      return;
-    }
-
-    await this.keycloak.login({
-      redirectUri: window.location.origin + window.location.pathname,
-      prompt: 'login',
-    });
+  login(): void {
+    this.oidcSecurityService.authorize();
   }
 
   /**
-   * Trigger logout flow.
+   * Trigger logout flow, revoking tokens before redirecting.
    */
-  async logout(): Promise<void> {
-    if (!this.keycloak) {
-      console.error('Keycloak not initialized');
-      return;
-    }
-
-    await this.keycloak.logout({
-      redirectUri: window.location.origin,
-    });
+  logout(): void {
+    this.oidcSecurityService.logoffAndRevokeTokens().subscribe();
   }
 
   /**
-   * Check if user has a specific realm role.
+   * Check if user has a specific realm role (from Keycloak realm_access.roles in the JWT).
    */
   hasRealmRole(role: string): boolean {
-    return this.keycloak?.hasRealmRole(role) ?? false;
-  }
-
-  /**
-   * Check if user has a specific resource/client role.
-   */
-  hasResourceRole(role: string, resource?: string): boolean {
-    return this.keycloak?.hasResourceRole(role, resource) ?? false;
+    const payload = this.accessTokenPayload() as any;
+    return payload?.realm_access?.roles?.includes(role) ?? false;
   }
 
   /**
    * Reactive: true when user has viewer role (or higher).
+   * Automatically re-evaluates when the access token payload signal updates.
    */
-  readonly isViewer = computed(() => {
-    this.keycloakEvents?.();
-    return this.hasRealmRole(StickerMapRoles.VIEWER);
-  });
+  readonly isViewer = computed(() => this.hasRealmRole(StickerMapRoles.VIEWER));
 
   /**
    * Reactive: true when user has uploader role (or higher).
    */
-  readonly isUploader = computed(() => {
-    this.keycloakEvents?.();
-    return this.hasRealmRole(StickerMapRoles.UPLOADER);
-  });
+  readonly isUploader = computed(() => this.hasRealmRole(StickerMapRoles.UPLOADER));
 
   /**
    * Reactive: true when user has editor role (or higher).
    */
-  readonly isEditor = computed(() => {
-    this.keycloakEvents?.();
-    return this.hasRealmRole(StickerMapRoles.EDITOR);
-  });
+  readonly isEditor = computed(() => this.hasRealmRole(StickerMapRoles.EDITOR));
 
   /**
    * Reactive: true when user has admin role.
    */
-  readonly isAdmin = computed(() => {
-    this.keycloakEvents?.();
-    return this.hasRealmRole(StickerMapRoles.ADMIN);
-  });
+  readonly isAdmin = computed(() => this.hasRealmRole(StickerMapRoles.ADMIN));
 }
