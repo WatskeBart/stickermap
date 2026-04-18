@@ -107,8 +107,8 @@ export class App implements OnInit {
     }
   }
 
-  async login(): Promise<void> {
-    await this.authService.login();
+  login(): void {
+    this.authService.login();
   }
 
   logout(): void {

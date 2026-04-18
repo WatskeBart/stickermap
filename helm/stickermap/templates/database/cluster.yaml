@@ -1,0 +1,64 @@
+{{- if eq .Values.database.mode "cnpg" }}
+{{- if not .Values.database.cnpg.existingCluster }}
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ .Release.Name }}-db
+  labels:
+    app.kubernetes.io/name: database
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  imageName: {{ .Values.database.cnpg.imageName }}
+  instances: {{ .Values.database.cnpg.instances }}
+  startDelay: {{ .Values.database.cnpg.startDelay }}
+  stopDelay: {{ .Values.database.cnpg.stopDelay }}
+
+  bootstrap:
+    initdb:
+      # Primary application database with PostGIS extensions enabled
+      database: stickermap
+      owner: stickermap
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS postgis;
+        - CREATE EXTENSION IF NOT EXISTS postgis_topology;
+
+  {{- if .Values.keycloak.enabled }}
+  # CNPG managed databases and roles — the operator creates/maintains these
+  # automatically and syncs passwords from the referenced secrets.
+  managed:
+    databases:
+      - name: keycloak
+        owner: keycloak
+    roles:
+      - name: keycloak
+        login: true
+        # CNPG reads the password from key "password" in this secret.
+        # The secret is created by the keycloak templates.
+        passwordSecret:
+          name: {{ .Release.Name }}-keycloak-db
+  {{- end }}
+
+  storage:
+    size: {{ .Values.database.cnpg.storage.size }}
+    {{- if .Values.database.cnpg.storage.storageClassName }}
+    storageClassName: {{ .Values.database.cnpg.storage.storageClassName }}
+    {{- end }}
+
+  walStorage:
+    size: {{ .Values.database.cnpg.walStorage.size }}
+    {{- if .Values.database.cnpg.walStorage.storageClassName }}
+    storageClassName: {{ .Values.database.cnpg.walStorage.storageClassName }}
+    {{- end }}
+
+  {{- with .Values.database.cnpg.resources }}
+  resources:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+  {{- if .Values.database.cnpg.backup.enabled }}
+  backup:
+    volumeSnapshot:
+      className: {{ required "database.cnpg.backup.volumeSnapshot.className is required when backup.enabled is true" .Values.database.cnpg.backup.volumeSnapshot.className }}
+  {{- end }}
+{{- end }}
+{{- end }}

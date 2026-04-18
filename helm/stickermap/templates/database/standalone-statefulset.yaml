@@ -1,5 +1,4 @@
-{{- $dbType := default .Values.type .Values.global.database.type -}}
-{{- if eq $dbType "standalone" }}
+{{- if eq .Values.database.mode "standalone" }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -22,23 +21,20 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        # docker.io/postgis/postgis image runs as uid 999 (postgres user)
         runAsUser: 999
         runAsGroup: 999
         fsGroup: 999
       containers:
         - name: postgres
-          image: "{{ .Values.standalone.image.repository }}:{{ .Values.standalone.image.tag }}"
-          imagePullPolicy: {{ .Values.standalone.image.pullPolicy }}
+          image: "{{ .Values.database.standalone.image.repository }}:{{ .Values.database.standalone.image.tag }}"
+          imagePullPolicy: {{ .Values.database.standalone.image.pullPolicy }}
           ports:
             - name: postgres
               containerPort: 5432
               protocol: TCP
           securityContext:
             allowPrivilegeEscalation: false
-            # PostgreSQL requires write access to runtime directories; emptyDir
-            # volumes cover /tmp and /run — PGDATA is on the PVC below.
-            readOnlyRootFilesystem: false
+            readOnlyRootFilesystem: true
             capabilities:
               drop:
                 - ALL
@@ -58,9 +54,9 @@ spec:
             - name: STICKERMAP_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: password
-            {{- if .Values.global.keycloak.enabled }}
+            {{- if .Values.keycloak.enabled }}
             - name: KEYCLOAK_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -83,7 +79,7 @@ spec:
               command: ["pg_isready", "-U", "postgres"]
             initialDelaySeconds: 5
             periodSeconds: 5
-          {{- with .Values.standalone.resources }}
+          {{- with .Values.database.standalone.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
@@ -97,10 +93,10 @@ spec:
         name: data
       spec:
         accessModes: ["ReadWriteOnce"]
-        {{- if .Values.standalone.storage.storageClassName }}
-        storageClassName: {{ .Values.standalone.storage.storageClassName }}
+        {{- if .Values.database.standalone.storage.storageClassName }}
+        storageClassName: {{ .Values.database.standalone.storage.storageClassName }}
         {{- end }}
         resources:
           requests:
-            storage: {{ .Values.standalone.storage.size }}
+            storage: {{ .Values.database.standalone.storage.size }}
 {{- end }}

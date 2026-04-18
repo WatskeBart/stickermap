@@ -7,10 +7,10 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   accessModes:
-    - ReadWriteOnce
+    - {{ .Values.backend.uploads.storage.accessMode }}
   resources:
     requests:
-      storage: {{ .Values.uploads.storage.size }}
-  {{- if .Values.uploads.storage.storageClassName }}
-  storageClassName: {{ .Values.uploads.storage.storageClassName }}
+      storage: {{ .Values.backend.uploads.storage.size }}
+  {{- if .Values.backend.uploads.storage.storageClassName }}
+  storageClassName: {{ .Values.backend.uploads.storage.storageClassName }}
   {{- end }}

@@ -1,0 +1,73 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrations
+  labels:
+    app.kubernetes.io/name: migrations
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    # Negative weight so this runs before any other post-install/post-upgrade hooks.
+    "helm.sh/hook-weight": "-5"
+spec:
+  # Allow several retries to handle the case where the database is still
+  # bootstrapping (e.g. CNPG cluster initialisation) when the Job first runs.
+  backoffLimit: 5
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: migrations
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+      containers:
+        - name: migrations
+          image: "{{ required "backend.migrations.image.repository is required" .Values.backend.migrations.image.repository }}:{{ required "backend.migrations.image.tag is required" .Values.backend.migrations.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.migrations.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stickermap.dbSecretName" . }}
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stickermap.dbSecretName" . }}
+                  key: port
+            - name: DB_DBNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stickermap.dbSecretName" . }}
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stickermap.dbSecretName" . }}
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "stickermap.dbSecretName" . }}
+                  key: password
+          {{- with .Values.backend.migrations.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

@@ -1,18 +1,16 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { includeBearerTokenInterceptor } from 'keycloak-angular';
+import { authInterceptor } from 'angular-auth-oidc-client';
 
 import { routes } from './app.routes';
-import { provideKeycloakConfig } from './core/config/keycloak.config';
+import { provideOidcConfig } from './core/config/oidc.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-provideHttpClient(
-      withInterceptors([includeBearerTokenInterceptor])
-    ),
-    ...provideKeycloakConfig(),
+    provideHttpClient(withInterceptors([authInterceptor()])),
+    ...provideOidcConfig(),
   ],
 };

@@ -5,7 +5,7 @@ export const StickerMapRoles = {
   ADMIN: 'sm-admin',
 } as const;
 
-export interface KeycloakUserInfo {
+export interface UserInfo {
   sub?: string;
   name?: string;
   given_name?: string;

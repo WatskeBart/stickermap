@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/name: backend
     app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.backend.replicaCount }}
   selector:
     matchLabels:
       app.kubernetes.io/name: backend
@@ -22,46 +22,10 @@ spec:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-      initContainers:
-        - name: migrations
-          image: "{{ required "backend.migrations.image.repository is required" .Values.migrations.image.repository }}:{{ required "backend.migrations.image.tag is required" .Values.migrations.image.tag }}"
-          imagePullPolicy: {{ .Values.migrations.image.pullPolicy }}
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            capabilities:
-              drop:
-                - ALL
-          env:
-            - name: DB_HOST
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
-                  key: host
-            - name: DB_PORT
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
-                  key: port
-            - name: DB_DBNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
-                  key: dbname
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
-                  key: username
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
-                  key: password
       containers:
         - name: backend
-          image: "{{ required "backend.image.repository is required" .Values.image.repository }}:{{ required "backend.image.tag is required" .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ required "backend.image.repository is required" .Values.backend.image.repository }}:{{ required "backend.image.tag is required" .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 5555
@@ -74,44 +38,43 @@ spec:
                 - ALL
           env:
             # Database — secret name is the same for both cnpg and standalone modes.
-            # CNPG generates it automatically; standalone creates it in the database sub-chart.
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: port
             - name: DB_DBNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: dbname
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-db-stickermap
+                  name: {{ include "stickermap.dbSecretName" . }}
                   key: password
             # Keycloak
-            {{- $keycloakUrl := .Values.keycloakUrl }}
+            {{- $keycloakUrl := .Values.backend.keycloakUrl }}
             {{- if not $keycloakUrl }}
-              {{- if .Values.global.keycloak.enabled }}
+              {{- if .Values.keycloak.enabled }}
                 {{- $keycloakUrl = printf "https://%s" (required "global.hostname is required" .Values.global.hostname) }}
               {{- else }}
-                {{- $keycloakUrl = required "backend.keycloakUrl is required when global.keycloak.enabled is false" "" }}
+                {{- $keycloakUrl = required "backend.keycloakUrl is required when keycloak.enabled is false" "" }}
               {{- end }}
             {{- end }}
-            {{- $keycloakInternalUrl := .Values.keycloakInternalUrl }}
+            {{- $keycloakInternalUrl := .Values.backend.keycloakInternalUrl }}
             {{- if not $keycloakInternalUrl }}
-              {{- if .Values.global.keycloak.enabled }}
+              {{- if .Values.keycloak.enabled }}
                 {{- $keycloakInternalUrl = printf "http://%s-keycloak:8080" .Release.Name }}
               {{- else }}
                 {{- $keycloakInternalUrl = $keycloakUrl }}
@@ -122,9 +85,9 @@ spec:
             - name: KEYCLOAK_INTERNAL_URL
               value: {{ $keycloakInternalUrl | quote }}
             - name: KEYCLOAK_REALM
-              value: {{ .Values.keycloakRealm | quote }}
+              value: {{ .Values.backend.keycloakRealm | quote }}
             - name: KEYCLOAK_CLIENT_ID
-              value: {{ .Values.keycloakClientId | quote }}
+              value: {{ .Values.backend.keycloakClientId | quote }}
             - name: KEYCLOAK_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -134,23 +97,23 @@ spec:
             - name: UPLOAD_DIR
               value: "/app/uploads"
             - name: LOG_LEVEL
-              value: {{ .Values.env.logLevel | quote }}
+              value: {{ .Values.backend.env.logLevel | quote }}
             - name: CORS_ALLOWED_ORIGINS
-              value: {{ .Values.env.corsAllowedOrigins | quote }}
+              value: {{ .Values.backend.env.corsAllowedOrigins | quote }}
             - name: CORS_ALLOWED_METHODS
-              value: {{ .Values.env.corsAllowedMethods | quote }}
+              value: {{ .Values.backend.env.corsAllowedMethods | quote }}
             - name: CORS_ALLOWED_HEADERS
-              value: {{ .Values.env.corsAllowedHeaders | quote }}
+              value: {{ .Values.backend.env.corsAllowedHeaders | quote }}
             - name: CORS_ALLOW_CREDENTIALS
-              value: {{ .Values.env.corsAllowCredentials | quote }}
+              value: {{ .Values.backend.env.corsAllowCredentials | quote }}
             - name: IMAGE_FORMAT
-              value: {{ .Values.env.imageFormat | quote }}
+              value: {{ .Values.backend.env.imageFormat | quote }}
             - name: IMAGE_QUALITY
-              value: {{ .Values.env.imageQuality | quote }}
+              value: {{ .Values.backend.env.imageQuality | quote }}
             - name: IMAGE_MAX_SIZE
-              value: {{ .Values.env.imageMaxSize | quote }}
+              value: {{ .Values.backend.env.imageMaxSize | quote }}
             - name: THUMBNAIL_SIZE
-              value: {{ .Values.env.thumbnailSize | quote }}
+              value: {{ .Values.backend.env.thumbnailSize | quote }}
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads
@@ -168,7 +131,7 @@ spec:
               port: 5555
             initialDelaySeconds: 5
             periodSeconds: 10
-          {{- with .Values.resources }}
+          {{- with .Values.backend.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}

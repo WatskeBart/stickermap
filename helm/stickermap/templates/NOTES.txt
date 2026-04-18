@@ -1,0 +1,55 @@
+StickerMap {{ .Chart.AppVersion }} deployed successfully.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ URLs
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{- $scheme := "http" }}
+{{- if .Values.ingress.tls }}
+  {{- $scheme = "https" }}
+{{- end }}
+{{- $host := required "global.hostname is required" .Values.global.hostname }}
+
+  App:      {{ $scheme }}://{{ $host }}/
+  API docs: {{ $scheme }}://{{ $host }}/api/v1/docs
+{{- if .Values.keycloak.enabled }}
+  Keycloak: {{ $scheme }}://{{ $host }}/admin
+{{- end }}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Configuration
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Database:  {{ .Values.database.mode }}
+{{- if eq .Values.database.mode "cnpg" }}
+  {{- if .Values.database.cnpg.existingCluster }}
+             existing cluster ({{ .Values.database.cnpg.existingCluster }})
+  {{- else }}
+             CloudNativePG — {{ .Values.database.cnpg.instances }} instance(s), {{ .Values.database.cnpg.storage.size }} storage + {{ .Values.database.cnpg.walStorage.size }} WAL
+  {{- end }}
+{{- else }}
+             standalone StatefulSet ({{ .Values.database.standalone.storage.size }} storage)
+{{- end }}
+
+  Keycloak:
+{{- if .Values.keycloak.enabled }}
+             bundled (realm: {{ .Values.backend.keycloakRealm }})
+{{- else }}
+             external — {{ .Values.backend.keycloakUrl }}
+{{- end }}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Next steps
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{{- if .Values.keycloak.enabled }}
+
+  1. Log in to the Keycloak admin console and create at least one user
+     with the sm-viewer (or higher) realm role assigned.
+{{- end }}
+
+  Check rollout status:
+
+    kubectl rollout status deployment/{{ .Release.Name }}-backend   -n {{ .Release.Namespace }}
+    kubectl rollout status deployment/{{ .Release.Name }}-frontend  -n {{ .Release.Namespace }}
+{{- if .Values.keycloak.enabled }}
+    kubectl rollout status deployment/{{ .Release.Name }}-keycloak  -n {{ .Release.Namespace }}
+{{- end }}

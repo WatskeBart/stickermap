@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-04-18
+
+### Added
+
+- Image processing configuration options (max dimensions, quality) configurable via environment variables
+
+### Changed
+
+- Migrated frontend authentication from `keycloak-angular` to `angular-auth-oidc-client` for standards-compliant OIDC support
+
+## [1.6.1] - 2026-04-14
+
+### Changed
+
+- Helm chart refactored into a single flat chart with flexible database modes (`cnpg` or `standalone`) and Helm v4 support (fixes #68)
+- Helm chart documentation updated for v4 requirements and new database/Keycloak configuration options
+
+### Fixed
+
+- Async login not working on mobile devices
+
+### Dependencies
+
+- Bumped `cryptography` to 46.0.7
+
 ## [1.6.0] - 2026-04-10
 
 ### Added
@@ -172,7 +197,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.6.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.6.2...HEAD
+[1.6.2]: https://github.com/WatskeBart/stickermap/compare/1.6.1...1.6.2
+[1.6.1]: https://github.com/WatskeBart/stickermap/compare/1.6.0...1.6.1
 [1.6.0]: https://github.com/WatskeBart/stickermap/compare/1.5.0...1.6.0
 [1.5.0]: https://github.com/WatskeBart/stickermap/compare/1.4.0...1.5.0
 [1.4.0]: https://github.com/WatskeBart/stickermap/compare/1.3.5...1.4.0
