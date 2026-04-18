@@ -93,7 +93,7 @@ The frontend follows a **medium-sized Angular project structure**. Always place 
 ```text
 src/app/
 ├── core/                    ← singleton services, guards, config, models (imported once)
-│   ├── config/              ← keycloak.config.ts
+│   ├── config/              ← oidc.config.ts
 │   ├── guards/              ← auth.guard.ts
 │   ├── models/              ← auth.model.ts, sticker.model.ts
 │   └── services/            ← auth.service.ts, sticker.service.ts, theme.service.ts
@@ -129,12 +129,12 @@ src/app/
 
 **Key files:**
 
-- **`app.config.ts`** — Bootstrap config; Keycloak is initialized here before the app starts.
-- **`core/services/auth.service.ts`** — Wraps `keycloak-js`. Role checks: `isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`. The Angular app is zoneless.
-- **`core/services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Attaches the Keycloak Bearer token.
+- **`app.config.ts`** — Bootstrap config; OIDC auth is initialized here before the app starts via `APP_INITIALIZER`.
+- **`core/services/auth.service.ts`** — Wraps `angular-auth-oidc-client`'s `OidcSecurityService`. Observables are bridged to signals via `toSignal()` for zoneless reactivity. Role checks (`isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`) read `realm_access.roles` from the decoded access token payload.
+- **`core/services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Bearer token is attached automatically by the `authInterceptor()` for routes matching `/api/`.
 - **`features/map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
-- **`core/config/keycloak.config.ts`** — Keycloak client configuration (realm, client ID, URLs via `ngssc` environment injection).
-- **`core/guards/auth.guard.ts`** — Redirects unauthenticated users to Keycloak login.
+- **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()` which registers the `APP_INITIALIZER` that calls `checkAuth()` and handles post-login redirects.
+- **`core/guards/auth.guard.ts`** — Functional `CanActivateFn` that checks `OidcSecurityService.isAuthenticated$`, stores the target URL in localStorage, and triggers `authorize()` if unauthenticated.
 
 Frontend environment variables are injected at container start via `angular-server-side-configuration` (ngssc), which replaces tokens in `index.html` at runtime — not at build time.
 
@@ -151,7 +151,7 @@ sm-admin ⊇ sm-editor ⊇ sm-uploader ⊇ sm-viewer
 - `sm-editor` — can edit any sticker
 - `sm-admin` — can delete stickers, change uploader field
 
-Backend enforces roles via `require_role()` dependency. Frontend hides/shows UI elements via `AuthService.isX()` methods (which call `keycloak.hasRealmRole()`). Because composite roles are configured in Keycloak, a user with `sm-editor` also passes `isUploader()` checks.
+Backend enforces roles via `require_role()` dependency. Frontend hides/shows UI elements via `AuthService.isX()` computed signals, which read `realm_access.roles` from the decoded JWT access token payload. Because composite roles are configured in Keycloak, a user with `sm-editor` also passes `isUploader()` checks.
 
 ### Database
 
