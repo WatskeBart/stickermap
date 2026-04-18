@@ -131,6 +131,7 @@ export class MapComponent implements OnInit {
 
   targetFocus = signal<{ lat: number; lon: number } | null>(null);
   focusStickerId = signal<number | null>(null);
+  viewportParams = signal<{ lat: number; lng: number; zoom: number } | null>(null);
 
   private destroyRef = inject(DestroyRef);
 
@@ -161,6 +162,16 @@ export class MapComponent implements OnInit {
     if (params['id']) {
       this.focusStickerId.set(+params['id']);
     }
+    if (!params['id'] && !params['lon'] && params['lat'] && params['lng'] && params['zoom']) {
+      const lat = parseFloat(params['lat']);
+      const lng = parseFloat(params['lng']);
+      const zoom = parseFloat(params['zoom']);
+      if (!isNaN(lat) && !isNaN(lng) && !isNaN(zoom) &&
+          lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 &&
+          zoom >= 0 && zoom <= 22) {
+        this.viewportParams.set({ lat, lng, zoom });
+      }
+    }
     this.loadStickers();
   }
 
@@ -189,8 +200,11 @@ export class MapComponent implements OnInit {
     });
 
     const target = this.targetFocus();
+    const viewport = this.viewportParams();
     if (target) {
       this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
+    } else if (viewport) {
+      this.mapInstance.jumpTo({ center: [viewport.lng, viewport.lat], zoom: viewport.zoom });
     } else {
       // Handle race: stickers may have loaded before map was ready
       const s = this.stickers();
@@ -198,6 +212,17 @@ export class MapComponent implements OnInit {
         this.fitBoundsToStickers(s);
       }
     }
+
+    map.on('moveend', () => {
+      if (this.locationSelectionMode() || this.editSelectingLocation()) return;
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      const url = new URL(window.location.href);
+      url.searchParams.set('lat', center.lat.toFixed(5));
+      url.searchParams.set('lng', center.lng.toFixed(5));
+      url.searchParams.set('zoom', zoom.toFixed(2));
+      window.history.replaceState(null, '', url.toString());
+    });
   }
 
   loadStickers() {
@@ -249,10 +274,10 @@ export class MapComponent implements OnInit {
             if (this.mapInstance) {
               this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
             }
-          } else {
+          } else if (!this.viewportParams()) {
             this.fitBoundsToStickers(processed);
           }
-        } else {
+        } else if (!this.viewportParams()) {
           this.fitBoundsToStickers(processed);
         }
 
