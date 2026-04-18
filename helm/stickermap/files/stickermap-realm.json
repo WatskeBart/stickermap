@@ -62,7 +62,7 @@
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
-          "realm": ["offline_access", "uma_authorization", "sm-viewer"],
+          "realm": ["offline_access", "uma_authorization"],
           "client": {
             "account": ["view-profile", "manage-account"]
           }
@@ -76,51 +76,6 @@
         "name": "offline_access",
         "description": "${role_offline-access}",
         "composite": false,
-        "clientRole": false,
-        "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1",
-        "attributes": {}
-      },
-      {
-        "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
-        "name": "sm-viewer",
-        "description": "Can view sticker details",
-        "composite": false,
-        "clientRole": false,
-        "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1",
-        "attributes": {}
-      },
-      {
-        "id": "c4d5e6f7-a8b9-0123-def0-234567890123",
-        "name": "sm-uploader",
-        "description": "Can upload new stickers and edit own stickers",
-        "composite": true,
-        "composites": {
-          "realm": ["sm-viewer"]
-        },
-        "clientRole": false,
-        "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1",
-        "attributes": {}
-      },
-      {
-        "id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
-        "name": "sm-editor",
-        "description": "Can edit any sticker's poster, date, and location",
-        "composite": true,
-        "composites": {
-          "realm": ["sm-uploader"]
-        },
-        "clientRole": false,
-        "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1",
-        "attributes": {}
-      },
-      {
-        "id": "b3c4d5e6-f7a8-9012-cdef-123456789012",
-        "name": "sm-admin",
-        "description": "Full access: edit all fields and delete stickers",
-        "composite": true,
-        "composites": {
-          "realm": ["sm-editor"]
-        },
         "clientRole": false,
         "containerId": "9caa72dd-1645-4750-8a95-ad7bc6a12ec1",
         "attributes": {}
@@ -335,7 +290,59 @@
         }
       ],
       "security-admin-console": [],
-      "stickermap-client": [],
+      "stickermap-client": [
+        {
+          "id": "f1a2b3c4-d5e6-7890-abcd-ef1234567890",
+          "name": "sm-viewer",
+          "description": "Can view sticker details",
+          "composite": false,
+          "clientRole": true,
+          "containerId": "60f27b0a-5f71-4ae9-a7d9-d537e5e06dc3",
+          "attributes": {}
+        },
+        {
+          "id": "c4d5e6f7-a8b9-0123-def0-234567890123",
+          "name": "sm-uploader",
+          "description": "Can upload new stickers and edit own stickers",
+          "composite": true,
+          "composites": {
+            "client": {
+              "stickermap-client": ["sm-viewer"]
+            }
+          },
+          "clientRole": true,
+          "containerId": "60f27b0a-5f71-4ae9-a7d9-d537e5e06dc3",
+          "attributes": {}
+        },
+        {
+          "id": "a2b3c4d5-e6f7-8901-bcde-f12345678901",
+          "name": "sm-editor",
+          "description": "Can edit any sticker's poster, date, and location",
+          "composite": true,
+          "composites": {
+            "client": {
+              "stickermap-client": ["sm-uploader"]
+            }
+          },
+          "clientRole": true,
+          "containerId": "60f27b0a-5f71-4ae9-a7d9-d537e5e06dc3",
+          "attributes": {}
+        },
+        {
+          "id": "b3c4d5e6-f7a8-9012-cdef-123456789012",
+          "name": "sm-admin",
+          "description": "Full access: edit all fields and delete stickers",
+          "composite": true,
+          "composites": {
+            "client": {
+              "stickermap-client": ["sm-editor"]
+            }
+          },
+          "clientRole": true,
+          "containerId": "60f27b0a-5f71-4ae9-a7d9-d537e5e06dc3",
+          "attributes": {}
+        }
+      ],
       "admin-cli": [],
       "account-console": [],
       "broker": [
@@ -441,8 +448,10 @@
       "name": "viewers",
       "path": "/viewers",
       "attributes": {},
-      "realmRoles": ["sm-viewer"],
-      "clientRoles": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "stickermap-client": ["sm-viewer"]
+      },
       "subGroups": []
     },
     {
@@ -450,8 +459,10 @@
       "name": "uploaders",
       "path": "/uploaders",
       "attributes": {},
-      "realmRoles": ["sm-uploader"],
-      "clientRoles": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "stickermap-client": ["sm-uploader"]
+      },
       "subGroups": []
     },
     {
@@ -459,8 +470,10 @@
       "name": "editors",
       "path": "/editors",
       "attributes": {},
-      "realmRoles": ["sm-editor"],
-      "clientRoles": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "stickermap-client": ["sm-editor"]
+      },
       "subGroups": []
     },
     {
@@ -468,8 +481,10 @@
       "name": "admins",
       "path": "/admins",
       "attributes": {},
-      "realmRoles": ["sm-admin"],
-      "clientRoles": {},
+      "realmRoles": [],
+      "clientRoles": {
+        "stickermap-client": ["sm-admin"]
+      },
       "subGroups": []
     }
   ],
