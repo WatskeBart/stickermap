@@ -13,14 +13,14 @@ dependencies = [
     "python-dotenv>=1.2.2",
     "PyJWT>=2.12.1",
     "cryptography>=46.0.6",
-    "python-multipart>=0.0.24",
+    "python-multipart>=0.0.26",
     "requests>=2.33.1",
     "uvicorn[standard]>=0.44.0",
 ]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.3",
+    "pytest>=9.0.3",
     "pytest-asyncio>=0.24",
     "httpx>=0.28",
     "pytest-mock>=3.14",
