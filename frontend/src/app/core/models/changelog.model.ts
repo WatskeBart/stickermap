@@ -11,8 +11,15 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
-    version: 'Unreleased',
+    version: '1.8.0',
+    date: '2026-04-19',
     sections: [
+      {
+        type: 'Added',
+        items: [
+          'Release notes dialog shown on first visit after an update',
+        ],
+      },
       {
         type: 'Changed',
         items: [
