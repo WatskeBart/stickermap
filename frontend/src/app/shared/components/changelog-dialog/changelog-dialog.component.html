@@ -1,0 +1,92 @@
+<h2 mat-dialog-title>
+  <mat-icon>new_releases</mat-icon>
+  Wat is er nieuw?
+</h2>
+
+<mat-dialog-content>
+  @if (latestRelease) {
+    <div class="latest-release">
+      <div class="release-header">
+        <span class="version-badge">v{{ latestRelease.version }}</span>
+        @if (latestRelease.date) {
+          <span class="release-date">{{ latestRelease.date }}</span>
+        }
+      </div>
+      @for (section of latestRelease.sections; track section.type) {
+        <div class="section">
+          <div class="section-title">
+            <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
+            <span>{{ section.type }}</span>
+          </div>
+          <ul class="change-list">
+            @for (item of section.items; track item) {
+              <li [innerHTML]="item"></li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  }
+
+  @if (unreleasedEntry && unreleasedEntry.sections.length > 0) {
+    <mat-expansion-panel class="unreleased-panel" [expanded]="false">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>upcoming</mat-icon>
+          Komt eraan (Unreleased)
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      @for (section of unreleasedEntry.sections; track section.type) {
+        <div class="section">
+          <div class="section-title">
+            <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
+            <span>{{ section.type }}</span>
+          </div>
+          <ul class="change-list">
+            @for (item of section.items; track item) {
+              <li [innerHTML]="item"></li>
+            }
+          </ul>
+        </div>
+      }
+    </mat-expansion-panel>
+  }
+
+  @if (olderReleases.length > 0) {
+    <mat-expansion-panel class="history-panel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>history</mat-icon>
+          Volledige changelog ({{ olderReleases.length }} eerdere releases)
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      @for (release of olderReleases; track release.version) {
+        <div class="history-release">
+          <div class="release-header">
+            <span class="version-badge version-badge--small">v{{ release.version }}</span>
+            @if (release.date) {
+              <span class="release-date">{{ release.date }}</span>
+            }
+          </div>
+          @for (section of release.sections; track section.type) {
+            <div class="section">
+              <div class="section-title">
+                <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
+                <span>{{ section.type }}</span>
+              </div>
+              <ul class="change-list">
+                @for (item of section.items; track item) {
+                  <li [innerHTML]="item"></li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
+    </mat-expansion-panel>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="accent" (click)="close()">Begrepen</button>
+</mat-dialog-actions>

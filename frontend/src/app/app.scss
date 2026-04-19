@@ -97,6 +97,12 @@ body::before {
   opacity: 0.6;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.9;
+    text-decoration: underline;
+  }
 }
 
 .user-name {
