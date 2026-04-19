@@ -138,6 +138,33 @@ src/app/
 
 Frontend environment variables are injected at container start via `angular-server-side-configuration` (ngssc), which replaces tokens in `index.html` at runtime — not at build time.
 
+**CSS theming — light/dark mode:**
+
+The app supports light and dark themes via Angular Material's system-level CSS custom properties. Never use hardcoded colours for text, backgrounds, or borders — always use the CSS variables below so components automatically adapt to both themes.
+
+| Purpose | CSS variable | Fallback (light) |
+| --- | --- | --- |
+| Primary text | `var(--mat-sys-on-surface)` | inherits |
+| Secondary / muted text | `var(--mat-sys-on-surface-variant, #555)` | `#555` |
+| Dividers / borders | `var(--mat-sys-outline-variant, rgba(0,0,0,0.12))` | `rgba(0,0,0,0.12)` |
+| Card / surface background | `var(--mat-sys-surface-variant)` | inherits |
+
+**Brand accent colour** — `#e17000` (orange). Use this for icons, badges, labels, and interactive highlights. It is intentionally hardcoded because it is the brand colour and must remain consistent in both light and dark modes.
+
+Example pattern (from `disclaimer-dialog` and `changelog-dialog`):
+
+```scss
+// ✅ Correct — adapts automatically
+.label { color: var(--mat-sys-on-surface-variant, #555); }
+.card  { border: 1px solid var(--mat-sys-outline-variant, rgba(0,0,0,0.12)); }
+
+// ✅ Correct — brand accent, same in both modes
+.icon  { color: #e17000; }
+
+// ❌ Wrong — breaks dark mode
+.label { color: #555; }
+```
+
 ### Auth & RBAC
 
 Roles live in Keycloak as **client roles** scoped to `stickermap-client` with the `sm-` prefix (avoids collision with Keycloak built-ins). They are hierarchical composite roles in Keycloak:

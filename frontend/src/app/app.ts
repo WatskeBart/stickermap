@@ -11,10 +11,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { DisclaimerDialogComponent } from './shared/components/disclaimer-dialog/disclaimer-dialog.component';
+import { ChangelogDialogComponent } from './shared/components/changelog-dialog/changelog-dialog.component';
 import { filter } from 'rxjs/operators';
 import { version } from '../../package.json';
 
 const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
+const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
 
 @Component({
   selector: 'app-root',
@@ -92,6 +94,12 @@ export class App implements OnInit {
       this.currentRoute.set(this.router.url);
       this.updatePageTitle();
     }, 0);
+
+    const lastSeen = localStorage.getItem(RELEASE_NOTES_KEY);
+    if (lastSeen !== this.appVersion) {
+      localStorage.setItem(RELEASE_NOTES_KEY, this.appVersion);
+      this.dialog.open(ChangelogDialogComponent, { width: '640px', maxHeight: '80vh' });
+    }
   }
 
   updatePageTitle(): void {
@@ -141,5 +149,9 @@ export class App implements OnInit {
 
   navigateToOverview(): void {
     this.router.navigate(['/sticker-overview']);
+  }
+
+  openChangelog(): void {
+    this.dialog.open(ChangelogDialogComponent, { width: '640px', maxHeight: '80vh' });
   }
 }

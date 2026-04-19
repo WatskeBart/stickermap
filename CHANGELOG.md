@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-04-19
+
+## [1.8.0] - 2026-04-19
+
+### Added
+
+- Release notes dialog shown on first visit after an update (fixes #66)
+
+### Changed
+
+- Map viewport state (center coordinates and zoom) is now encoded in URL query parameters, enabling shareable and bookmarkable map views (fixes #59)
+
 ## [1.7.0] - 2026-04-18
 
 ### Changed
@@ -207,7 +219,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.7.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.8.0...HEAD
+[1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.8.0
+[1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/WatskeBart/stickermap/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/WatskeBart/stickermap/compare/1.6.1...1.6.2
 [1.6.1]: https://github.com/WatskeBart/stickermap/compare/1.6.0...1.6.1
