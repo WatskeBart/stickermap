@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.0] - 2026-04-19
 
-## [1.8.0] - 2026-04-19
-
 ### Added
 
 - Release notes dialog shown on first visit after an update (fixes #66)
