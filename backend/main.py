@@ -165,11 +165,11 @@ def get_all_stickers(
     cursor = conn.cursor()
     try:
         cursor.execute(
-            "SELECT id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by FROM stickers"
+            "SELECT id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by, updated_at FROM stickers"
         )
         rows = cursor.fetchall()
         if not is_viewer:
-            rows = [(r[0], r[1], None, None, None, None, r[6], None) for r in rows]
+            rows = [(r[0], r[1], None, None, None, None, r[6], None, None) for r in rows]
         return rows
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -183,7 +183,7 @@ def get_sticker(id: int, conn=Depends(get_db), current_user: dict = Depends(requ
     cursor = conn.cursor()
     try:
         cursor.execute(
-            t"SELECT id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by FROM stickers WHERE id = {id}"
+            t"SELECT id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by, updated_at FROM stickers WHERE id = {id}"
         )
         sticker = cursor.fetchone()
         if not sticker:
@@ -282,15 +282,17 @@ def update_sticker(
             set_clauses.append("uploader = %s")
             params.append(update_data["uploader"])
 
+        set_clauses.append("updated_at = NOW()")
         params.append(sticker_id)
 
         query = (
-            f"UPDATE stickers SET {', '.join(set_clauses)} WHERE id = %s RETURNING id"
+            f"UPDATE stickers SET {', '.join(set_clauses)} WHERE id = %s RETURNING id, updated_at"
         )
         cursor.execute(query, tuple(params))
+        row = cursor.fetchone()
         conn.commit()
 
-        return {"message": f"Sticker {sticker_id} updated successfully"}
+        return {"message": f"Sticker {sticker_id} updated successfully", "updated_at": row[1]}
     except HTTPException:
         raise
     except Exception as e:
