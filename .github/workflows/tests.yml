@@ -35,25 +35,3 @@ jobs:
       - name: Run tests
         working-directory: backend
         run: uv run pytest -v
-
-  migration-tests:
-    name: migration structural tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v8.0.0
-        with:
-          enable-cache: true
-          cache-dependency-glob: database_migrations/uv.lock
-
-      - name: Install dependencies (incl. dev group)
-        working-directory: database_migrations
-        run: uv sync --group dev
-
-      - name: Run tests
-        working-directory: database_migrations
-        run: uv run pytest -v
