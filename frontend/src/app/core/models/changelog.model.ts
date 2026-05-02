@@ -11,6 +11,32 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.9.0',
+    date: '2026-05-02',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Database connection pooling for improved concurrency and resource utilisation',
+          'Targeted database indexes on frequently queried columns for improved query performance',
+          '<code>updated_at</code> column on stickers for auditability, automatically updated on every write',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Increased backend memory limit in Helm chart values',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Removed migration structural tests and the associated CI job',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.8.0',
     date: '2026-04-19',
     sections: [

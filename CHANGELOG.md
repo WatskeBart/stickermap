@@ -7,7 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.8.0] - 2026-04-19
+## [1.9.0] - 2026-05-02
+
+### Added
+
+- Database connection pooling for improved concurrency and resource utilisation (fixes #79)
+- Targeted database indexes on frequently queried columns for improved query performance (fixes #80)
+- `updated_at` column on stickers for auditability, automatically updated on every write (fixes #81)
+
+### Fixed
+
+- Increased backend memory limit in Helm chart values
+
+### Changed
+
+- Removed migration structural tests and the associated CI job
 
 ## [1.8.0] - 2026-04-19
 
@@ -219,8 +233,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.8.0...HEAD
-[1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.8.0
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.9.0...HEAD
+[1.9.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/WatskeBart/stickermap/compare/1.6.2...1.7.0
 [1.6.2]: https://github.com/WatskeBart/stickermap/compare/1.6.1...1.6.2
