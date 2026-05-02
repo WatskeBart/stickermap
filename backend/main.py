@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from logger import get_logger, setup_logging
 from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER, get_current_user, get_user_identity, get_user_roles, require_role
-from connections import DatabaseManager
+from connections import get_pool
 from environment import Config
 from file_handlers import FileValidator, GPSExtractor, ImageProcessor
 from models import CreateStickersRequest, UpdateStickerRequest
@@ -45,11 +45,8 @@ router = APIRouter(prefix=url_prefix)
 
 
 def get_db():
-    conn = DatabaseManager.get_connection()
-    try:
+    with get_pool().connection() as conn:
         yield conn
-    finally:
-        conn.close()
 
 
 @router.get("/")
