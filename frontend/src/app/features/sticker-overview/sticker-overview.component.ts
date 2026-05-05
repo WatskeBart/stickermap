@@ -25,6 +25,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs/operators';
 
 import { Router } from '@angular/router';
 import { StickerService } from '../../core/services/sticker.service';
@@ -74,6 +77,14 @@ export class StickerOverviewComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
+  private breakpointObserver = inject(BreakpointObserver);
+
+  isHandset = toSignal(
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
+      .pipe(map((r) => r.matches)),
+    { initialValue: false },
+  );
 
   private readonly _ = effect(() => {
     this.dataSource.sort = this.sort() ?? null;
@@ -96,8 +107,17 @@ export class StickerOverviewComponent implements OnInit {
   bulkDeleteEnabled = computed(() => this.isAdmin() && this.hasSelection());
 
   displayedColumns = computed<string[]>(() => {
-    const base: string[] = ['thumbnail', 'post_date', 'upload_date', 'location', 'view-on-map'];
-    if (this.isViewer()) base.splice(1, 0, 'poster', 'uploader');
+    const handset = this.isHandset();
+    const base: string[] = handset
+      ? ['thumbnail', 'location', 'view-on-map']
+      : ['thumbnail', 'post_date', 'upload_date', 'location', 'view-on-map'];
+    if (this.isViewer()) {
+      if (handset) {
+        base.splice(1, 0, 'poster');
+      } else {
+        base.splice(1, 0, 'poster', 'uploader');
+      }
+    }
     if (this.isAuthenticated()) base.push('actions');
     return this.isAdmin() ? ['select', ...base] : base;
   });
@@ -145,7 +165,7 @@ export class StickerOverviewComponent implements OnInit {
             upload_date: s[5],
             image: s[6],
             uploaded_by: uploadedBy,
-            imageUrl: `/uploads/${s[6]}`,
+            imageUrl: s[8] ?? s[5] ? `/uploads/${s[6]}?v=${new Date(s[8] ?? s[5]).getTime()}` : `/uploads/${s[6]}`,
             canEdit: this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner),
             canDelete: this.isAdmin(),
           };

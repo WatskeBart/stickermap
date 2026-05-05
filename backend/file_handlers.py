@@ -1,8 +1,9 @@
+import os
 from io import BytesIO
 
 import exifread
 from fastapi import HTTPException
-from PIL import Image
+from PIL import Image, ImageOps
 
 from logger import get_logger
 
@@ -69,6 +70,7 @@ class ImageProcessor:
         Returns (full_image_bytes, thumbnail_bytes). EXIF data is not preserved.
         """
         img = Image.open(BytesIO(image_bytes))
+        img = ImageOps.exif_transpose(img)
 
         if fmt.upper() == "JPEG" and img.mode not in ("RGB", "L"):
             img = img.convert("RGB")
@@ -94,6 +96,20 @@ class ImageProcessor:
             thumb_buf.tell(),
         )
         return full_buf.getvalue(), thumb_buf.getvalue()
+
+
+def rotate_image_file(image_path: str, thumb_path: str | None, degrees: int, quality: int = 85) -> None:
+    """Rotate an image file in-place. Also rotates the thumbnail if the path exists."""
+    for path in filter(None, [image_path, thumb_path if thumb_path and os.path.exists(thumb_path) else None]):
+        img = Image.open(path)
+        fmt = img.format or "JPEG"
+        rotated = img.rotate(degrees, expand=True)
+        save_kwargs: dict = {"format": fmt}
+        if fmt.upper() in ("JPEG", "WEBP"):
+            save_kwargs["quality"] = quality
+            save_kwargs["optimize"] = True
+        rotated.save(path, **save_kwargs)
+    logger.debug("Rotated image %s by %d degrees", image_path, degrees)
 
 
 def strip_exif(filepath: str) -> None:

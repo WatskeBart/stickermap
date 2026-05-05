@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-05-05
+
+### Added
+
+- Image rotation support: manual rotate action and automatic EXIF-based orientation on upload (fixes #85)
+
+### Changed
+
+- Refactored frontend UI for mobile responsiveness (fixes #87)
+
 ## [1.9.0] - 2026-05-02
 
 ### Added
@@ -233,7 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.9.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.10.0...HEAD
+[1.10.0]: https://github.com/WatskeBart/stickermap/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/WatskeBart/stickermap/compare/1.6.2...1.7.0

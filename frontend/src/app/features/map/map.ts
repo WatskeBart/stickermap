@@ -9,6 +9,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { StickerService } from '../../core/services/sticker.service';
@@ -54,6 +56,8 @@ interface ProcessedSticker {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
   ],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
@@ -105,6 +109,9 @@ export class MapComponent implements OnInit {
   } | null>(null);
   editSaving = signal(false);
   editSelectingLocation = signal(false);
+  editImageUrl = signal('');
+  editRotating = signal<'cw' | 'ccw' | null>(null);
+  editHasRotated = signal(false);
   uploaderList = signal<string[]>([]);
 
   // MapLibre style for OSM raster tiles
@@ -358,6 +365,9 @@ export class MapComponent implements OnInit {
     this.stickerService.getSticker(stickerId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (sticker: any) => {
         const geom = JSON.parse(sticker[1]);
+        this.editImageUrl.set(`/uploads/${sticker[6]}`);
+        this.editHasRotated.set(false);
+        this.editRotating.set(null);
         this.editingSticker.set({
           id: sticker[0],
           poster: sticker[2],
@@ -386,6 +396,8 @@ export class MapComponent implements OnInit {
     this.editForm.set(null);
     this.editSaving.set(false);
     this.editSelectingLocation.set(false);
+    this.editRotating.set(null);
+    this.editHasRotated.set(false);
   }
 
   saveEdit(): void {
@@ -418,8 +430,15 @@ export class MapComponent implements OnInit {
     }
 
     if (Object.keys(updates).length === 0) {
-      this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
-      this.editSaving.set(false);
+      if (this.editHasRotated()) {
+        this.editSaving.set(false);
+        this.closeEditModal();
+        this.refreshStickers();
+        this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
+      } else {
+        this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
+        this.editSaving.set(false);
+      }
       return;
     }
 
@@ -482,6 +501,30 @@ export class MapComponent implements OnInit {
       this.editSelectingLocation.set(false);
       this.setF35Cursor(0);
     }
+  }
+
+  rotateEdit(direction: 'cw' | 'ccw'): void {
+    const sticker = this.editingSticker();
+    if (!sticker) return;
+    this.editRotating.set(direction);
+    this.stickerService.rotateSticker(sticker.id, direction)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.editRotating.set(null);
+          this.editHasRotated.set(true);
+          const base = this.editImageUrl().split('?')[0];
+          this.editImageUrl.set(`${base}?t=${Date.now()}`);
+        },
+        error: (err: any) => {
+          this.editRotating.set(null);
+          this.snackBar.open(
+            `Roteren mislukt: ${err.error?.detail || err.message}`,
+            'Sluiten',
+            { duration: 5000 },
+          );
+        },
+      });
   }
 
   // --- Delete Confirmation (MatDialog) ---
