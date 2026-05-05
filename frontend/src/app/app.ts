@@ -1,18 +1,22 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatListModule } from '@angular/material/list';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { AuthService } from './core/services/auth.service';
 import { ThemeService } from './core/services/theme.service';
 import { DisclaimerDialogComponent } from './shared/components/disclaimer-dialog/disclaimer-dialog.component';
 import { ChangelogDialogComponent } from './shared/components/changelog-dialog/changelog-dialog.component';
-import { filter } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { version } from '../../package.json';
 
 const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
@@ -20,81 +24,45 @@ const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MatToolbarModule, MatButtonModule, MatIconModule, MatTooltipModule, MatSlideToggleModule, MatDialogModule],
+  imports: [
+    RouterOutlet,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatSlideToggleModule,
+    MatSidenavModule,
+    MatListModule,
+    MatDividerModule,
+    MatDialogModule,
+  ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
 })
 export class App implements OnInit {
   readonly appVersion = version;
-  currentRoute = signal('');
-  pageTitle = signal('');
-  pageSubtitle = signal('');
 
-  private subtitles = [
-    '"Sticker, sticker, welke sticker?"',
-    '"Was al"',
-    '"Een sticker in de morgen, is een dag zonder zorgen"',
-    '"Nou, nou, hier heb je een sticker"',
-    '"Stickerje, stickerje, aan de wand. ASEC heeft de beste sticker van het land!"',
-    '"Plak een sticker, maak een vriend"',
-    '"Stickers maken alles beter"',
-    '"Een dag niet gestickerd, is een dag niet geleefd"',
-    '"Leef, lach, sticker"',
-    '"Wie het eerst plakt, het eerst maalt"',
-    '"Sticker mee, sticker blij"',
-    '"Een sticker komt nooit alleen"',
-    '"Stickeren is zilver, verzamelen is goud"',
-    '"Beter een sticker op de wand, dan tien in de lucht"',
-    '"Oost, west, stickers best"',
-  ];
-
-  showViewMapButton = computed(() => {
-    const route = this.currentRoute();
-    const isLandingPage = route === '/' || route.startsWith('/?') || route.startsWith('/#');
-    return !route.includes('/map') && !isLandingPage;
-  });
-
-  showAddStickerButton = computed(() => {
-    const route = this.currentRoute();
-    const isLandingPage = route === '/' || route.startsWith('/?') || route.startsWith('/#');
-    return !route.includes('/add-sticker') && !isLandingPage && this.authService.isUploader();
-  });
-
-  showOverviewButton = computed(() => {
-    const route = this.currentRoute();
-    const isLandingPage = route === '/' || route.startsWith('/?') || route.startsWith('/#');
-    return !route.includes('/sticker-overview') && !isLandingPage;
-  });
-
+  private breakpointObserver = inject(BreakpointObserver);
   private dialog = inject(MatDialog);
   private destroyRef = inject(DestroyRef);
+
+  isHandset = toSignal(
+    this.breakpointObserver
+      .observe([Breakpoints.XSmall, Breakpoints.Small])
+      .pipe(map((r) => r.matches)),
+    { initialValue: false },
+  );
+
+  private hovering = signal(false);
+  sidenavExpanded = computed(() => this.isHandset() || this.hovering());
 
   constructor(
     public authService: AuthService,
     public themeService: ThemeService,
     private router: Router,
-  ) {
-    this.pageSubtitle.set(this.getRandomSubtitle());
-  }
-
-  private getRandomSubtitle(): string {
-    const randomIndex = Math.floor(Math.random() * this.subtitles.length);
-    return this.subtitles[randomIndex];
-  }
+  ) {}
 
   ngOnInit(): void {
-    this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd), takeUntilDestroyed(this.destroyRef))
-      .subscribe((event: NavigationEnd) => {
-        this.currentRoute.set(event.urlAfterRedirects);
-        this.updatePageTitle();
-      });
-
-    setTimeout(() => {
-      this.currentRoute.set(this.router.url);
-      this.updatePageTitle();
-    }, 0);
-
     const lastSeen = localStorage.getItem(RELEASE_NOTES_KEY);
     if (lastSeen !== this.appVersion) {
       localStorage.setItem(RELEASE_NOTES_KEY, this.appVersion);
@@ -102,16 +70,9 @@ export class App implements OnInit {
     }
   }
 
-  updatePageTitle(): void {
-    const route = this.currentRoute();
-    if (route.includes('/add-sticker')) {
-      this.pageTitle.set('Nieuwe Sticker Toevoegen');
-    } else if (route.includes('/map')) {
-      this.pageTitle.set('Kaart');
-    } else if (route.includes('/sticker-overview')) {
-      this.pageTitle.set('Sticker Overzicht');
-    } else {
-      this.pageTitle.set('');
+  onSidenavHover(hovering: boolean): void {
+    if (!this.isHandset()) {
+      this.hovering.set(hovering);
     }
   }
 

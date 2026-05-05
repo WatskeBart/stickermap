@@ -15,113 +15,154 @@ body::before {
   pointer-events: none;
 }
 
-.app-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  background: linear-gradient(135deg, #0d3662 0%, #041830 100%) !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+.app-shell {
+  position: fixed;
+  inset: 0;
+  background: transparent;
 }
 
-.toolbar-left {
+$rail-width: 64px;
+$expanded-width: 240px;
+
+.app-sidenav {
+  width: $rail-width;
+  overflow-x: hidden;
+  background: linear-gradient(180deg, #0d3662 0%, #041830 100%) !important;
+  color: white;
+  border-right: none;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  transition: width 0.2s ease;
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
 
-  button[mat-button] {
-    color: white;
-    border: 1px solid rgba(225, 112, 0, 0.7);
-    border-radius: 4px;
+  &.expanded {
+    width: $expanded-width;
+  }
 
-    mat-icon {
-      color: white;
+  // Override Material list/icon colors to white on the navy background
+  ::ng-deep {
+    .mat-mdc-list-item,
+    .mat-mdc-list-item-unscoped-content,
+    .mdc-list-item__primary-text,
+    .mat-mdc-list-item-icon,
+    .mat-icon {
+      color: white !important;
     }
 
-    &:hover {
-      background: rgba(225, 112, 0, 0.15);
+    .mat-mdc-list-item:hover {
+      background: rgba(225, 112, 0, 0.15) !important;
     }
   }
 }
 
-.toolbar-spacer {
-  flex: 1;
-}
-
-.toolbar-center {
-  flex: 2;
-  text-align: center;
-  pointer-events: none;
-}
-
-.toolbar-right {
+.sidenav-header {
+  background: transparent;
+  color: white;
+  height: 64px;
+  min-height: 64px;
   display: flex;
   align-items: center;
   gap: 0.75rem;
-}
-
-.app-title {
-  font-size: 1.8rem;
-  font-weight: 700;
+  padding: 0 1rem;
   cursor: pointer;
-  white-space: nowrap;
-  padding-right: 0.5rem;
-}
-
-.page-title {
   font-size: 1.4rem;
-  font-weight: 600;
-}
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
 
-.page-subtitle {
-  font-style: italic;
-  opacity: 0.9;
-  font-size: 1rem;
-}
+  .brand-icon {
+    color: #e17000 !important;
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+  }
 
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-
-  mat-icon {
+  .brand-title {
     color: white;
-    font-size: 1.2rem;
-    width: 1.2rem;
-    height: 1.2rem;
+  }
+}
+
+.sidenav-nav {
+  padding-top: 0.5rem;
+
+  .mat-mdc-list-item {
+    cursor: pointer;
+  }
+}
+
+.sidenav-spacer {
+  flex: 1;
+}
+
+.sidenav-controls {
+  .theme-row {
+    cursor: pointer;
+  }
+
+  .theme-toggle {
+    margin-left: auto;
+  }
+
+  .user-name {
+    margin-left: auto;
+    font-size: 0.8rem;
     opacity: 0.85;
   }
 }
 
-.app-version {
+.sidenav-footer {
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  height: 40px;
+  min-height: 40px;
   font-size: 0.75rem;
-  opacity: 0.6;
   letter-spacing: 0.04em;
-  white-space: nowrap;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1rem;
 
   &:hover {
-    opacity: 0.9;
+    color: white;
     text-decoration: underline;
   }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
 }
 
-.user-name {
-  font-weight: 500;
-  opacity: 0.9;
+.app-content {
+  background: transparent;
+  position: relative;
+  overflow: auto;
 }
 
-@media (max-width: 768px) {
-  .app-toolbar {
-    flex-wrap: wrap;
-    height: auto;
-    padding: 0.5rem;
+.mobile-menu-btn {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 1100;
+  background: transparent !important;
+  box-shadow: none;
+  width: 56px;
+  height: 56px;
+  color: #e17000 !important;
+
+  ::ng-deep .mat-mdc-button-persistent-ripple,
+  ::ng-deep .mat-mdc-button-ripple,
+  ::ng-deep .mat-mdc-focus-indicator {
+    display: none !important;
   }
 
-  .app-title {
-    font-size: 1.4rem;
-  }
-
-  .toolbar-center {
-    display: none;
+  mat-icon {
+    color: #e17000 !important;
+    font-size: 36px;
+    width: 36px;
+    height: 36px;
   }
 }
