@@ -11,8 +11,8 @@ from logger import get_logger, setup_logging
 from auth import ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER, get_current_user, get_user_identity, get_user_roles, require_role
 from connections import get_pool
 from environment import Config
-from file_handlers import FileValidator, GPSExtractor, ImageProcessor
-from models import CreateStickersRequest, UpdateStickerRequest
+from file_handlers import FileValidator, GPSExtractor, ImageProcessor, rotate_image_file
+from models import CreateStickersRequest, RotateRequest, UpdateStickerRequest
 
 load_dotenv()
 
@@ -347,6 +347,63 @@ def get_stats(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        cursor.close()
+
+
+@router.patch("/stickers/{sticker_id}/rotate", status_code=200)
+def rotate_sticker(
+    sticker_id: int,
+    request: RotateRequest,
+    conn=Depends(get_db),
+    current_user: dict = Depends(require_role(ROLE_UPLOADER)),
+):
+    """Rotate a sticker image 90° CW/CCW or 180°. Owner or editor required."""
+    user_roles = get_user_roles(current_user)
+    user_id = get_user_identity(current_user)
+
+    cursor = conn.cursor()
+    try:
+        cursor.execute(t"SELECT id, image, uploaded_by FROM stickers WHERE id = {sticker_id}")
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Sticker not found")
+
+        image_filename = row[1]
+        uploaded_by = row[2]
+
+        is_editor = ROLE_EDITOR in user_roles
+        is_admin = ROLE_ADMIN in user_roles
+        if not (is_editor or is_admin) and uploaded_by != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only rotate your own stickers",
+            )
+
+        if not image_filename:
+            raise HTTPException(status_code=400, detail="Sticker has no image")
+
+        upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+        image_path = os.path.join(upload_dir, image_filename)
+        if not os.path.exists(image_path):
+            raise HTTPException(status_code=404, detail="Image file not found")
+
+        degrees = {"cw": -90, "ccw": 90, "180": 180}[request.direction]
+        base, ext = os.path.splitext(image_filename)
+        thumb_path = os.path.join(upload_dir, f"{base}_thumb{ext}")
+        rotate_image_file(image_path, thumb_path, degrees, quality=Config.IMAGE_QUALITY)
+
+        cursor.execute(
+            t"UPDATE stickers SET updated_at = NOW() WHERE id = {sticker_id} RETURNING id, ST_AsGeoJSON(location), poster, uploader, post_date, upload_date, image, uploaded_by, updated_at"
+        )
+        updated_row = cursor.fetchone()
+        conn.commit()
+        return updated_row
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Rotation failed: {str(e)}")
     finally:
         cursor.close()
 

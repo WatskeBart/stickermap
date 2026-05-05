@@ -305,6 +305,97 @@ class TestUpdateSticker:
         assert resp.status_code == 404
 
 
+# ── PATCH /api/v1/stickers/{id}/rotate ───────────────────────────────────────
+
+class TestRotateSticker:
+    _url = "/api/v1/stickers/1/rotate"
+    _payload = {"direction": "cw"}
+    _sticker_row = (1, "img.jpg", "owner")
+    _updated_row = (
+        1, '{"type":"Point","coordinates":[13.4,52.5]}',
+        "Artist", "user1", "2024-01-01", "2024-01-02", "img.jpg", "owner", "2024-01-03",
+    )
+
+    def test_returns_401_without_auth(self, db):
+        set_user(None)
+        with TestClient(app) as client:
+            resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 401
+
+    def test_returns_403_with_viewer_role(self, db):
+        set_user(make_user([ROLE_VIEWER]))
+        with TestClient(app) as client:
+            resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 403
+
+    def test_returns_400_for_invalid_direction(self, db):
+        conn, cursor = db
+        cursor.fetchone.return_value = self._sticker_row
+        set_user(make_user([ROLE_UPLOADER], username="owner"))
+        with TestClient(app) as client:
+            resp = client.patch(self._url, json={"direction": "diagonal"})
+        assert resp.status_code == 422
+
+    def test_returns_404_when_sticker_not_found(self, db):
+        conn, cursor = db
+        cursor.fetchone.return_value = None
+        set_user(make_user([ROLE_UPLOADER], username="owner"))
+        with TestClient(app) as client:
+            resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 404
+
+    def test_uploader_cannot_rotate_others_sticker(self, db):
+        conn, cursor = db
+        cursor.fetchone.return_value = (1, "img.jpg", "actualowner")
+        set_user(make_user([ROLE_UPLOADER], username="nottheowner"))
+        with TestClient(app) as client:
+            resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 403
+
+    def test_uploader_can_rotate_own_sticker(self, db, tmp_path):
+        img_file = tmp_path / "img.jpg"
+        img_file.write_bytes(make_png_bytes())
+        conn, cursor = db
+        cursor.fetchone.side_effect = [self._sticker_row, self._updated_row]
+        set_user(make_user([ROLE_UPLOADER], username="owner"))
+        with patch("main.os.getenv", return_value=str(tmp_path)):
+            with TestClient(app) as client:
+                resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 200
+
+    def test_editor_can_rotate_any_sticker(self, db, tmp_path):
+        img_file = tmp_path / "img.jpg"
+        img_file.write_bytes(make_png_bytes())
+        conn, cursor = db
+        cursor.fetchone.side_effect = [(1, "img.jpg", "someoneelse"), self._updated_row]
+        set_user(make_user([ROLE_UPLOADER, ROLE_EDITOR], username="editor"))
+        with patch("main.os.getenv", return_value=str(tmp_path)):
+            with TestClient(app) as client:
+                resp = client.patch(self._url, json={"direction": "ccw"})
+        assert resp.status_code == 200
+
+    def test_returns_404_when_image_file_missing(self, db, tmp_path):
+        conn, cursor = db
+        cursor.fetchone.return_value = (1, "missing.jpg", "owner")
+        set_user(make_user([ROLE_UPLOADER], username="owner"))
+        with patch("main.os.getenv", return_value=str(tmp_path)):
+            with TestClient(app) as client:
+                resp = client.patch(self._url, json=self._payload)
+        assert resp.status_code == 404
+
+    def test_all_directions_accepted(self, db, tmp_path):
+        img_file = tmp_path / "img.jpg"
+        img_file.write_bytes(make_png_bytes())
+        for direction in ("cw", "ccw", "180"):
+            conn, cursor = db
+            cursor.fetchone.side_effect = [self._sticker_row, self._updated_row]
+            set_user(make_user([ROLE_UPLOADER], username="owner"))
+            with patch("main.os.getenv", return_value=str(tmp_path)):
+                with TestClient(app) as client:
+                    resp = client.patch(self._url, json={"direction": direction})
+            assert resp.status_code == 200, f"direction={direction} failed"
+
+
 # ── DELETE /api/v1/sticker/{id} ──────────────────────────────────────────────
 
 class TestDeleteSticker:

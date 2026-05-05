@@ -46,6 +46,10 @@ export class StickerService {
     return this.http.get<{ uploaders: string[] }>(`${this.apiUrl}/uploaders`);
   }
 
+  rotateSticker(id: number, direction: 'cw' | 'ccw' | '180'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/stickers/${id}/rotate`, { direction });
+  }
+
   getStats(): Observable<StickerStats> {
     return this.http.get<StickerStats>(`${this.apiUrl}/stats`);
   }

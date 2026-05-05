@@ -6,8 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
@@ -31,7 +33,9 @@ export interface EditDialogResult {
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatIconModule,
     MatProgressSpinnerModule,
+    MatTooltipModule,
   ],
   templateUrl: './edit-sticker-dialog.component.html',
 })
@@ -43,6 +47,9 @@ export class EditStickerDialogComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   saving = signal(false);
+  rotating = signal<'cw' | 'ccw' | null>(null);
+  hasRotated = signal(false);
+  imageUrl = signal('');
   uploaderList = signal<string[]>([]);
 
   poster = signal('');
@@ -53,6 +60,7 @@ export class EditStickerDialogComponent implements OnInit {
 
   ngOnInit(): void {
     const s = this.data.sticker;
+    this.imageUrl.set(s.imageUrl);
     this.poster.set(s.poster);
     this.postDate.set(s.post_date);
     this.lat.set(s.lat);
@@ -81,7 +89,11 @@ export class EditStickerDialogComponent implements OnInit {
     }
 
     if (Object.keys(updates).length === 0) {
-      this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
+      if (this.hasRotated()) {
+        this.dialogRef.close({ updated: true } satisfies EditDialogResult);
+      } else {
+        this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
+      }
       return;
     }
 
@@ -102,7 +114,29 @@ export class EditStickerDialogComponent implements OnInit {
     });
   }
 
+  rotate(direction: 'cw' | 'ccw'): void {
+    this.rotating.set(direction);
+    this.stickerService.rotateSticker(this.data.sticker.id, direction)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.rotating.set(null);
+          this.hasRotated.set(true);
+          const base = this.imageUrl().split('?')[0];
+          this.imageUrl.set(`${base}?t=${Date.now()}`);
+        },
+        error: (err: any) => {
+          this.rotating.set(null);
+          this.snackBar.open(
+            `Roteren mislukt: ${err.error?.detail || err.message}`,
+            'Sluiten',
+            { duration: 5000 },
+          );
+        },
+      });
+  }
+
   cancel(): void {
-    this.dialogRef.close({ updated: false } satisfies EditDialogResult);
+    this.dialogRef.close({ updated: this.hasRotated() } satisfies EditDialogResult);
   }
 }
