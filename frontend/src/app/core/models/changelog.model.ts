@@ -11,6 +11,24 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.10.0',
+    date: '2026-05-05',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Image rotation support: manual rotate action and automatic EXIF-based orientation on upload',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Refactored frontend UI for mobile responsiveness',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.9.0',
     date: '2026-05-02',
     sections: [
