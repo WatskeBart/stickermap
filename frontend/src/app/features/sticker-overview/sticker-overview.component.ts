@@ -165,7 +165,7 @@ export class StickerOverviewComponent implements OnInit {
             upload_date: s[5],
             image: s[6],
             uploaded_by: uploadedBy,
-            imageUrl: `/uploads/${s[6]}`,
+            imageUrl: s[8] ?? s[5] ? `/uploads/${s[6]}?v=${new Date(s[8] ?? s[5]).getTime()}` : `/uploads/${s[6]}`,
             canEdit: this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner),
             canDelete: this.isAdmin(),
           };

@@ -125,6 +125,35 @@
     <div class="edit-modal" (click)="$event.stopPropagation()">
       <button class="modal-close" (click)="closeEditModal()">&times;</button>
       <h3>Sticker Bewerken</h3>
+      <div class="modal-image-preview">
+        <img [src]="editImageUrl()" class="modal-preview-img" alt="Sticker preview" />
+        <div class="modal-rotate-actions">
+          <button
+            mat-icon-button
+            (click)="rotateEdit('ccw')"
+            [disabled]="editRotating() !== null || editSaving()"
+            matTooltip="Roteer links"
+          >
+            @if (editRotating() === 'ccw') {
+              <mat-progress-spinner mode="indeterminate" diameter="18" />
+            } @else {
+              <mat-icon>rotate_left</mat-icon>
+            }
+          </button>
+          <button
+            mat-icon-button
+            (click)="rotateEdit('cw')"
+            [disabled]="editRotating() !== null || editSaving()"
+            matTooltip="Roteer rechts"
+          >
+            @if (editRotating() === 'cw') {
+              <mat-progress-spinner mode="indeterminate" diameter="18" />
+            } @else {
+              <mat-icon>rotate_right</mat-icon>
+            }
+          </button>
+        </div>
+      </div>
       @if (editForm(); as form) {
         <div class="edit-form">
           <mat-form-field appearance="outline" class="full-width">

@@ -131,7 +131,7 @@ keycloak:
     pullPolicy: IfNotPresent
 
   # REQUIRED when keycloak.enabled is true: Password for the Keycloak admin console user.
-  adminPassword: ""
+  adminPassword: admin
   adminUsername: admin
 
   # Password for the Keycloak PostgreSQL user. Leave empty to auto-generate.

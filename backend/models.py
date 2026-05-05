@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -25,3 +25,7 @@ class UpdateStickerRequest(BaseModel):
     post_date: Optional[str] = None
     location: Optional[StickerLocation] = None
     uploader: Optional[str] = None
+
+
+class RotateRequest(BaseModel):
+    direction: Literal["cw", "ccw", "180"]
