@@ -1,6 +1,6 @@
 :host {
   display: block;
-  min-height: calc(100vh - 64px);
+  min-height: 100vh;
   padding: 1.5rem;
   box-sizing: border-box;
 }
@@ -78,6 +78,11 @@
   display: flex;
   gap: 4px;
   align-items: center;
+
+  button {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 .no-data-cell {
@@ -108,12 +113,13 @@
 
 @media (max-width: 768px) {
   :host {
-    padding: 0.75rem;
+    padding: 0.75rem 0.5rem;
+    padding-top: 60px; // leave space for floating mobile menu button
   }
 
   .sticker-thumb {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
   }
 
   .overview-header {
@@ -123,5 +129,17 @@
     .header-left {
       max-width: 100%;
     }
+  }
+
+  .sticker-table {
+    th,
+    td {
+      padding: 0 6px !important;
+      font-size: 0.85rem;
+    }
+  }
+
+  .location-cell {
+    font-size: 0.72rem;
   }
 }
