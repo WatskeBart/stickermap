@@ -17,21 +17,21 @@
     </mat-toolbar>
 
     <mat-nav-list class="sidenav-nav">
-      <a mat-list-item (click)="navigateHome(); isHandset() && sidenav.close()" [matTooltip]="sidenavExpanded() ? '' : 'Home'" matTooltipPosition="right">
+      <a mat-list-item (click)="navigateHome(); isHandset() && sidenav.close()" matTooltip="Home" matTooltipPosition="right">
         <mat-icon matListItemIcon>home</mat-icon>
         @if (sidenavExpanded()) { <span matListItemTitle>Home</span> }
       </a>
-      <a mat-list-item (click)="navigateToMap(); isHandset() && sidenav.close()" [matTooltip]="sidenavExpanded() ? '' : 'Bekijk Kaart'" matTooltipPosition="right">
+      <a mat-list-item (click)="navigateToMap(); isHandset() && sidenav.close()" matTooltip="Bekijk Kaart" matTooltipPosition="right">
         <mat-icon matListItemIcon>map</mat-icon>
         @if (sidenavExpanded()) { <span matListItemTitle>Bekijk Kaart</span> }
       </a>
       @if (authService.isUploader()) {
-        <a mat-list-item (click)="navigateToAddSticker(); isHandset() && sidenav.close()" [matTooltip]="sidenavExpanded() ? '' : 'Sticker Toevoegen'" matTooltipPosition="right">
+        <a mat-list-item (click)="navigateToAddSticker(); isHandset() && sidenav.close()" matTooltip="Sticker Toevoegen" matTooltipPosition="right">
           <mat-icon matListItemIcon>add_location_alt</mat-icon>
           @if (sidenavExpanded()) { <span matListItemTitle>Sticker Toevoegen</span> }
         </a>
       }
-      <a mat-list-item (click)="navigateToOverview(); isHandset() && sidenav.close()" [matTooltip]="sidenavExpanded() ? '' : 'Sticker Overzicht'" matTooltipPosition="right">
+      <a mat-list-item (click)="navigateToOverview(); isHandset() && sidenav.close()" matTooltip="Sticker Overzicht" matTooltipPosition="right">
         <mat-icon matListItemIcon>table_view</mat-icon>
         @if (sidenavExpanded()) { <span matListItemTitle>Sticker Overzicht</span> }
       </a>
@@ -42,7 +42,7 @@
     <mat-divider />
 
     <div class="sidenav-controls">
-      <a mat-list-item class="theme-row" (click)="themeService.toggle()" [matTooltip]="sidenavExpanded() ? '' : 'Thema wisselen'" matTooltipPosition="right">
+      <a mat-list-item class="theme-row" (click)="themeService.toggle()" matTooltip="Thema wisselen" matTooltipPosition="right">
         <mat-icon matListItemIcon>{{ themeService.isDarkMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
         @if (sidenavExpanded()) {
           <span matListItemTitle>Thema</span>
@@ -59,12 +59,12 @@
       </a>
 
       @if (!authService.isAuthenticated()) {
-        <a mat-list-item (click)="login()" [matTooltip]="sidenavExpanded() ? '' : 'Login'" matTooltipPosition="right">
+        <a mat-list-item (click)="login()" matTooltip="Login" matTooltipPosition="right">
           <mat-icon matListItemIcon>login</mat-icon>
           @if (sidenavExpanded()) { <span matListItemTitle>Login</span> }
         </a>
       } @else {
-        <a mat-list-item (click)="logout()" [matTooltip]="sidenavExpanded() ? '' : (authService.getUserInfo()?.given_name || 'Logout')" matTooltipPosition="right">
+        <a mat-list-item (click)="logout()" [matTooltip]="authService.getUserInfo()?.given_name || 'Logout'" matTooltipPosition="right">
           <mat-icon matListItemIcon>logout</mat-icon>
           @if (sidenavExpanded()) {
             <span matListItemTitle>Logout</span>
