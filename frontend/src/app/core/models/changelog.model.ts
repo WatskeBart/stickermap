@@ -11,6 +11,25 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.10.1',
+    date: '2026-05-06',
+    sections: [
+      {
+        type: 'Fixed',
+        items: [
+          'Always show sidenav tooltips regardless of expanded state',
+          'Clear default Keycloak admin password in Helm chart values',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Bumped postcss to ^8.5.10 in frontend overrides',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.10.0',
     date: '2026-05-05',
     sections: [
