@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.1] - 2026-05-06
+
+### Fixed
+
+- Always show sidenav tooltips regardless of expanded state
+- Clear default Keycloak admin password in Helm chart values
+
+### Changed
+
+- Bumped postcss to ^8.5.10 in frontend overrides
+
 ## [1.10.0] - 2026-05-05
 
 ### Added
@@ -243,7 +254,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.10.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.10.1...HEAD
+[1.10.1]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.10.1
 [1.10.0]: https://github.com/WatskeBart/stickermap/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.9.0
 [1.8.0]: https://github.com/WatskeBart/stickermap/compare/1.7.0...1.8.0
