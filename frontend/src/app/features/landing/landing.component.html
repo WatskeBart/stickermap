@@ -29,9 +29,9 @@
       <mat-card class="action-card stats-card">
         <mat-card-content>
           <div class="card-icon">📊</div>
-          @if (!stats()) {
+          @if (stats() === undefined) {
             <mat-progress-spinner mode="indeterminate" diameter="40" />
-          } @else {
+          } @else if (stats()) {
             <div class="stats-content">
               <div class="stats-row">
                 <div class="stat-item">
