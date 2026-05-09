@@ -33,14 +33,5 @@ out-tsc/
 README.md
 *.md
 
-# Tests
-*.spec.ts
-*.test.ts
-karma.conf.js
-vitest.config.*
-coverage/
-e2e/
-playwright-report/
-
 # Angular cache
 .angular/

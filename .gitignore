@@ -6,7 +6,6 @@ __pycache__/
 *.py[cod]
 .venv/
 *.egg-info/
-.pytest_cache/
 
 # Node / Angular
 node_modules/
@@ -23,5 +22,5 @@ dist/
 # Helm chart .tgz files
 *.tgz
 
-# Local claude settings
-.claude/
+# Local Claude overrides — committed: settings.json, agents/, commands/, hooks/
+.claude/settings.local.json

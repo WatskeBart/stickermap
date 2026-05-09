@@ -4,7 +4,7 @@
 
 ### Port conflicts
 
-Change port mappings in `compose.yml` or `compose.prod.yml` to avoid conflicts with other services on the host.
+Change port mappings in `compose.yml` to avoid conflicts with other services on the host.
 
 ### Database connection errors
 

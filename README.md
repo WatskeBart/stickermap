@@ -40,24 +40,10 @@ A web application for uploading, viewing, and managing sticker locations across 
 
 ### Start the application
 
-Two compose files are provided:
-
-| File | Description |
-| ---- | ----------- |
-| `compose.yml` | Builds images from local source code |
-| `compose.prod.yml` | Uses pre-built images from `ghcr.io/watskebart/stickermap` |
-
-**From source:**
+`compose.yml` builds all services from local source and imports the bundled Keycloak realm automatically:
 
 ```bash
 podman compose up -d
-```
-
-**Pre-built images:**
-
-```bash
-podman compose -f compose.prod.yml up -d
-# Then import general/keycloak_realm/stickermap-realm.json via the Keycloak Admin Console
 ```
 
 Wait 30–60 seconds for all services to initialize.
@@ -73,8 +59,7 @@ Wait 30–60 seconds for all services to initialize.
 **Stop:**
 
 ```bash
-podman compose down          # from-source
-podman compose -f compose.prod.yml down  # pre-built
+podman compose down
 ```
 
 ## Architecture
@@ -197,7 +182,7 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for a full reference.
 <details>
 <summary>Common issues</summary>
 
-**Port conflicts** — change port mappings in `compose.yml` or `compose.prod.yml`.
+**Port conflicts** — change port mappings in `compose.yml`.
 
 **Database connection errors:**
 

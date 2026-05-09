@@ -21,8 +21,6 @@ ROLE_UPLOADER = "sm-uploader"
 ROLE_EDITOR = "sm-editor"
 ROLE_ADMIN = "sm-admin"
 
-ALL_ROLES = [ROLE_ADMIN, ROLE_EDITOR, ROLE_UPLOADER, ROLE_VIEWER]
-
 
 def get_user_roles(user: dict) -> list[str]:
     """Extract client roles from decoded JWT token (resource_access.<client_id>.roles)."""
@@ -122,20 +120,6 @@ async def get_current_user(
 
     token = credentials.credentials
     return decode_token(token)
-
-
-async def require_auth(
-    current_user: Optional[dict] = Depends(get_current_user),
-) -> dict:
-    """Require authentication for protected endpoints."""
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Authentication required",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    return current_user
 
 
 def require_role(role: str):
