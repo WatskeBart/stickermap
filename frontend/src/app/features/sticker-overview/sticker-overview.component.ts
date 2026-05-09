@@ -24,6 +24,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatBadgeModule } from '@angular/material/badge';
 import { FormsModule } from '@angular/forms';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -47,6 +48,16 @@ import {
   BulkDeleteDialogComponent,
   type BulkDeleteDialogData,
 } from './bulk-delete-dialog.component';
+import {
+  ReportRemovalDialogComponent,
+  type ReportRemovalDialogData,
+  type ReportRemovalDialogResult,
+} from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
+import {
+  ReviewReportsDialogComponent,
+  type ReviewReportsDialogData,
+  type ReviewReportsDialogResult,
+} from './review-reports-dialog.component';
 
 @Component({
   selector: 'app-sticker-overview',
@@ -63,6 +74,7 @@ import {
     MatTooltipModule,
     MatFormFieldModule,
     MatInputModule,
+    MatBadgeModule,
   ],
   templateUrl: './sticker-overview.component.html',
   styleUrl: './sticker-overview.component.scss',
@@ -86,17 +98,20 @@ export class StickerOverviewComponent implements OnInit {
     { initialValue: false },
   );
 
-  private readonly _ = effect(() => {
-    this.dataSource.sort = this.sort() ?? null;
-    this.dataSource.paginator = this.paginator() ?? null;
-  });
-
   isLoading = signal(false);
   dataSource = new MatTableDataSource<ParsedSticker>([]);
   selection = new SelectionModel<ParsedSticker>(true, []);
   hasSelection = signal(false);
   filterValue = signal('');
   fullSizeImageUrl = signal<string | null>(null);
+  pendingReportsCount = signal(0);
+
+  constructor() {
+    effect(() => {
+      this.dataSource.sort = this.sort() ?? null;
+      this.dataSource.paginator = this.paginator() ?? null;
+    });
+  }
 
   isAuthenticated = computed(() => this.authService.isAuthenticated());
   isViewer = computed(() => this.authService.isViewer());
@@ -105,6 +120,7 @@ export class StickerOverviewComponent implements OnInit {
   isEditor = computed(() => this.authService.isEditor());
   currentUser = computed(() => this.authService.getUserInfo()?.preferred_username ?? null);
   bulkDeleteEnabled = computed(() => this.isAdmin() && this.hasSelection());
+  canModerate = computed(() => this.isEditor() || this.isAdmin());
 
   displayedColumns = computed<string[]>(() => {
     const handset = this.isHandset();
@@ -117,6 +133,9 @@ export class StickerOverviewComponent implements OnInit {
       } else {
         base.splice(1, 0, 'poster', 'uploader');
       }
+    }
+    if (this.canModerate() && !handset) {
+      base.push('reports');
     }
     if (this.isAuthenticated()) base.push('actions');
     return this.isAdmin() ? ['select', ...base] : base;
@@ -134,6 +153,19 @@ export class StickerOverviewComponent implements OnInit {
       );
     };
     this.loadStickers();
+    if (this.canModerate()) {
+      this.loadPendingReportsCount();
+    }
+  }
+
+  private loadPendingReportsCount(): void {
+    this.stickerService
+      .getPendingReportsCount()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (res) => this.pendingReportsCount.set(res.count),
+        error: () => {},
+      });
   }
 
   applyFilter(value: string): void {
@@ -155,6 +187,8 @@ export class StickerOverviewComponent implements OnInit {
           const [lon, lat] = geom.coordinates;
           const uploadedBy: string = s[7];
           const isOwner = uploadedBy != null && uploadedBy === currentUser;
+          const removalCount: number = s[9] ?? 0;
+          const archived: boolean = s[10] ?? false;
           return {
             id: s[0],
             lat,
@@ -166,8 +200,12 @@ export class StickerOverviewComponent implements OnInit {
             image: s[6],
             uploaded_by: uploadedBy,
             imageUrl: s[8] ?? s[5] ? `/uploads/${s[6]}?v=${new Date(s[8] ?? s[5]).getTime()}` : `/uploads/${s[6]}`,
-            canEdit: this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner),
+            canEdit: (this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner)) && !archived,
             canDelete: this.isAdmin(),
+            removalCount,
+            archived,
+            canReport: this.isViewer() && !this.isEditor() && !this.isAdmin() && !archived,
+            canUnarchive: (this.isEditor() || this.isAdmin()) && archived,
           };
         });
         this.dataSource.data = parsed;
@@ -219,6 +257,53 @@ export class StickerOverviewComponent implements OnInit {
         this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });
       }
     });
+  }
+
+  openReport(sticker: ParsedSticker): void {
+    const ref = this.dialog.open(ReportRemovalDialogComponent, {
+      width: '420px',
+      data: { stickerId: sticker.id, poster: sticker.poster } satisfies ReportRemovalDialogData,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ReportRemovalDialogResult | undefined) => {
+      if (result?.reported) {
+        this.loadStickers();
+        this.loadPendingReportsCount();
+        this.snackBar.open('Sticker gemeld als verwijderd.', 'Sluiten', { duration: 4000 });
+      }
+    });
+  }
+
+  openReviewReports(sticker: ParsedSticker): void {
+    const ref = this.dialog.open(ReviewReportsDialogComponent, {
+      width: '560px',
+      maxHeight: '80vh',
+      data: { stickerId: sticker.id, poster: sticker.poster } satisfies ReviewReportsDialogData,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ReviewReportsDialogResult | undefined) => {
+      if (result?.changed) {
+        this.loadStickers();
+        this.loadPendingReportsCount();
+      }
+    });
+  }
+
+  openUnarchive(sticker: ParsedSticker): void {
+    this.stickerService.unarchiveSticker(sticker.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadStickers();
+          this.loadPendingReportsCount();
+          this.snackBar.open('Sticker hersteld.', 'Sluiten', { duration: 3000 });
+        },
+        error: (err) => {
+          this.snackBar.open(
+            `Herstellen mislukt: ${err.error?.detail ?? err.message}`,
+            'Sluiten',
+            { duration: 5000 },
+          );
+        },
+      });
   }
 
   openBulkDelete(): void {

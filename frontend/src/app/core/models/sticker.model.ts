@@ -43,6 +43,7 @@ export interface StickerStats {
   total_uploaders: number;
   last_sticker_date: string | null;
   last_sticker_poster: string | null;
+  archived_stickers: number;
 }
 
 export interface ParsedSticker {
@@ -58,4 +59,20 @@ export interface ParsedSticker {
   imageUrl: string;
   canEdit: boolean;
   canDelete: boolean;
+  removalCount: number;
+  archived: boolean;
+  canReport: boolean;
+  canUnarchive: boolean;
+}
+
+export interface RemovalReport {
+  id: number;
+  sticker_id: number;
+  reported_by: string;
+  reported_at: string;
+  proof_image: string | null;
+  proof_image_url: string | null;
+  reviewed_by: string | null;
+  review_status: 'pending' | 'confirmed' | 'dismissed';
+  reviewed_at: string | null;
 }

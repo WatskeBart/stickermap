@@ -1,0 +1,105 @@
+<h2 mat-dialog-title>Meldingen voor sticker van {{ data.poster }}</h2>
+
+<mat-dialog-content class="dialog-content">
+  @if (isLoading()) {
+    <div class="loading-row">
+      <mat-progress-spinner mode="indeterminate" diameter="36" />
+      <span>Meldingen laden...</span>
+    </div>
+  } @else if (reports().length === 0) {
+    <p class="no-reports">Geen meldingen gevonden.</p>
+  } @else {
+
+    @if (pendingReports().length > 0) {
+      <h3 class="section-title">In behandeling ({{ pendingReports().length }})</h3>
+      @for (report of pendingReports(); track report.id) {
+        <div class="report-card report-card--pending">
+          <div class="report-meta">
+            <span class="reporter"><mat-icon inline>person</mat-icon> {{ report.reported_by }}</span>
+            <span class="date">{{ report.reported_at | slice:0:10 }}</span>
+          </div>
+
+          @if (report.proof_image_url) {
+            <img
+              [src]="report.proof_image_url"
+              class="proof-thumb"
+              alt="Bewijsfoto"
+              (click)="openFullSize(report.proof_image_url!)"
+              matTooltip="Klik voor volledige afbeelding"
+            />
+          }
+
+          <div class="report-actions">
+            <button
+              mat-flat-button
+              color="warn"
+              [disabled]="reviewingId() === report.id"
+              (click)="review(report.id, 'confirmed')"
+              matTooltip="Sticker archiveren (verwijderd)"
+            >
+              @if (reviewingId() === report.id) {
+                <mat-progress-spinner mode="indeterminate" diameter="18" />
+              } @else {
+                <mat-icon>check_circle</mat-icon>
+              }
+              @if (reviewingId() !== report.id) { Bevestigen }
+            </button>
+            <button
+              mat-stroked-button
+              [disabled]="reviewingId() === report.id"
+              (click)="review(report.id, 'dismissed')"
+              matTooltip="Melding afwijzen"
+            >
+              @if (reviewingId() === report.id) {
+                <mat-progress-spinner mode="indeterminate" diameter="18" />
+              } @else {
+                <mat-icon>cancel</mat-icon>
+              }
+              @if (reviewingId() !== report.id) { Afwijzen }
+            </button>
+          </div>
+        </div>
+        <mat-divider />
+      }
+    }
+
+    @if (reviewedReports().length > 0) {
+      <h3 class="section-title reviewed-title">Beoordeeld ({{ reviewedReports().length }})</h3>
+      @for (report of reviewedReports(); track report.id) {
+        <div class="report-card report-card--reviewed">
+          <div class="report-meta">
+            <span class="reporter"><mat-icon inline>person</mat-icon> {{ report.reported_by }}</span>
+            <span class="date">{{ report.reported_at | slice:0:10 }}</span>
+            <mat-chip [class]="'status-chip status-chip--' + report.review_status">
+              {{ statusLabel(report.review_status) }}
+            </mat-chip>
+          </div>
+          @if (report.reviewed_by) {
+            <p class="reviewed-by">Beoordeeld door {{ report.reviewed_by }}</p>
+          }
+          @if (report.proof_image_url) {
+            <img
+              [src]="report.proof_image_url"
+              class="proof-thumb"
+              alt="Bewijsfoto"
+              (click)="openFullSize(report.proof_image_url!)"
+              matTooltip="Klik voor volledige afbeelding"
+            />
+          }
+        </div>
+        <mat-divider />
+      }
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Sluiten</button>
+</mat-dialog-actions>
+
+@if (fullSizeUrl()) {
+  <div class="fullsize-overlay" (click)="closeFullSize()">
+    <button class="overlay-close" (click)="closeFullSize()">&times;</button>
+    <img [src]="fullSizeUrl()!" alt="Bewijsfoto volledig" (click)="$event.stopPropagation()" />
+  </div>
+}

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats } from '../models/sticker.model';
+import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport } from '../models/sticker.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,5 +52,29 @@ export class StickerService {
 
   getStats(): Observable<StickerStats> {
     return this.http.get<StickerStats>(`${this.apiUrl}/stats`);
+  }
+
+  submitRemovalReport(stickerId: number, proofImage?: File): Observable<any> {
+    const formData = new FormData();
+    if (proofImage) {
+      formData.append('proof_image', proofImage);
+    }
+    return this.http.post(`${this.apiUrl}/stickers/${stickerId}/reports`, formData);
+  }
+
+  getPendingReportsCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.apiUrl}/reports/pending`);
+  }
+
+  getStickerReports(stickerId: number): Observable<RemovalReport[]> {
+    return this.http.get<RemovalReport[]>(`${this.apiUrl}/stickers/${stickerId}/reports`);
+  }
+
+  reviewReport(reportId: number, status: 'confirmed' | 'dismissed'): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/reports/${reportId}/review`, { status });
+  }
+
+  unarchiveSticker(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/stickers/${id}/unarchive`, {});
   }
 }

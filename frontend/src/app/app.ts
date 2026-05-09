@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,9 +10,11 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 import { AuthService } from './core/services/auth.service';
+import { StickerService } from './core/services/sticker.service';
 import { ThemeService } from './core/services/theme.service';
 import { DisclaimerDialogComponent } from './shared/components/disclaimer-dialog/disclaimer-dialog.component';
 import { ChangelogDialogComponent } from './shared/components/changelog-dialog/changelog-dialog.component';
@@ -35,6 +37,7 @@ const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
     MatListModule,
     MatDividerModule,
     MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -56,11 +59,41 @@ export class App implements OnInit {
   private hovering = signal(false);
   sidenavExpanded = computed(() => this.isHandset() || this.hovering());
 
+  private stickerService = inject(StickerService);
+  private snackBar = inject(MatSnackBar);
+
+  private pendingNotificationShown = false;
+
   constructor(
     public authService: AuthService,
     public themeService: ThemeService,
     private router: Router,
-  ) {}
+  ) {
+    effect(() => {
+      const isEditor = this.authService.isEditor();
+      const isAdmin = this.authService.isAdmin();
+      if ((isEditor || isAdmin) && !this.pendingNotificationShown) {
+        this.pendingNotificationShown = true;
+        this.stickerService.getPendingReportsCount()
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: (res) => {
+              if (res.count > 0) {
+                const ref = this.snackBar.open(
+                  `${res.count} sticker(s) hebben openstaande meldingen als verwijderd.`,
+                  'Bekijken',
+                  { duration: 8000 },
+                );
+                ref.onAction().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+                  this.router.navigate(['/sticker-overview']);
+                });
+              }
+            },
+            error: () => {},
+          });
+      }
+    });
+  }
 
   ngOnInit(): void {
     const lastSeen = localStorage.getItem(RELEASE_NOTES_KEY);
