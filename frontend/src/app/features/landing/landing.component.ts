@@ -7,6 +7,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
 import { StickerService } from '../../core/services/sticker.service';
 import { DisclaimerDialogComponent } from '../../shared/components/disclaimer-dialog/disclaimer-dialog.component';
@@ -27,7 +29,7 @@ export class LandingComponent {
   public authService = inject(AuthService);
   private stickerService = inject(StickerService);
 
-  readonly stats = toSignal(this.stickerService.getStats());
+  readonly stats = toSignal(this.stickerService.getStats().pipe(catchError(() => of(null))));
 
   navigateToMap(): void {
     this.router.navigate(['/map']);

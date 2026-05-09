@@ -26,10 +26,9 @@ Assign only the highest needed role per user.
 
 ### Using the realm export (recommended)
 
-Import `general/extra/stickermap-realm.json` via the Keycloak Admin Console. All roles and the `stickermap-client` client are pre-configured.
+Import `general/keycloak_realm/stickermap-realm.json` via the Keycloak Admin Console. All roles and the `stickermap-client` client are pre-configured.
 
-- **`compose.yml`** — realm is imported automatically on first start.
-- **`compose.prod.yml`** — import manually: navigate to **Realm settings** → import realm → upload `general/extra/stickermap-realm.json`.
+When using `compose.yml`, the realm is imported automatically on first start.
 
 ### Manual setup
 

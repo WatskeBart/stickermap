@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-05-09
+
+### Added
+
+- Report removed stickers
+
+### Changed
+
+- Bumped various dependencies
+- Optimized Claude integration (.claude directory)
+
+### Removed
+
+- Removed all tests across the codebase
+
+### Fixed
+
+- No more horizontal scroll in sticker overview page on mobile devices
+
 ## [1.10.1] - 2026-05-06
 
 ### Fixed
@@ -254,7 +273,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.10.1...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.11.0...HEAD
+[1.11.0]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.11.0
 [1.10.1]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.10.1
 [1.10.0]: https://github.com/WatskeBart/stickermap/compare/1.9.0...1.10.0
 [1.9.0]: https://github.com/WatskeBart/stickermap/compare/1.8.0...1.9.0

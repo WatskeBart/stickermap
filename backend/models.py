@@ -29,3 +29,7 @@ class UpdateStickerRequest(BaseModel):
 
 class RotateRequest(BaseModel):
     direction: Literal["cw", "ccw", "180"]
+
+
+class ReviewReportRequest(BaseModel):
+    status: Literal["confirmed", "dismissed"]

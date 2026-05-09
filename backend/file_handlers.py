@@ -112,14 +112,6 @@ def rotate_image_file(image_path: str, thumb_path: str | None, degrees: int, qua
     logger.debug("Rotated image %s by %d degrees", image_path, degrees)
 
 
-def strip_exif(filepath: str) -> None:
-    """Strip all EXIF metadata from an image file in-place using Pillow."""
-    img = Image.open(filepath)
-    fmt = img.format
-    img.save(filepath, format=fmt)
-    logger.debug("Stripped EXIF metadata from %s", filepath)
-
-
 class GPSExtractor:
     """Extracts GPS data from image EXIF"""
 

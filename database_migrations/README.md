@@ -53,29 +53,28 @@ Create a new revision file manually:
 uv run alembic revision -m "your description here"
 ```
 
-This creates a new file in `alembic/versions/`. Name it with the next zero-padded revision number (e.g. `0003_your_description.py`) and fill in `upgrade()` and `downgrade()`.
+This creates a new file in `alembic/versions/`. Name it with the next zero-padded revision number (e.g. `0006_your_description.py`) and fill in `upgrade()` and `downgrade()`.
 
-Always implement `downgrade()` — it is required by the structural tests.
+Always implement `downgrade()` so migrations remain reversible.
 
 ## Migration History
 
 | Revision | Description |
 | -------- | ----------- |
-| `0001` | Initial schema — `stickers` table with PostGIS `GEOGRAPHY(POINT, 4326)` and spatial index |
+| `0001` | Initial schema — `stickers` table with PostGIS geometry and spatial index |
 | `0002` | Add `spotted_count` column to `stickers` |
+| `0003` | Add `updated_at` column to `stickers` |
+| `0004` | Add targeted indexes on frequently queried columns |
+| `0005` | Add `removal_reports` table and `archived` column for community sticker reports |
 
-## Running Tests
+## Verifying Changes
 
-Tests are structural — they verify the revision chain and migration content without a live database.
+There is no automated test suite. Verify a new migration manually against a real PostGIS database:
 
 ```bash
-cd database_migrations
-uv sync --group dev
-uv run pytest
+uv run alembic upgrade head
+uv run alembic downgrade -1
+uv run alembic upgrade head
 ```
 
-### Test layout
-
-| File | What it covers |
-| ---- | -------------- |
-| `tests/test_migrations.py` | Chain integrity (single head, no gaps), presence of `upgrade()`/`downgrade()` on every revision, expected SQL content per migration |
+Both `upgrade()` and `downgrade()` must run cleanly.

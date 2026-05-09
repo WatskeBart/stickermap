@@ -40,24 +40,10 @@ A web application for uploading, viewing, and managing sticker locations across 
 
 ### Start the application
 
-Two compose files are provided:
-
-| File | Description |
-| ---- | ----------- |
-| `compose.yml` | Builds images from local source code |
-| `compose.prod.yml` | Uses pre-built images from `ghcr.io/watskebart/stickermap` |
-
-**From source:**
+`compose.yml` builds all services from local source and imports the bundled Keycloak realm automatically:
 
 ```bash
 podman compose up -d
-```
-
-**Pre-built images:**
-
-```bash
-podman compose -f compose.prod.yml up -d
-# Then import general/keycloak_realm/stickermap-realm.json via the Keycloak Admin Console
 ```
 
 Wait 30–60 seconds for all services to initialize.
@@ -73,8 +59,7 @@ Wait 30–60 seconds for all services to initialize.
 **Stop:**
 
 ```bash
-podman compose down          # from-source
-podman compose -f compose.prod.yml down  # pre-built
+podman compose down
 ```
 
 ## Architecture
@@ -197,7 +182,7 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for a full reference.
 <details>
 <summary>Common issues</summary>
 
-**Port conflicts** — change port mappings in `compose.yml` or `compose.prod.yml`.
+**Port conflicts** — change port mappings in `compose.yml`.
 
 **Database connection errors:**
 
@@ -245,6 +230,10 @@ LOG_LEVEL=DEBUG
 - [MapLibre GL Documentation](https://maplibre.org/maplibre-gl-js/docs/)
 - [Keycloak Documentation](https://www.keycloak.org/documentation)
 - [PostGIS Documentation](https://postgis.net/documentation/)
+
+## AI-Assisted Development
+
+This codebase is developed with the assistance of [Anthropic](https://www.anthropic.com/)'s [Claude](https://www.anthropic.com/claude), primarily through [Claude Code](https://claude.com/claude-code). Project-scoped configuration for Claude Code (shared permissions, subagents, slash commands, and hooks) lives under [`.claude/`](.claude/), and conventions Claude follows when working in this repo are documented in [CLAUDE.md](CLAUDE.md).
 
 ## License
 

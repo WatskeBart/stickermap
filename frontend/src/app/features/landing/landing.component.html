@@ -29,9 +29,9 @@
       <mat-card class="action-card stats-card">
         <mat-card-content>
           <div class="card-icon">📊</div>
-          @if (!stats()) {
+          @if (stats() === undefined) {
             <mat-progress-spinner mode="indeterminate" diameter="40" />
-          } @else {
+          } @else if (stats()) {
             <div class="stats-content">
               <div class="stats-row">
                 <div class="stat-item">
@@ -50,6 +50,12 @@
                   <span class="stat-value stat-value--date">{{ stats()!.last_sticker_date ?? '–' }}</span>
                   <span class="stat-label">Laatste upload</span>
                 </div>
+                @if (stats()!.archived_stickers > 0) {
+                  <div class="stat-item">
+                    <span class="stat-value">{{ stats()!.archived_stickers }}</span>
+                    <span class="stat-label">Gearchiveerde stickers</span>
+                  </div>
+                }
               </div>
               @if (authService.isViewer()) {
                 <mat-divider />
