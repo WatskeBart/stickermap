@@ -1,0 +1,133 @@
+.dialog-content {
+  min-width: 380px;
+  max-width: 520px;
+  padding-bottom: 8px;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0;
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.no-reports {
+  color: var(--mat-sys-on-surface-variant, #555);
+  font-style: italic;
+  padding: 16px 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant, #555);
+  margin: 12px 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.reviewed-title {
+  margin-top: 20px;
+}
+
+.report-card {
+  padding: 12px 0;
+}
+
+.report-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.reporter {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface);
+}
+
+.date {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.proof-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--mat-sys-outline-variant, rgba(0,0,0,0.12));
+  margin-bottom: 8px;
+  display: block;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}
+
+.report-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.reviewed-by {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant, #555);
+  margin: 4px 0 8px;
+}
+
+.status-chip {
+  font-size: 12px;
+}
+
+.status-chip--confirmed {
+  background: #dc3545;
+  color: white;
+}
+
+.status-chip--dismissed {
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+/* Full-size overlay */
+.fullsize-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+  }
+}
+
+.overlay-close {
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 36px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+
+  &:hover {
+    color: #ccc;
+  }
+}

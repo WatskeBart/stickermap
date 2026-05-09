@@ -11,7 +11,12 @@
       @for (sticker of stickers(); track sticker.id) {
         <mgl-marker [lngLat]="[sticker.lon, sticker.lat]">
           <div class="marker-icon" (click)="onMarkerClick(sticker.id, $event)">
-            <img src="images/markers/marker-icon-2x-red.png" alt="sticker marker" />
+            <img
+              [src]="sticker.removalCount > 0
+                ? 'images/markers/marker-icon-2x-orange.png'
+                : 'images/markers/marker-icon-2x-red.png'"
+              alt="sticker marker"
+            />
           </div>
         </mgl-marker>
       }
@@ -40,7 +45,13 @@
                 <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
                 <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
               </div>
-              @if (sticker.canEdit || sticker.canDelete) {
+              @if (sticker.removalCount > 0) {
+                <div class="sticker-popup-report-badge">
+                  <mat-icon class="report-badge-icon">warning</mat-icon>
+                  {{ sticker.removalCount === 1 ? '1 melding als verwijderd' : sticker.removalCount + ' meldingen als verwijderd' }}
+                </div>
+              }
+              @if (sticker.canEdit || sticker.canDelete || sticker.canReport) {
                 <div class="sticker-popup-actions">
                   @if (sticker.canEdit) {
                     <button class="popup-btn popup-btn-edit" (click)="openEditModal(sticker.id)">
@@ -50,6 +61,11 @@
                   @if (sticker.canDelete) {
                     <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id, sticker.poster)">
                       Verwijderen
+                    </button>
+                  }
+                  @if (sticker.canReport) {
+                    <button class="popup-btn popup-btn-report" (click)="openReportDialog(sticker.id, sticker.poster)">
+                      Melden
                     </button>
                   }
                 </div>

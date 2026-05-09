@@ -26,6 +26,11 @@ import {
   type DeleteDialogData,
   type DeleteDialogResult,
 } from '../../shared/components/delete-sticker-dialog/delete-sticker-dialog.component';
+import {
+  ReportRemovalDialogComponent,
+  type ReportRemovalDialogData,
+  type ReportRemovalDialogResult,
+} from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
 
 interface ProcessedSticker {
   id: number;
@@ -41,6 +46,9 @@ interface ProcessedSticker {
   thumbnailUrl: string;
   canEdit: boolean;
   canDelete: boolean;
+  removalCount: number;
+  archived: boolean;
+  canReport: boolean;
 }
 
 @Component({
@@ -240,35 +248,43 @@ export class MapComponent implements OnInit {
       next: (rawStickers: any[]) => {
         const currentUser = this.authService.getUserInfo()?.preferred_username;
 
-        const processed: ProcessedSticker[] = rawStickers.map((s: any) => {
-          const geom = JSON.parse(s[1]);
-          const [lon, lat] = geom.coordinates;
-          const uploadedBy: string = s[7];
-          const isOwner = uploadedBy != null && uploadedBy === currentUser;
-          const canEdit = this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner);
-          const canDelete = this.isAdmin();
-          const image: string = s[6];
-          const lastDot = image.lastIndexOf('.');
-          const thumbName = lastDot >= 0
-            ? `${image.slice(0, lastDot)}_thumb${image.slice(lastDot)}`
-            : `${image}_thumb`;
+        const processed: ProcessedSticker[] = rawStickers
+          .filter((s: any) => !s[10])
+          .map((s: any) => {
+            const geom = JSON.parse(s[1]);
+            const [lon, lat] = geom.coordinates;
+            const uploadedBy: string = s[7];
+            const isOwner = uploadedBy != null && uploadedBy === currentUser;
+            const canEdit = this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner);
+            const canDelete = this.isAdmin();
+            const removalCount: number = s[9] ?? 0;
+            const archived: boolean = s[10] ?? false;
+            const canReport = this.isViewer() && !this.isEditor() && !this.isAdmin() && !archived;
+            const image: string = s[6];
+            const lastDot = image.lastIndexOf('.');
+            const thumbName = lastDot >= 0
+              ? `${image.slice(0, lastDot)}_thumb${image.slice(lastDot)}`
+              : `${image}_thumb`;
 
-          return {
-            id: s[0],
-            lat,
-            lon,
-            poster: s[2],
-            uploader: s[3],
-            post_date: s[4],
-            upload_date: s[5],
-            image,
-            uploaded_by: uploadedBy,
-            imageUrl: `/uploads/${image}`,
-            thumbnailUrl: `/uploads/${thumbName}`,
-            canEdit,
-            canDelete,
-          };
-        });
+            return {
+              id: s[0],
+              lat,
+              lon,
+              poster: s[2],
+              uploader: s[3],
+              post_date: s[4],
+              upload_date: s[5],
+              image,
+              uploaded_by: uploadedBy,
+              imageUrl: `/uploads/${image}`,
+              thumbnailUrl: `/uploads/${thumbName}`,
+              canEdit,
+              canDelete,
+              removalCount,
+              archived,
+              canReport,
+            };
+          });
 
         this.stickers.set(processed);
         this.stickerCount.set(processed.length);
@@ -525,6 +541,22 @@ export class MapComponent implements OnInit {
           );
         },
       });
+  }
+
+  // --- Report as removed (MatDialog) ---
+
+  openReportDialog(stickerId: number, poster: string): void {
+    this.openPopupStickerId.set(null);
+    const ref = this.dialog.open(ReportRemovalDialogComponent, {
+      width: '420px',
+      data: { stickerId, poster } satisfies ReportRemovalDialogData,
+    });
+    ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ReportRemovalDialogResult | undefined) => {
+      if (result?.reported) {
+        this.refreshStickers();
+        this.snackBar.open('Sticker gemeld als verwijderd.', 'Sluiten', { duration: 4000 });
+      }
+    });
   }
 
   // --- Delete Confirmation (MatDialog) ---

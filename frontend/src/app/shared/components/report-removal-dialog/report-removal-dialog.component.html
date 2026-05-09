@@ -1,0 +1,46 @@
+<h2 mat-dialog-title>Sticker melden als verwijderd</h2>
+
+<mat-dialog-content>
+  <p>
+    Wil je de sticker van <strong>{{ data.poster }}</strong> melden als verwijderd?
+    Andere gebruikers en beheerders kunnen je melding bekijken.
+  </p>
+
+  <div class="proof-section">
+    <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="submitting()">
+      <mat-icon>attach_file</mat-icon>
+      @if (proofFile()) {
+        {{ proofFile()!.name }}
+      } @else {
+        Bewijsfoto toevoegen (optioneel)
+      }
+    </button>
+    <input
+      #fileInput
+      type="file"
+      accept="image/jpeg,image/png,image/gif,image/webp"
+      style="display: none"
+      (change)="onFileSelected($event)"
+    />
+    @if (proofFile()) {
+      <button mat-icon-button type="button" (click)="clearFile()" [disabled]="submitting()" aria-label="Foto verwijderen">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="{ reported: false }" [disabled]="submitting()">Annuleren</button>
+  <button mat-flat-button color="warn" (click)="submit()" [disabled]="submitting()">
+    @if (submitting()) {
+      <mat-progress-spinner mode="indeterminate" diameter="18" />
+    } @else {
+      Melden
+    }
+  </button>
+</mat-dialog-actions>
