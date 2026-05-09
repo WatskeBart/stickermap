@@ -10,19 +10,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 cd backend
 
 # Install dependencies
-uv sync --group dev
+uv sync
 
 # Run the API server (requires running DB and Keycloak)
 uv run uvicorn main:app --host 0.0.0.0 --port 5555 --reload
-
-# Run all tests
-uv run pytest
-
-# Run a single test file
-uv run pytest tests/test_api.py
-
-# Run a single test
-uv run pytest tests/test_api.py::test_function_name
 
 # Lint
 uv run ruff check .
@@ -41,25 +32,18 @@ pnpm start
 
 # Build
 pnpm build
-
-# Run tests (Vitest, no watch)
-pnpm test -- --watch=false
-
-# Run a single test file
-pnpm test -- --watch=false src/app/map/map.spec.ts
 ```
 
 ### Local Dev Stack (Docker/Podman Compose)
 
 ```bash
 # Build and start all services (DB, Keycloak, Backend, Frontend)
-docker compose up --build
-
-# Start with pre-built images
-docker compose -f compose.prod.yml up
+podman compose up --build
 ```
 
 After `compose up`, the app is available at `https://localhost:8282`. Keycloak admin UI: `http://localhost:8080` (admin/admin).
+
+The repository contains no automated tests — verify changes by running the dev stack and exercising the affected flows in a browser.
 
 ## Architecture
 
@@ -108,7 +92,7 @@ src/app/
 │   └── components/
 │       ├── delete-sticker-dialog/
 │       └── disclaimer-dialog/
-└── app.ts / app.config.ts / app.routes.ts / app.spec.ts / app.html / app.scss
+└── app.ts / app.config.ts / app.routes.ts / app.html / app.scss
 ```
 
 **Non-negotiable Angular standards — always apply these:**
@@ -197,7 +181,12 @@ Single flat chart — **requires Helm v4** (`apiVersion: v2`). No sub-charts or 
 
 See `helm/README.md` for mandatory values, installation examples, and OCI packaging.
 
-## Known Issues
+## Testing
 
-- `frontend/src/app/app.spec.ts` has a pre-existing test failure (expects "Hello, frontend" but the app shows "StickerMap"). Do not fix this unless explicitly asked.
-- Backend tests use `pytest-asyncio` with `asyncio_mode = "auto"` — no need to mark async tests individually.
+There are no automated test suites in this repository (no `pytest`, no `vitest`, no GitHub Actions test job). Verify changes manually:
+
+- **Backend** — exercise endpoints via the Swagger UI at `http://localhost:5555/api/v1/docs` once the dev stack is up.
+- **Frontend** — `pnpm start` (or `podman compose up`) and click through affected flows in the browser. Test light and dark themes, and at least one mobile viewport.
+- **Migrations** — `uv run alembic upgrade head` then `uv run alembic downgrade -1` to confirm both directions work against a real PostGIS DB.
+
+Type checking and `pnpm build` / `uv run ruff check .` verify code correctness, not feature correctness — manual testing is required for behavioural changes.
