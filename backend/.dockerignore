@@ -41,6 +41,3 @@ datasets/
 
 # Documentation
 *.md
-
-# Tests
-tests/

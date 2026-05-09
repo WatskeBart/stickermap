@@ -37,6 +37,3 @@ ENV/
 
 # Documentation
 *.md
-
-# Tests
-tests/

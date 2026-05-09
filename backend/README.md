@@ -44,7 +44,7 @@ podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
   quay.io/keycloak/keycloak:latest start-dev
 
 # Wait 30-60 seconds for Keycloak to start, then import the realm:
-# http://localhost:8080 → admin console → Create Realm → import general/extra/stickermap-realm.json
+# http://localhost:8080 → admin console → Create Realm → import general/keycloak_realm/stickermap-realm.json
 
 # Create .env file
 cp .env.example .env
@@ -151,45 +151,15 @@ DELETE /api/v1/sticker/{id}    (requires sm-admin role)
        Delete sticker and associated image file
 ```
 
-## Running Tests
+## Verifying Changes
 
-Tests use [pytest](https://docs.pytest.org/) and run entirely without a live database or Keycloak instance — all external dependencies are mocked.
+There is no automated test suite. Exercise the API manually via the Swagger UI at <http://localhost:5555/api/v1/docs> once the dev stack is up.
 
-Install the dev dependency group once before running tests:
-
-```bash
-cd backend
-uv sync --group dev
-```
-
-### Run all tests
+For static checks:
 
 ```bash
-cd backend
-uv run pytest
+uv run ruff check .
 ```
-
-### Run with verbose output
-
-```bash
-uv run pytest -v
-```
-
-### Run a specific test file
-
-```bash
-uv run pytest tests/test_auth.py -v
-```
-
-### Test layout
-
-| File | What it covers |
-| ---- | -------------- |
-| `tests/conftest.py` | Shared fixtures, env-var setup, mock DB helpers |
-| `tests/test_auth.py` | Role helpers, identity extraction, `require_role` dependency, Keycloak key manager |
-| `tests/test_file_handlers.py` | MIME/size/content validation, GPS EXIF extraction |
-| `tests/test_models.py` | Pydantic model validation for all request/response schemas |
-| `tests/test_api.py` | All API endpoints (auth enforcement, RBAC rules, 404 handling) |
 
 ## Interactive API Docs
 
