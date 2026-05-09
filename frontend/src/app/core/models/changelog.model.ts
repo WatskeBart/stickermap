@@ -11,6 +11,37 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.11.0',
+    date: '2026-05-09',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Report removed stickers',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Bumped various dependencies',
+          'Optimized Claude integration (.claude directory)',
+        ],
+      },
+      {
+        type: 'Removed',
+        items: [
+          'Removed all tests across the codebase',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'No more horizontal scroll in sticker overview page on mobile devices',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.10.1',
     date: '2026-05-06',
     sections: [
