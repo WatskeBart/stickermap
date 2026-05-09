@@ -109,7 +109,7 @@ export class StickerOverviewComponent implements OnInit {
   displayedColumns = computed<string[]>(() => {
     const handset = this.isHandset();
     const base: string[] = handset
-      ? ['thumbnail', 'location', 'view-on-map']
+      ? ['thumbnail', 'view-on-map']
       : ['thumbnail', 'post_date', 'upload_date', 'location', 'view-on-map'];
     if (this.isViewer()) {
       if (handset) {
