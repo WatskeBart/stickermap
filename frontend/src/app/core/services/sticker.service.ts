@@ -74,6 +74,10 @@ export class StickerService {
     return this.http.patch(`${this.apiUrl}/reports/${reportId}/review`, { status });
   }
 
+  archiveSticker(id: number): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/stickers/${id}/archive`, {});
+  }
+
   unarchiveSticker(id: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/stickers/${id}/unarchive`, {});
   }

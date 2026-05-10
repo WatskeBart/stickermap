@@ -206,6 +206,7 @@ export class StickerOverviewComponent implements OnInit {
             archived,
             canReport: this.isViewer() && !this.isEditor() && !this.isAdmin() && !archived,
             canUnarchive: (this.isEditor() || this.isAdmin()) && archived,
+            canArchive: (this.isEditor() || this.isAdmin()) && !archived,
           };
         });
         this.dataSource.data = parsed;
@@ -236,12 +237,13 @@ export class StickerOverviewComponent implements OnInit {
   openEdit(sticker: ParsedSticker): void {
     const ref = this.dialog.open(EditStickerDialogComponent, {
       width: '480px',
-      data: { sticker, isAdmin: this.isAdmin() } satisfies EditDialogData,
+      data: { sticker, isAdmin: this.isAdmin(), canArchive: sticker.canArchive } satisfies EditDialogData,
     });
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: EditDialogResult | undefined) => {
       if (result?.updated) {
         this.loadStickers();
-        this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
+        const msg = result.archived ? 'Sticker gearchiveerd.' : 'Sticker succesvol bijgewerkt!';
+        this.snackBar.open(msg, 'Sluiten', { duration: 3000 });
       }
     });
   }
@@ -285,6 +287,24 @@ export class StickerOverviewComponent implements OnInit {
         this.loadPendingReportsCount();
       }
     });
+  }
+
+  openArchive(sticker: ParsedSticker): void {
+    this.stickerService.archiveSticker(sticker.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loadStickers();
+          this.snackBar.open('Sticker gearchiveerd.', 'Sluiten', { duration: 3000 });
+        },
+        error: (err) => {
+          this.snackBar.open(
+            `Archiveren mislukt: ${err.error?.detail ?? err.message}`,
+            'Sluiten',
+            { duration: 5000 },
+          );
+        },
+      });
   }
 
   openUnarchive(sticker: ParsedSticker): void {

@@ -69,9 +69,25 @@
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="cancel()" [disabled]="saving()">Annuleren</button>
-  <button mat-flat-button color="accent" (click)="save()" [disabled]="saving()">
+<mat-dialog-actions>
+  @if (data.canArchive) {
+    <button
+      mat-stroked-button
+      color="warn"
+      (click)="archive()"
+      [disabled]="saving() || archiving() || rotating() !== null"
+      matTooltip="Sticker archiveren (verbergen van de kaart)"
+    >
+      @if (archiving()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" />
+      } @else {
+        Archiveren
+      }
+    </button>
+  }
+  <span class="dialog-actions-spacer"></span>
+  <button mat-button (click)="cancel()" [disabled]="saving() || archiving()">Annuleren</button>
+  <button mat-flat-button color="accent" (click)="save()" [disabled]="saving() || archiving()">
     @if (saving()) {
       <mat-progress-spinner mode="indeterminate" diameter="18" />
     } @else {
@@ -120,6 +136,10 @@
   }
 
   .location-field {
+    flex: 1;
+  }
+
+  .dialog-actions-spacer {
     flex: 1;
   }
 </style>

@@ -169,6 +169,16 @@
                   <mat-icon>delete</mat-icon>
                 </button>
               }
+              @if (row.canArchive) {
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="openArchive(row); $event.stopPropagation()"
+                  matTooltip="Sticker archiveren"
+                >
+                  <mat-icon>archive</mat-icon>
+                </button>
+              }
               @if (row.canReport) {
                 <button
                   mat-icon-button

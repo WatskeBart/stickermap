@@ -19,18 +19,5 @@
       "Bash(pnpm build:*)",
       "Bash(npm view:*)"
     ]
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python .claude/hooks/sync-locks.py"
-          }
-        ]
-      }
-    ]
   }
 }
