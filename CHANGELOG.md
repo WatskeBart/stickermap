@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Prevent duplicate changelog entries when running bump_version.py with a existing version
+
 ## [1.11.0] - 2026-05-09
 
 ### Added
