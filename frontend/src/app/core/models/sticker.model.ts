@@ -63,6 +63,7 @@ export interface ParsedSticker {
   archived: boolean;
   canReport: boolean;
   canUnarchive: boolean;
+  canArchive: boolean;
 }
 
 export interface RemovalReport {

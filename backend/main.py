@@ -465,6 +465,34 @@ def delete_sticker(
         cursor.close()
 
 
+@router.patch("/stickers/{sticker_id}/archive", status_code=200)
+def archive_sticker(
+    sticker_id: int,
+    conn=Depends(get_db),
+    current_user: dict = Depends(require_role(ROLE_EDITOR)),
+):
+    """Archive a sticker directly. Editor/admin only."""
+    cursor = conn.cursor()
+    try:
+        cursor.execute(t"SELECT id, archived FROM stickers WHERE id = {sticker_id}")
+        sticker = cursor.fetchone()
+        if not sticker:
+            raise HTTPException(status_code=404, detail="Sticker not found")
+        if sticker[1]:
+            raise HTTPException(status_code=409, detail="Sticker is already archived")
+
+        cursor.execute(t"UPDATE stickers SET archived = TRUE WHERE id = {sticker_id}")
+        conn.commit()
+        return {"message": f"Sticker {sticker_id} archived successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    finally:
+        cursor.close()
+
+
 @router.patch("/stickers/{sticker_id}/unarchive", status_code=200)
 def unarchive_sticker(
     sticker_id: int,
