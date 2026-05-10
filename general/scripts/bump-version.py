@@ -170,8 +170,12 @@ def main() -> None:
     print("  Updated version in all project files")
 
     changelog_path = root / "CHANGELOG.md"
-    update_changelog(changelog_path, version, today)
-    print("  Updated CHANGELOG.md")
+    changelog_text = changelog_path.read_text(encoding="utf-8")
+    if re.search(rf"^## \[{re.escape(version)}\]", changelog_text, re.MULTILINE):
+        print(f"  Version {version} already in CHANGELOG.md — skipping changelog update")
+    else:
+        update_changelog(changelog_path, version, today)
+        print("  Updated CHANGELOG.md")
 
     model_path = root / "frontend/src/app/core/models/changelog.model.ts"
     generate_changelog_model(changelog_path, model_path)

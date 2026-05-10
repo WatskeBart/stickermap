@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-05-10
+
+### Added
+
+- Archive stickers as editor or admin (fixes #97)
+
+### Fixed
+
+- Show sticker popup info only when authenticated
+- Force white color on sidebar timestamp text
+- Prevent duplicate changelog entries when running bump_version.py with an existing version
+
 ## [1.11.0] - 2026-05-09
 
 ### Added
@@ -273,7 +285,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.11.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.12.0...HEAD
+[1.12.0]: https://github.com/WatskeBart/stickermap/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.11.0
 [1.10.1]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.10.1
 [1.10.0]: https://github.com/WatskeBart/stickermap/compare/1.9.0...1.10.0

@@ -17,10 +17,12 @@ import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/stic
 export interface EditDialogData {
   sticker: ParsedSticker;
   isAdmin: boolean;
+  canArchive: boolean;
 }
 
 export interface EditDialogResult {
   updated: boolean;
+  archived?: boolean;
 }
 
 @Component({
@@ -47,6 +49,7 @@ export class EditStickerDialogComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
 
   saving = signal(false);
+  archiving = signal(false);
   rotating = signal<'cw' | 'ccw' | null>(null);
   hasRotated = signal(false);
   imageUrl = signal('');
@@ -129,6 +132,26 @@ export class EditStickerDialogComponent implements OnInit {
           this.rotating.set(null);
           this.snackBar.open(
             `Roteren mislukt: ${err.error?.detail || err.message}`,
+            'Sluiten',
+            { duration: 5000 },
+          );
+        },
+      });
+  }
+
+  archive(): void {
+    this.archiving.set(true);
+    this.stickerService.archiveSticker(this.data.sticker.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.archiving.set(false);
+          this.dialogRef.close({ updated: true, archived: true } satisfies EditDialogResult);
+        },
+        error: (err: any) => {
+          this.archiving.set(false);
+          this.snackBar.open(
+            `Archiveren mislukt: ${err.error?.detail || err.message}`,
             'Sluiten',
             { duration: 5000 },
           );

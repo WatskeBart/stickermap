@@ -77,13 +77,11 @@
                 alt="Sticker"
                 (error)="$any($event.target).style.display = 'none'"
               />
-              <div class="sticker-popup-info">
-                @if (isAuthenticated()) {
+              @if (isAuthenticated()) {
+                <div class="sticker-popup-info">
                   <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te zien. Vraag toegang aan een beheerder.</p>
-                } @else {
-                  <p class="sticker-popup-anon">Volledige details zijn alleen beschikbaar voor gebruikers met een rol. Vraag toegang aan een beheerder.</p>
-                }
-              </div>
+                </div>
+              }
             }
           </div>
         </mgl-popup>
