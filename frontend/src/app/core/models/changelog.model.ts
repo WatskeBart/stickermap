@@ -11,6 +11,26 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.12.0',
+    date: '2026-05-10',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Archive stickers as editor or admin',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Show sticker popup info only when authenticated',
+          'Force white color on sidebar timestamp text',
+          'Prevent duplicate changelog entries when running bump_version.py with an existing version',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.11.0',
     date: '2026-05-09',
     sections: [
