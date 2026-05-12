@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 function buildOidcConfig(): PassedInitialConfig {
   return {
     config: {
+      storage: localStorage,
       authority: `${environment.keycloak.url}/realms/${environment.keycloak.realm}`,
       redirectUrl: window.location.origin,
       postLogoutRedirectUri: window.location.origin,
