@@ -166,6 +166,14 @@
       </mat-form-field>
     }
 
+    <!-- Category -->
+    @if (uploadedFilename()) {
+      <app-category-selector
+        [(categoryId)]="categoryId"
+        label="Categorie (optioneel)"
+      />
+    }
+
     <!-- Post Date -->
     @if (uploadedFilename()) {
       <div class="form-group date-field">

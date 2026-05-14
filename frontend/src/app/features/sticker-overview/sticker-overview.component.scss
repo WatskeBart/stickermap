@@ -111,6 +111,30 @@
   }
 }
 
+.category-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.category-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.category-icon-placeholder {
+  color: var(--mat-sys-on-surface-variant, #555);
+  flex-shrink: 0;
+}
+
+.category-empty {
+  color: var(--mat-sys-on-surface-variant, #888);
+}
+
 .location-cell {
   font-size: 0.82rem;
   font-family: monospace;

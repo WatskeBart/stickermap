@@ -35,6 +35,12 @@
         <mat-icon matListItemIcon>table_view</mat-icon>
         @if (sidenavExpanded()) { <span matListItemTitle>Sticker Overzicht</span> }
       </a>
+      @if (authService.isEditor() || authService.isAdmin()) {
+        <a mat-list-item (click)="navigateToCategories(); isHandset() && sidenav.close()">
+          <mat-icon matListItemIcon>label</mat-icon>
+          @if (sidenavExpanded()) { <span matListItemTitle>Categorieën</span> }
+        </a>
+      }
     </mat-nav-list>
 
     <div class="sidenav-spacer"></div>

@@ -24,6 +24,92 @@ mgl-map {
   height: 41px;
 }
 
+.marker-icon .category-marker-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  padding: 2px;
+  box-sizing: border-box;
+  border: 2px solid #e17000;
+}
+
+/* Category filter overlay (top-right) */
+.category-filter {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 900;
+  background: var(--sm-surface-color);
+  border-radius: 8px;
+  padding: 14px 14px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  min-width: 220px;
+}
+
+.category-filter-field {
+  width: 100%;
+  font-size: 13px;
+}
+
+/* Dark mode: keep the form field's neutral colors instead of switching to the
+   dark navy primary (#0d3662), which has poor contrast on the dark surface. */
+:host-context(.dark-theme) .category-filter {
+  ::ng-deep .mdc-text-field--focused:not(.mdc-text-field--invalid) {
+    .mdc-floating-label,
+    .mdc-floating-label--float-above {
+      color: var(--sm-text-secondary) !important;
+    }
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--sm-border-color) !important;
+    }
+  }
+}
+
+.filter-option-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-option-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.filter-option-placeholder {
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.popup-category {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.popup-category-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+@media (max-width: 600px) {
+  .category-filter {
+    left: 12px;
+    right: 12px;
+    min-width: auto;
+  }
+}
+
 /* MapLibre popup wrapper styling (needs ::ng-deep — MapLibre's own DOM) */
 ::ng-deep .maplibregl-popup-content {
   padding: 0 !important;

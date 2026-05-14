@@ -11,6 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { StickerService } from '../../core/services/sticker.service';
 import { AuthService } from '../../core/services/auth.service';
 import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
+import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
 @Component({
   selector: 'app-sticker-form',
@@ -22,6 +23,7 @@ import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatCardModule,
+    CategorySelectorComponent,
   ],
   templateUrl: './sticker-form.component.html',
   styleUrls: ['./sticker-form.component.scss'],
@@ -53,6 +55,7 @@ export class StickerFormComponent implements OnInit {
   poster = signal('');
   uploader = signal('');
   postDate = signal('');
+  categoryId = signal<number | null>(null);
 
   // Auto-fill indicators
   isLocationAutoFilled = signal(false);
@@ -330,6 +333,7 @@ export class StickerFormComponent implements OnInit {
       uploader: this.uploader().trim(),
       post_date: this.convertToBackendFormat(this.postDate()),
       image: this.uploadedFilename()!,
+      category_id: this.categoryId(),
     };
 
     this.stickerService.createSticker(stickerData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -365,6 +369,7 @@ export class StickerFormComponent implements OnInit {
     this.useManualLocation.set(false);
     this.poster.set('');
     this.postDate.set('');
+    this.categoryId.set(null);
     this.coordError.set('');
     this.isSelectingLocation.set(false);
     this.isLocationAutoFilled.set(false);
