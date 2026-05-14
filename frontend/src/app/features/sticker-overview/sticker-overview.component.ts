@@ -25,6 +25,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -75,6 +76,7 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatBadgeModule,
+    MatMenuModule,
   ],
   templateUrl: './sticker-overview.component.html',
   styleUrl: './sticker-overview.component.scss',
@@ -368,5 +370,23 @@ export class StickerOverviewComponent implements OnInit {
 
   closeFullSize(): void {
     this.fullSizeImageUrl.set(null);
+  }
+
+  downloadExport(format: 'geojson' | 'csv'): void {
+    this.stickerService.exportStickers(format)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = format === 'csv' ? 'stickers.csv' : 'stickers.geojson';
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.snackBar.open('Export mislukt.', 'Sluiten', { duration: 4000 });
+        },
+      });
   }
 }

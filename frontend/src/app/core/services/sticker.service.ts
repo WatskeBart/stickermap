@@ -81,4 +81,11 @@ export class StickerService {
   unarchiveSticker(id: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/stickers/${id}/unarchive`, {});
   }
+
+  exportStickers(format: 'geojson' | 'csv'): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/stickers/export`, {
+      params: { format },
+      responseType: 'blob',
+    });
+  }
 }

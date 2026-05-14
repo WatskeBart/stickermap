@@ -21,6 +21,22 @@
       </div>
     }
     <div class="header-right">
+      @if (canModerate()) {
+        <button mat-stroked-button [matMenuTriggerFor]="exportMenu" matTooltip="Exporteer alle stickers">
+          <mat-icon>download</mat-icon>
+          Exporteren
+        </button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="downloadExport('geojson')">
+            <mat-icon>map</mat-icon>
+            GeoJSON
+          </button>
+          <button mat-menu-item (click)="downloadExport('csv')">
+            <mat-icon>table_chart</mat-icon>
+            CSV
+          </button>
+        </mat-menu>
+      }
       @if (bulkDeleteEnabled()) {
         <button mat-flat-button color="warn" (click)="openBulkDelete()">
           <mat-icon>delete_sweep</mat-icon>
