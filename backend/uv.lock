@@ -495,17 +495,17 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cryptography", specifier = ">=46.0.6" },
+    { name = "cryptography", specifier = ">=48.0.0" },
     { name = "exifread", specifier = ">=3.5.1" },
-    { name = "fastapi", specifier = ">=0.135.3" },
+    { name = "fastapi", specifier = ">=0.136.1" },
     { name = "pillow", specifier = ">=12.2.0" },
-    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.3" },
+    { name = "psycopg", extras = ["binary"], specifier = ">=3.3.4" },
     { name = "psycopg-pool", specifier = ">=3.2.0" },
     { name = "pyjwt", specifier = ">=2.12.1" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-multipart", specifier = ">=0.0.27" },
-    { name = "requests", specifier = ">=2.33.1" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.44.0" },
+    { name = "requests", specifier = ">=2.34.1" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.46.0" },
 ]
 
 [[package]]
