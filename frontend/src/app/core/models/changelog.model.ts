@@ -11,6 +11,21 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.13.0',
+    date: '2026-05-14',
+    sections: [
+      {
+        type: 'Changed',
+        items: [
+          'Use <code>localStorage</code> instead of default <code>sessionStorage</code> for OIDC session persistence',
+          'Migrate OIDC config to <code>provideAppInitializer</code> and <code>inject</code> API',
+          'Cast <code>RSAAlgorithm.from_jwk</code> result to <code>RSAPublicKey</code> type in auth',
+          'Bumped dependencies across backend, frontend, and infra',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.12.0',
     date: '2026-05-10',
     sections: [
