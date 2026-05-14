@@ -13,7 +13,7 @@ cd backend
 uv sync
 
 # Run the API server (requires running DB and Keycloak)
-uv run uvicorn main:app --host 0.0.0.0 --port 5555 --reload
+uv run fastapi dev main.py --host 0.0.0.0 --port 5555
 
 # Lint
 uv run ruff check .

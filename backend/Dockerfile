@@ -21,4 +21,4 @@ RUN mkdir -p uploads
 
 EXPOSE 5555/tcp
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5555"]
+CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "5555"]

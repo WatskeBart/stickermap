@@ -56,7 +56,7 @@ uv run alembic upgrade head
 cd ../backend
 
 # Run development server
-uv run uvicorn main:app --port 5555 --reload
+uv run fastapi dev main.py --port 5555
 ```
 
 Backend runs at: <http://localhost:5555>
