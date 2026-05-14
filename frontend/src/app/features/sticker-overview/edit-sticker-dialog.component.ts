@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
+import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
 export interface EditDialogData {
   sticker: ParsedSticker;
@@ -38,6 +39,7 @@ export interface EditDialogResult {
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    CategorySelectorComponent,
   ],
   templateUrl: './edit-sticker-dialog.component.html',
 })
@@ -60,6 +62,7 @@ export class EditStickerDialogComponent implements OnInit {
   lat = signal(0);
   lon = signal(0);
   uploader = signal('');
+  categoryId = signal<number | null>(null);
 
   ngOnInit(): void {
     const s = this.data.sticker;
@@ -69,6 +72,7 @@ export class EditStickerDialogComponent implements OnInit {
     this.lat.set(s.lat);
     this.lon.set(s.lon);
     this.uploader.set(s.uploader);
+    this.categoryId.set(s.category_id);
 
     if (this.data.isAdmin) {
       this.stickerService.getUploaders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -89,6 +93,9 @@ export class EditStickerDialogComponent implements OnInit {
     }
     if (this.data.isAdmin && this.uploader() !== s.uploader) {
       updates.uploader = this.uploader();
+    }
+    if (this.categoryId() !== s.category_id) {
+      updates.category_id = this.categoryId();
     }
 
     if (Object.keys(updates).length === 0) {

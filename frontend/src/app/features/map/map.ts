@@ -31,6 +31,9 @@ import {
   type ReportRemovalDialogData,
   type ReportRemovalDialogResult,
 } from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
+import { CategoryService } from '../../core/services/category.service';
+import type { Category } from '../../core/models/category.model';
+import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
 interface ProcessedSticker {
   id: number;
@@ -49,6 +52,9 @@ interface ProcessedSticker {
   removalCount: number;
   archived: boolean;
   canReport: boolean;
+  category_id: number | null;
+  category_name: string | null;
+  category_icon_url: string | null;
 }
 
 @Component({
@@ -66,6 +72,7 @@ interface ProcessedSticker {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    CategorySelectorComponent,
   ],
   templateUrl: './map.html',
   styleUrls: ['./map.scss'],
@@ -114,13 +121,19 @@ export class MapComponent implements OnInit {
     post_date: string;
     location: { lat: number; lon: number };
     uploader: string;
+    category_id: number | null;
   } | null>(null);
+  editCategoryId = signal<number | null>(null);
   editSaving = signal(false);
   editSelectingLocation = signal(false);
   editImageUrl = signal('');
   editRotating = signal<'cw' | 'ccw' | null>(null);
   editHasRotated = signal(false);
   uploaderList = signal<string[]>([]);
+
+  // Category filter
+  categories = signal<Category[]>([]);
+  selectedCategoryFilter = signal<number | 'all'>('all');
 
   // MapLibre style for OSM raster tiles
   readonly mapStyle = {
@@ -150,7 +163,12 @@ export class MapComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  constructor(private stickerService: StickerService, private authService: AuthService, private route: ActivatedRoute) {
+  constructor(
+    private stickerService: StickerService,
+    private authService: AuthService,
+    private route: ActivatedRoute,
+    private categoryService: CategoryService,
+  ) {
     // Watch locationSelectionMode to manage cursor and map state
     effect(() => {
       const selectionMode = this.locationSelectionMode();
@@ -188,7 +206,25 @@ export class MapComponent implements OnInit {
       }
     }
     this.loadStickers();
+    this.loadCategories();
   }
+
+  private loadCategories(): void {
+    this.categoryService
+      .listCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (rows) => this.categories.set(rows),
+        error: () => {},
+      });
+  }
+
+  visibleStickers = computed<ProcessedSticker[]>(() => {
+    const all = this.stickers();
+    const filter = this.selectedCategoryFilter();
+    if (filter === 'all') return all;
+    return all.filter((s) => s.category_id === filter);
+  });
 
   onMapLoad(map: maplibregl.Map): void {
     this.mapInstance = map;
@@ -265,6 +301,9 @@ export class MapComponent implements OnInit {
             const thumbName = lastDot >= 0
               ? `${image.slice(0, lastDot)}_thumb${image.slice(lastDot)}`
               : `${image}_thumb`;
+            const categoryId: number | null = s[11] ?? null;
+            const categoryName: string | null = s[12] ?? null;
+            const categoryIconFile: string | null = s[13] ?? null;
 
             return {
               id: s[0],
@@ -283,6 +322,9 @@ export class MapComponent implements OnInit {
               removalCount,
               archived,
               canReport,
+              category_id: categoryId,
+              category_name: categoryName,
+              category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
             };
           });
 
@@ -384,6 +426,7 @@ export class MapComponent implements OnInit {
         this.editImageUrl.set(`/uploads/${sticker[6]}`);
         this.editHasRotated.set(false);
         this.editRotating.set(null);
+        const categoryId: number | null = sticker[9] ?? null;
         this.editingSticker.set({
           id: sticker[0],
           poster: sticker[2],
@@ -393,13 +436,16 @@ export class MapComponent implements OnInit {
           image: sticker[6],
           uploaded_by: sticker[7],
           location: { lat: geom.coordinates[1], lon: geom.coordinates[0] },
+          category_id: categoryId,
         });
         this.editForm.set({
           poster: sticker[2],
           post_date: sticker[4],
           location: { lat: geom.coordinates[1], lon: geom.coordinates[0] },
           uploader: sticker[3],
+          category_id: categoryId,
         });
+        this.editCategoryId.set(categoryId);
       },
       error: (err: any) => {
         console.error('Failed to fetch sticker:', err);
@@ -410,6 +456,7 @@ export class MapComponent implements OnInit {
   closeEditModal(): void {
     this.editingSticker.set(null);
     this.editForm.set(null);
+    this.editCategoryId.set(null);
     this.editSaving.set(false);
     this.editSelectingLocation.set(false);
     this.editRotating.set(null);
@@ -443,6 +490,9 @@ export class MapComponent implements OnInit {
       if (currentEditForm.uploader !== currentEditingSticker.uploader) {
         updates.uploader = currentEditForm.uploader;
       }
+    }
+    if (this.editCategoryId() !== currentEditingSticker.category_id) {
+      updates.category_id = this.editCategoryId();
     }
 
     if (Object.keys(updates).length === 0) {

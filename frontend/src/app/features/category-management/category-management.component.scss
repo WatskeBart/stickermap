@@ -1,0 +1,108 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  padding: 1.5rem;
+  box-sizing: border-box;
+}
+
+.management-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+h2 {
+  margin-top: 0;
+}
+
+.create-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.create-field {
+  flex: 1;
+  max-width: 480px;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 0;
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.table-wrapper {
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.category-table {
+  width: 100%;
+}
+
+.row-icon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+}
+
+.row-icon-placeholder {
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.inline-rename {
+  width: 100%;
+  max-width: 320px;
+}
+
+.row-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-approved {
+  background: rgba(46, 125, 50, 0.15);
+  color: #2e7d32;
+}
+
+.status-pending {
+  background: rgba(225, 112, 0, 0.15);
+  color: #e17000;
+}
+
+.status-archived {
+  background: rgba(120, 120, 120, 0.2);
+  color: var(--mat-sys-on-surface-variant, #555);
+}
+
+.no-data-cell {
+  text-align: center;
+  padding: 2rem;
+  color: var(--mat-sys-on-surface-variant, #555);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  :host {
+    padding: 0.75rem 0.5rem;
+    padding-top: 60px;
+  }
+  .create-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .create-field {
+    max-width: none;
+  }
+}

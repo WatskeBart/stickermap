@@ -11,6 +11,18 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.14.0',
+    date: '2026-05-14',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Sticker categories with moderator-controlled taxonomy: category selector on upload and edit, category column in the sticker overview, and a dedicated category management page guarded by a moderator role',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.13.0',
     date: '2026-05-14',
     sections: [

@@ -1,0 +1,78 @@
+@if (!showCreateForm()) {
+  <div class="selector-row">
+    <mat-form-field appearance="outline" class="selector-field">
+      <mat-label>{{ label() }}</mat-label>
+      <mat-select
+        [ngModel]="categoryId()"
+        (ngModelChange)="onSelect($event)"
+        [disabled]="loading()"
+      >
+        <mat-option [value]="null">— Geen categorie —</mat-option>
+        @for (c of categories(); track c.id) {
+          <mat-option [value]="c.id">
+            <span class="option-row">
+              @if (c.icon_url) {
+                <img [src]="c.icon_url" class="option-icon" alt="" />
+              } @else {
+                <mat-icon class="option-icon-placeholder"></mat-icon>
+              }
+              <span>{{ c.name }}</span>
+              @if (!c.approved) {
+                <span class="pending-tag"> (wacht op goedkeuring)</span>
+              }
+            </span>
+          </mat-option>
+        }
+      </mat-select>
+      @if (loading()) {
+        <mat-progress-spinner matSuffix mode="indeterminate" diameter="18" />
+      }
+    </mat-form-field>
+    @if (allowCreate()) {
+      <button
+        type="button"
+        mat-icon-button
+        (click)="openCreateForm()"
+        matTooltip="Nieuwe categorie voorstellen"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    }
+  </div>
+} @else {
+  <div class="create-row">
+    <mat-form-field appearance="outline" class="selector-field">
+      <mat-label>Nieuwe categorie</mat-label>
+      <input
+        matInput
+        type="text"
+        [ngModel]="newCategoryName()"
+        (ngModelChange)="newCategoryName.set($event)"
+        (keydown.enter)="submitCreate()"
+        placeholder="Bijv. politiek, muziek, sport"
+        maxlength="255"
+      />
+    </mat-form-field>
+    <button
+      type="button"
+      mat-flat-button
+      color="accent"
+      (click)="submitCreate()"
+      [disabled]="creating() || !newCategoryName().trim()"
+    >
+      @if (creating()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" />
+      } @else {
+        Toevoegen
+      }
+    </button>
+    <button
+      type="button"
+      mat-button
+      (click)="cancelCreate()"
+      [disabled]="creating()"
+    >
+      Annuleren
+    </button>
+  </div>
+}

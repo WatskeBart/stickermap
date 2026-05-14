@@ -1,0 +1,159 @@
+<div class="management-container">
+  <h2>Categorieën beheren</h2>
+
+  <div class="create-row">
+    <mat-form-field appearance="outline" class="create-field">
+      <mat-label>Nieuwe categorie</mat-label>
+      <input
+        matInput
+        type="text"
+        [ngModel]="newCategoryName()"
+        (ngModelChange)="newCategoryName.set($event)"
+        (keydown.enter)="createCategory()"
+        maxlength="255"
+        placeholder="Bijv. politiek, muziek, sport"
+      />
+    </mat-form-field>
+    <button
+      mat-flat-button
+      color="accent"
+      (click)="createCategory()"
+      [disabled]="creating() || !newCategoryName().trim()"
+    >
+      @if (creating()) {
+        <mat-progress-spinner mode="indeterminate" diameter="18" />
+      } @else {
+        Toevoegen
+      }
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-row">
+      <mat-progress-spinner mode="indeterminate" diameter="36" />
+      <p>Categorieën laden...</p>
+    </div>
+  } @else {
+    <div class="table-wrapper mat-elevation-z2">
+      <table mat-table [dataSource]="dataSource" class="category-table">
+
+        <ng-container matColumnDef="icon">
+          <th mat-header-cell *matHeaderCellDef>Icoon</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.icon_url) {
+              <img [src]="row.icon_url" class="row-icon" alt="" />
+            } @else {
+              <mat-icon class="row-icon-placeholder">label</mat-icon>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef>Naam</th>
+          <td mat-cell *matCellDef="let row">
+            @if (editingId() === row.id) {
+              <mat-form-field appearance="outline" class="inline-rename">
+                <input
+                  matInput
+                  [ngModel]="editingName()"
+                  (ngModelChange)="editingName.set($event)"
+                  (keydown.enter)="saveRename(row)"
+                  (keydown.escape)="cancelEdit()"
+                  maxlength="255"
+                />
+              </mat-form-field>
+            } @else {
+              <span>{{ row.name }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.archived_at) {
+              <mat-chip class="status-chip status-archived">Gedeactiveerd</mat-chip>
+            } @else if (!row.approved) {
+              <mat-chip class="status-chip status-pending">In afwachting</mat-chip>
+            } @else {
+              <mat-chip class="status-chip status-approved">Goedgekeurd</mat-chip>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="created_by">
+          <th mat-header-cell *matHeaderCellDef>Aangemaakt door</th>
+          <td mat-cell *matCellDef="let row">{{ row.created_by }}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Acties</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="row-actions">
+              @if (editingId() === row.id) {
+                <button mat-icon-button color="accent" (click)="saveRename(row)" matTooltip="Opslaan">
+                  <mat-icon>check</mat-icon>
+                </button>
+                <button mat-icon-button (click)="cancelEdit()" matTooltip="Annuleren">
+                  <mat-icon>close</mat-icon>
+                </button>
+              } @else {
+                <button mat-icon-button (click)="startEdit(row)" matTooltip="Hernoemen">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <input
+                  #iconInput
+                  type="file"
+                  hidden
+                  accept="image/svg+xml,image/png"
+                  (change)="onIconSelected($event, row)"
+                />
+                <button
+                  mat-icon-button
+                  (click)="iconInput.click()"
+                  [disabled]="iconUploadingId() === row.id"
+                  [matTooltip]="row.icon_filename ? 'Icoon vervangen (SVG of PNG, max 500KB)' : 'Icoon uploaden (SVG of PNG, max 500KB)'"
+                >
+                  @if (iconUploadingId() === row.id) {
+                    <mat-progress-spinner mode="indeterminate" diameter="18" />
+                  } @else {
+                    <mat-icon>image</mat-icon>
+                  }
+                </button>
+                @if (row.icon_filename) {
+                  <button mat-icon-button (click)="removeIcon(row)" matTooltip="Icoon verwijderen">
+                    <mat-icon>image_not_supported</mat-icon>
+                  </button>
+                }
+
+                @if (!row.approved && isAdmin()) {
+                  <button mat-icon-button color="accent" (click)="approve(row)" matTooltip="Goedkeuren">
+                    <mat-icon>check_circle</mat-icon>
+                  </button>
+                }
+
+                <button
+                  mat-icon-button
+                  (click)="toggleArchive(row)"
+                  [matTooltip]="row.archived_at ? 'Activeren' : 'Deactiveren'"
+                >
+                  <mat-icon>{{ row.archived_at ? 'restore' : 'archive' }}</mat-icon>
+                </button>
+              }
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns.length">
+            Geen categorieën beschikbaar.
+          </td>
+        </tr>
+      </table>
+    </div>
+  }
+</div>

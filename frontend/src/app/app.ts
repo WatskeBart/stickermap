@@ -145,6 +145,10 @@ export class App implements OnInit {
     this.router.navigate(['/sticker-overview']);
   }
 
+  navigateToCategories(): void {
+    this.router.navigate(['/categories']);
+  }
+
   openChangelog(): void {
     this.dialog.open(ChangelogDialogComponent, { width: '640px', maxHeight: '80vh' });
   }

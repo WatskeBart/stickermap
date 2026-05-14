@@ -12,6 +12,10 @@ logger = get_logger(__name__)
 ALLOWED_FORMATS = {"image/jpeg", "image/png", "image/gif", "image/webp"}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 
+CATEGORY_ICON_FORMATS = {"image/svg+xml", "image/png"}
+CATEGORY_ICON_MAX_SIZE = 500 * 1024  # 500KB
+CATEGORY_ICON_ASPECT_TOLERANCE = 0.05  # raster icons must be square within 5%
+
 
 class FileValidator:
     """Validates uploaded files"""
@@ -52,6 +56,56 @@ class FileValidator:
                 status_code=400,
                 detail=f"Invalid image file: {str(e)}"
             )
+
+
+class CategoryIconValidator:
+    """Validates category icon uploads (SVG preferred, PNG fallback)."""
+
+    @staticmethod
+    def validate(content_type: str, file_content: bytes) -> str:
+        """Validate icon content. Returns the file extension to use ('svg' or 'png')."""
+        if content_type not in CATEGORY_ICON_FORMATS:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid icon format. Allowed formats: SVG, PNG",
+            )
+        if len(file_content) == 0:
+            raise HTTPException(status_code=400, detail="File is empty")
+        if len(file_content) > CATEGORY_ICON_MAX_SIZE:
+            raise HTTPException(
+                status_code=400,
+                detail="Icon size exceeds maximum allowed size of 500KB",
+            )
+
+        if content_type == "image/svg+xml":
+            head = file_content[:1024].lstrip().lower()
+            if b"<svg" not in head and not head.startswith(b"<?xml"):
+                raise HTTPException(status_code=400, detail="Invalid SVG file")
+            lower = file_content.lower()
+            if b"<script" in lower or b"javascript:" in lower or b"onload=" in lower:
+                raise HTTPException(
+                    status_code=400, detail="SVG must not contain scripts or event handlers"
+                )
+            return "svg"
+
+        try:
+            img = Image.open(BytesIO(file_content))
+            img.verify()
+            img = Image.open(BytesIO(file_content))
+            width, height = img.size
+            if width == 0 or height == 0:
+                raise HTTPException(status_code=400, detail="Invalid icon dimensions")
+            ratio = abs(width - height) / max(width, height)
+            if ratio > CATEGORY_ICON_ASPECT_TOLERANCE:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Icon must be square (got {width}x{height})",
+                )
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid PNG icon: {str(e)}")
+        return "png"
 
 
 class ImageProcessor:

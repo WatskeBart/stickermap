@@ -14,6 +14,7 @@ class StickerData(BaseModel):
     uploader: str
     post_date: str
     image: str
+    category_id: Optional[int] = None
 
 
 class CreateStickersRequest(BaseModel):
@@ -25,6 +26,7 @@ class UpdateStickerRequest(BaseModel):
     post_date: Optional[str] = None
     location: Optional[StickerLocation] = None
     uploader: Optional[str] = None
+    category_id: Optional[int] = None
 
 
 class RotateRequest(BaseModel):
@@ -33,3 +35,13 @@ class RotateRequest(BaseModel):
 
 class ReviewReportRequest(BaseModel):
     status: Literal["confirmed", "dismissed"]
+
+
+class CreateCategoryRequest(BaseModel):
+    name: str
+
+
+class UpdateCategoryRequest(BaseModel):
+    name: Optional[str] = None
+    approved: Optional[bool] = None
+    archived: Optional[bool] = None
