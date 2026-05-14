@@ -1,6 +1,6 @@
-import { APP_INITIALIZER, EnvironmentProviders, Provider } from '@angular/core';
+import { EnvironmentProviders, inject, Provider, provideAppInitializer } from '@angular/core';
 import { Router } from '@angular/router';
-import { provideAuth, PassedInitialConfig, OidcSecurityService } from 'angular-auth-oidc-client';
+import { provideAuth, PassedInitialConfig, OidcSecurityService, DefaultLocalStorageService, AbstractSecurityStorage } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -23,31 +23,26 @@ function buildOidcConfig(): PassedInitialConfig {
   };
 }
 
-function initializeAuth(oidcSecurityService: OidcSecurityService, router: Router) {
-  return () =>
-    firstValueFrom(
-      oidcSecurityService.checkAuth().pipe(
-        tap(({ isAuthenticated }) => {
-          if (isAuthenticated) {
-            const redirectUrl = localStorage.getItem('redirect_url');
-            if (redirectUrl) {
-              localStorage.removeItem('redirect_url');
-              router.navigateByUrl(redirectUrl);
-            }
-          }
-        }),
-      ),
-    );
-}
-
 export function provideOidcConfig(): (Provider | EnvironmentProviders)[] {
   return [
     provideAuth(buildOidcConfig()),
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeAuth,
-      deps: [OidcSecurityService, Router],
-      multi: true,
-    },
+    { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
+    provideAppInitializer(() => {
+      const oidcSecurityService = inject(OidcSecurityService);
+      const router = inject(Router);
+      return firstValueFrom(
+        oidcSecurityService.checkAuth().pipe(
+          tap(({ isAuthenticated }) => {
+            if (isAuthenticated) {
+              const redirectUrl = localStorage.getItem('redirect_url');
+              if (redirectUrl) {
+                localStorage.removeItem('redirect_url');
+                router.navigateByUrl(redirectUrl);
+              }
+            }
+          }),
+        ),
+      );
+    }),
   ];
 }

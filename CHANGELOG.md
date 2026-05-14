@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-05-14
+
+### Changed
+
+- Use `localStorage` instead of default `sessionStorage` for OIDC session persistence
+- Migrate OIDC config to `provideAppInitializer` and `inject` API
+- Cast `RSAAlgorithm.from_jwk` result to `RSAPublicKey` type in auth
+- Bumped dependencies across backend, frontend, and infra
+
 ## [1.12.0] - 2026-05-10
 
 ### Added

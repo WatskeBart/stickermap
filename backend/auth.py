@@ -1,10 +1,11 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, cast
 
 import jwt
 import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from jwt.algorithms import RSAAlgorithm
 from jwt.exceptions import PyJWTError
 
@@ -92,7 +93,7 @@ def decode_token(token: str) -> dict:
             )
 
         # Decode and validate the token
-        public_key = RSAAlgorithm.from_jwk(rsa_key)
+        public_key = cast("RSAPublicKey", RSAAlgorithm.from_jwk(rsa_key))
         payload = jwt.decode(
             token,
             public_key,

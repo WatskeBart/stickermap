@@ -1,5 +1,5 @@
 # Build stage
-FROM docker.io/node:lts-slim AS builder
+FROM docker.io/node:26-slim AS builder
 
 WORKDIR /app
 
@@ -8,13 +8,13 @@ COPY . .
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-RUN corepack enable
+RUN npm install -g pnpm
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm exec ng run frontend:ngsscbuild:production
 
 FROM docker.io/caddy:alpine AS final
 
-ARG IMAGE_VERSION=1.12.0
+ARG IMAGE_VERSION=1.13.0
 
 LABEL org.opencontainers.image.title="Stickermap Frontend" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \

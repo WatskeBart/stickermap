@@ -21,7 +21,7 @@ services:
 
   # Keycloak
   keycloak:
-    image: quay.io/keycloak/keycloak:26.5
+    image: quay.io/keycloak/keycloak:26.6
     container_name: stickermap-keycloak
     command:
       - start-dev
