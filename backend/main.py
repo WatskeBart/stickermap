@@ -1,10 +1,13 @@
+import csv
+import io
+import json
 import os
 import secrets
 import uvicorn
 from datetime import UTC, datetime
 from pathlib import Path
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, FastAPI, File, HTTPException, Query, Request, Response, UploadFile, status
 from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -393,6 +396,84 @@ def get_stats(
         raise HTTPException(status_code=500, detail=str(e))
     finally:
         cursor.close()
+
+
+@router.get("/stickers/export")
+def export_stickers(
+    format: Optional[str] = Query(default=None, description="Export format: 'geojson' (default) or 'csv'"),
+    request: Request = None,
+    conn=Depends(get_db),
+    current_user: dict = Depends(require_role(ROLE_EDITOR)),
+):
+    """Export all stickers as GeoJSON FeatureCollection or flat CSV. Requires sm-editor role."""
+    fmt = (format or "").strip().lower()
+    if not fmt:
+        accept = request.headers.get("accept", "") if request else ""
+        fmt = "csv" if "text/csv" in accept else "geojson"
+    if fmt not in ("geojson", "csv"):
+        raise HTTPException(status_code=400, detail="format must be 'geojson' or 'csv'")
+
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT
+                s.id,
+                ST_AsGeoJSON(s.location),
+                s.poster,
+                s.uploader,
+                s.post_date,
+                s.upload_date,
+                s.image,
+                s.uploaded_by,
+                s.archived,
+                s.category_id,
+                c.name
+            FROM stickers s
+            LEFT JOIN categories c ON c.id = s.category_id
+            ORDER BY s.id
+        """)
+        rows = cursor.fetchall()
+    finally:
+        cursor.close()
+
+    if fmt == "csv":
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["id", "poster", "uploader", "post_date", "upload_date", "latitude", "longitude", "image", "archived", "category"])
+        for r in rows:
+            geom = json.loads(r[1])
+            lon, lat = geom["coordinates"][0], geom["coordinates"][1]
+            writer.writerow([r[0], r[2], r[3], str(r[4]) if r[4] else None, str(r[5]) if r[5] else None, lat, lon, r[6], r[8], r[10]])
+        return Response(
+            content=output.getvalue(),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=stickers.csv"},
+        )
+
+    features = []
+    for r in rows:
+        geom = json.loads(r[1])
+        features.append({
+            "type": "Feature",
+            "geometry": geom,
+            "properties": {
+                "id": r[0],
+                "poster": r[2],
+                "uploader": r[3],
+                "post_date": str(r[4]) if r[4] else None,
+                "upload_date": str(r[5]) if r[5] else None,
+                "image": r[6],
+                "uploaded_by": r[7],
+                "archived": r[8],
+                "category_id": r[9],
+                "category_name": r[10],
+            },
+        })
+    return Response(
+        content=json.dumps({"type": "FeatureCollection", "features": features}),
+        media_type="application/geo+json",
+        headers={"Content-Disposition": "attachment; filename=stickers.geojson"},
+    )
 
 
 @router.patch("/stickers/{sticker_id}/rotate", status_code=200)
