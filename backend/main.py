@@ -174,7 +174,7 @@ def get_all_stickers(
                 s.uploaded_by,
                 s.updated_at,
                 (SELECT COUNT(*) FROM removal_reports rr
-                 WHERE rr.sticker_id = s.id AND rr.review_status = 'pending') AS removal_count,
+                WHERE rr.sticker_id = s.id AND rr.review_status = 'pending') AS removal_count,
                 s.archived
             FROM stickers s
         """)
@@ -623,7 +623,7 @@ def get_sticker_reports(
 
         cursor.execute(t"""
             SELECT id, sticker_id, reported_by, reported_at, proof_image,
-                   reviewed_by, review_status, reviewed_at
+                reviewed_by, review_status, reviewed_at
             FROM removal_reports
             WHERE sticker_id = {sticker_id}
             ORDER BY reported_at DESC
