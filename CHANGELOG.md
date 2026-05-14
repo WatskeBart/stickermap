@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-05-14
+
+### Added
+
+- Sticker categories with moderator-controlled taxonomy: category selector on upload and edit, category column in the sticker overview, and a dedicated category management page guarded by a moderator role (fixes #41)
+
 ## [1.13.0] - 2026-05-14
 
 ### Changed
@@ -294,7 +300,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.12.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.14.0...HEAD
+[1.14.0]: https://github.com/WatskeBart/stickermap/compare/1.13.0...1.14.0
+[1.13.0]: https://github.com/WatskeBart/stickermap/compare/1.12.0...1.13.0
 [1.12.0]: https://github.com/WatskeBart/stickermap/compare/1.11.0...1.12.0
 [1.11.0]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.11.0
 [1.10.1]: https://github.com/WatskeBart/stickermap/compare/1.10.1...1.10.1

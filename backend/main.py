@@ -34,7 +34,7 @@ url_prefix = "/api/v1"
 
 app = FastAPI(
     title="StickerMap API",
-    version="1.13.0",
+    version="1.14.0",
     debug=True,
     docs_url=url_prefix + "/docs",
     redoc_url=url_prefix + "/redoc",
