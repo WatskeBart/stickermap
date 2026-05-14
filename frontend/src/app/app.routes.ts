@@ -3,6 +3,7 @@ import { LandingComponent } from './features/landing/landing.component';
 import { MapViewComponent } from './features/map/map-view/map-view.component';
 import { AddStickerViewComponent } from './features/add-sticker/add-sticker-view.component';
 import { authGuard } from './core/guards/auth.guard';
+import { moderatorGuard } from './core/guards/moderator.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -13,6 +14,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/sticker-overview/sticker-overview.component').then(
         (m) => m.StickerOverviewComponent,
+      ),
+  },
+  {
+    path: 'categories',
+    canActivate: [authGuard, moderatorGuard],
+    loadComponent: () =>
+      import('./features/category-management/category-management.component').then(
+        (m) => m.CategoryManagementComponent,
       ),
   },
   { path: '**', redirectTo: '' }

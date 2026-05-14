@@ -8,15 +8,23 @@
   >
     <!-- Sticker markers: hidden during any selection mode -->
     @if (!locationSelectionMode() && !editSelectingLocation()) {
-      @for (sticker of stickers(); track sticker.id) {
+      @for (sticker of visibleStickers(); track sticker.id) {
         <mgl-marker [lngLat]="[sticker.lon, sticker.lat]">
           <div class="marker-icon" (click)="onMarkerClick(sticker.id, $event)">
-            <img
-              [src]="sticker.removalCount > 0
-                ? 'images/markers/marker-icon-2x-orange.png'
-                : 'images/markers/marker-icon-2x-red.png'"
-              alt="sticker marker"
-            />
+            @if (sticker.category_icon_url && !sticker.archived && sticker.removalCount === 0) {
+              <img
+                [src]="sticker.category_icon_url"
+                class="category-marker-icon"
+                [alt]="sticker.category_name || 'sticker marker'"
+              />
+            } @else {
+              <img
+                [src]="sticker.removalCount > 0
+                  ? 'images/markers/marker-icon-2x-orange.png'
+                  : 'images/markers/marker-icon-2x-red.png'"
+                alt="sticker marker"
+              />
+            }
           </div>
         </mgl-marker>
       }
@@ -44,6 +52,15 @@
                 <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
                 <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
                 <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
+                @if (sticker.category_name) {
+                  <p class="popup-category">
+                    <strong>Categorie:</strong>
+                    @if (sticker.category_icon_url) {
+                      <img [src]="sticker.category_icon_url" class="popup-category-icon" alt="" />
+                    }
+                    {{ sticker.category_name }}
+                  </p>
+                }
               </div>
               @if (sticker.removalCount > 0) {
                 <div class="sticker-popup-report-badge">
@@ -104,6 +121,32 @@
       </mgl-marker>
     }
   </mgl-map>
+
+  @if (!locationSelectionMode() && !editSelectingLocation() && categories().length > 0) {
+    <div class="category-filter">
+      <mat-form-field appearance="outline" class="category-filter-field">
+        <mat-label>Filter op categorie</mat-label>
+        <mat-select
+          [ngModel]="selectedCategoryFilter()"
+          (ngModelChange)="selectedCategoryFilter.set($event)"
+        >
+          <mat-option value="all">Alle categorieën</mat-option>
+          @for (c of categories(); track c.id) {
+            <mat-option [value]="c.id">
+              <span class="filter-option-row">
+                @if (c.icon_url) {
+                  <img [src]="c.icon_url" class="filter-option-icon" alt="" />
+                } @else {
+                  <mat-icon class="filter-option-placeholder"></mat-icon>
+                }
+                <span>{{ c.name }}</span>
+              </span>
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+  }
 
   @if (isLoading()) {
     <div class="loading-overlay">
@@ -208,6 +251,8 @@
               </mat-select>
             </mat-form-field>
           }
+
+          <app-category-selector [(categoryId)]="editCategoryId" />
 
           <div class="modal-actions">
             <button mat-flat-button color="accent" (click)="saveEdit()" [disabled]="editSaving()">

@@ -125,13 +125,13 @@ export class StickerOverviewComponent implements OnInit {
   displayedColumns = computed<string[]>(() => {
     const handset = this.isHandset();
     const base: string[] = handset
-      ? ['thumbnail', 'view-on-map']
-      : ['thumbnail', 'post_date', 'upload_date', 'location', 'view-on-map'];
+      ? ['thumbnail', 'category', 'view-on-map']
+      : ['thumbnail', 'category', 'post_date', 'upload_date', 'location', 'view-on-map'];
     if (this.isViewer()) {
       if (handset) {
-        base.splice(1, 0, 'poster');
+        base.splice(2, 0, 'poster');
       } else {
-        base.splice(1, 0, 'poster', 'uploader');
+        base.splice(2, 0, 'poster', 'uploader');
       }
     }
     if (this.canModerate() && !handset) {
@@ -189,6 +189,9 @@ export class StickerOverviewComponent implements OnInit {
           const isOwner = uploadedBy != null && uploadedBy === currentUser;
           const removalCount: number = s[9] ?? 0;
           const archived: boolean = s[10] ?? false;
+          const categoryId: number | null = s[11] ?? null;
+          const categoryName: string | null = s[12] ?? null;
+          const categoryIconFile: string | null = s[13] ?? null;
           return {
             id: s[0],
             lat,
@@ -207,6 +210,9 @@ export class StickerOverviewComponent implements OnInit {
             canReport: this.isViewer() && !this.isEditor() && !this.isAdmin() && !archived,
             canUnarchive: (this.isEditor() || this.isAdmin()) && archived,
             canArchive: (this.isEditor() || this.isAdmin()) && !archived,
+            category_id: categoryId,
+            category_name: categoryName,
+            category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
           };
         });
         this.dataSource.data = parsed;

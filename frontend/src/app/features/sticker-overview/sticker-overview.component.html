@@ -79,6 +79,30 @@
           </td>
         </ng-container>
 
+        <!-- Category column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Categorie</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.category_name) {
+              <div class="category-cell">
+                @if (row.category_icon_url) {
+                  <img
+                    [src]="row.category_icon_url"
+                    class="category-icon"
+                    alt=""
+                    (error)="$any($event.target).style.display='none'"
+                  />
+                } @else {
+                  <mat-icon class="category-icon-placeholder"></mat-icon>
+                }
+                <span>{{ row.category_name }}</span>
+              </div>
+            } @else {
+              <span class="category-empty">—</span>
+            }
+          </td>
+        </ng-container>
+
         <!-- Poster column -->
         <ng-container matColumnDef="poster">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Geplakt door</th>
