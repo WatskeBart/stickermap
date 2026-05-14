@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GeoJSON and CSV export endpoint for editors and admins (fixes #60)
+
+### Changed
+
+- Backend split into routers (`stickers`, `categories`, `reports`) and a `core/` module (`auth`, `config`, `connections`, `logger`) for better separation of concerns
+
 ## [1.14.0] - 2026-05-14
 
 ### Added
