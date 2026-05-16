@@ -11,10 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - GeoJSON and CSV export endpoint for editors and admins (fixes #60)
 - Private sticker visibility toggle: uploaders can mark a sticker as private so it is hidden from unauthenticated visitors; any authenticated user with at least `sm-viewer` can still see it. Private stickers show a lock indicator on the map marker, in popups, and in the sticker overview table (fixes #43)
+- Clicking the sticker thumbnail in the map popup now opens the full-size image for unauthenticated users
 
 ### Changed
 
 - Backend split into routers (`stickers`, `categories`, `reports`) and a `core/` module (`auth`, `config`, `connections`, `logger`) for better separation of concerns
+
+### Fixed
+
+- Corrected Dutch authorization message shown to unauthenticated users in the map popup
 
 ## [1.14.0] - 2026-05-14
 
