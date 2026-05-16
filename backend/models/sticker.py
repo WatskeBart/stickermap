@@ -15,6 +15,7 @@ class StickerData(BaseModel):
     post_date: str
     image: str
     category_id: Optional[int] = None
+    private: Optional[bool] = False
 
 
 class CreateStickersRequest(BaseModel):
@@ -27,6 +28,7 @@ class UpdateStickerRequest(BaseModel):
     location: Optional[StickerLocation] = None
     uploader: Optional[str] = None
     category_id: Optional[int] = None
+    private: Optional[bool] = None
 
 
 class RotateRequest(BaseModel):

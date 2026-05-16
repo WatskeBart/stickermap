@@ -9,8 +9,8 @@ from cryptography.hazmat.primitives.asymmetric.rsa import RSAPublicKey
 from jwt.algorithms import RSAAlgorithm
 from jwt.exceptions import PyJWTError
 
-from environment import Config
-from logger import get_logger
+from core.config import Config
+from core.logger import get_logger
 
 logger = get_logger(__name__)
 

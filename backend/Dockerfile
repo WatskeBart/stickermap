@@ -1,6 +1,6 @@
 FROM docker.io/astral/uv:python3.14-alpine
 
-ARG IMAGE_VERSION=1.14.0
+ARG IMAGE_VERSION=1.15.0
 
 LABEL org.opencontainers.image.title="Stickermap Backend" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
@@ -21,4 +21,4 @@ RUN mkdir -p uploads
 
 EXPOSE 5555/tcp
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5555"]
+CMD ["fastapi", "run", "main.py", "--host", "0.0.0.0", "--port", "5555"]

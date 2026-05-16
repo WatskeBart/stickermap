@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-05-16
+
+### Added
+
+- GeoJSON and CSV export endpoint for editors and admins (fixes #60)
+- Private sticker visibility toggle: uploaders can mark a sticker as private so it is hidden from unauthenticated visitors; any authenticated user with at least `sm-viewer` can still see it. Private stickers show a lock indicator on the map marker, in popups, and in the sticker overview table (fixes #43)
+- Clicking the sticker thumbnail in the map popup now opens the full-size image for unauthenticated users
+
+### Changed
+
+- Backend split into routers (`stickers`, `categories`, `reports`) and a `core/` module (`auth`, `config`, `connections`, `logger`) for better separation of concerns
+
+### Fixed
+
+- Corrected Dutch authorization message shown to unauthenticated users in the map popup
+
 ## [1.14.0] - 2026-05-14
 
 ### Added
@@ -300,7 +316,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.14.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.15.0...HEAD
+[1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0
 [1.14.0]: https://github.com/WatskeBart/stickermap/compare/1.13.0...1.14.0
 [1.13.0]: https://github.com/WatskeBart/stickermap/compare/1.12.0...1.13.0
 [1.12.0]: https://github.com/WatskeBart/stickermap/compare/1.11.0...1.12.0

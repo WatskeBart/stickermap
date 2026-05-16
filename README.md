@@ -144,7 +144,7 @@ podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
 
 cp .env.example .env
 cd ../database_migrations && uv run alembic upgrade head && cd ../backend
-uv run uvicorn main:app --port 5555 --reload
+uv run fastapi dev main.py --port 5555
 ```
 
 Backend: <http://localhost:5555>

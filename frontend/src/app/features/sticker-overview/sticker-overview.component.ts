@@ -25,6 +25,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -75,6 +76,7 @@ import {
     MatFormFieldModule,
     MatInputModule,
     MatBadgeModule,
+    MatMenuModule,
   ],
   templateUrl: './sticker-overview.component.html',
   styleUrl: './sticker-overview.component.scss',
@@ -192,6 +194,7 @@ export class StickerOverviewComponent implements OnInit {
           const categoryId: number | null = s[11] ?? null;
           const categoryName: string | null = s[12] ?? null;
           const categoryIconFile: string | null = s[13] ?? null;
+          const isPrivate: boolean = s[14] ?? false;
           return {
             id: s[0],
             lat,
@@ -213,6 +216,7 @@ export class StickerOverviewComponent implements OnInit {
             category_id: categoryId,
             category_name: categoryName,
             category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
+            private: isPrivate,
           };
         });
         this.dataSource.data = parsed;
@@ -368,5 +372,23 @@ export class StickerOverviewComponent implements OnInit {
 
   closeFullSize(): void {
     this.fullSizeImageUrl.set(null);
+  }
+
+  downloadExport(format: 'geojson' | 'csv'): void {
+    this.stickerService.exportStickers(format)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = format === 'csv' ? 'stickers.csv' : 'stickers.geojson';
+          a.click();
+          URL.revokeObjectURL(url);
+        },
+        error: () => {
+          this.snackBar.open('Export mislukt.', 'Sluiten', { duration: 4000 });
+        },
+      });
   }
 }
