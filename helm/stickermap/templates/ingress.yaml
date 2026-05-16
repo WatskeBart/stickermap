@@ -18,7 +18,7 @@ spec:
     {{- toYaml .Values.ingress.tls | nindent 4 }}
   {{- end }}
   rules:
-    - host: {{ required "global.hostname is required" .Values.global.hostname }}
+    - host: {{ required "ingress.hostname is required" .Values.ingress.hostname }}
       http:
         paths:
           # Backend API
@@ -37,40 +37,6 @@ spec:
                 name: {{ .Release.Name }}-backend
                 port:
                   number: 5555
-          {{- if .Values.keycloak.enabled }}
-          # Keycloak realm endpoints (used by browser for OIDC)
-          - path: /realms
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-keycloak
-                port:
-                  number: 8080
-          # Keycloak static resources
-          - path: /resources
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-keycloak
-                port:
-                  number: 8080
-          # Keycloak JS adapter
-          - path: /js
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-keycloak
-                port:
-                  number: 8080
-          # Keycloak admin console
-          - path: /admin
-            pathType: Prefix
-            backend:
-              service:
-                name: {{ .Release.Name }}-keycloak
-                port:
-                  number: 8080
-          {{- end }}
           # Frontend SPA (catch-all — must be last)
           - path: /
             pathType: Prefix
