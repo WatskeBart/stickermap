@@ -11,6 +11,26 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.16.0',
+    date: '2026-05-16',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Admin maintenance page (<code>/admin</code>) accessible only to <code>sm-admin</code> users, with a sidenav link',
+          '<code>thumbnail</code> column added to the <code>stickers</code> table (migration <code>0008</code>); new stickers now persist the thumbnail filename at creation time',
+          'Sticker overview now persists the selected page size across sessions and supports sorting by category',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Map tiles and GeoJSON are now loaded lazily so the initial map render is faster',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.15.0',
     date: '2026-05-16',
     sections: [
