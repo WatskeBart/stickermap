@@ -103,11 +103,12 @@
                 [src]="sticker.thumbnailUrl"
                 class="sticker-popup-image"
                 alt="Sticker"
+                (click)="fullSizeImageUrl.set(sticker.imageUrl)"
                 (error)="$any($event.target).style.display = 'none'"
               />
               @if (isAuthenticated()) {
                 <div class="sticker-popup-info">
-                  <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te zien. Vraag toegang aan een beheerder.</p>
+                  <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te bekijken. Vraag toegang aan een beheerder.</p>
                 </div>
               }
             }
