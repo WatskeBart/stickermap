@@ -59,6 +59,30 @@ mgl-map {
   border: 2px solid #e17000;
 }
 
+/* Tile-layer toggle overlay (bottom-left) */
+.tile-layer-toggle {
+  position: absolute;
+  bottom: 24px;
+  left: 12px;
+  z-index: 900;
+  background: var(--sm-surface-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 4px;
+
+  mat-button-toggle-group {
+    background: transparent;
+    border: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .tile-layer-toggle {
+    bottom: 12px;
+    font-size: 12px;
+  }
+}
+
 /* Category filter overlay (top-right) */
 .category-filter {
   position: absolute;

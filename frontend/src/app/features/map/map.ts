@@ -12,7 +12,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { environment } from '../../../environments/environment';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import {
+  getAvailableTileLayers,
+  TILE_LAYER_STORAGE_KEY,
+  type TileLayerOption,
+  type TileLayerType,
+} from '../../core/config/tile-layers.config';
 import { AuthService } from '../../core/services/auth.service';
 import { StickerService } from '../../core/services/sticker.service';
 import type { UpdateStickerRequest } from '../../core/models/sticker.model';
@@ -75,6 +81,7 @@ interface ProcessedSticker {
     MatIconModule,
     MatTooltipModule,
     MatCheckboxModule,
+    MatButtonToggleModule,
     CategorySelectorComponent,
   ],
   templateUrl: './map.html',
@@ -139,27 +146,61 @@ export class MapComponent implements OnInit {
   categories = signal<Category[]>([]);
   selectedCategoryFilter = signal<number | 'all'>('all');
 
-  // MapLibre style for OSM raster tiles
+  // Available tile layers (driven by configured env vars)
+  readonly availableTileLayers: TileLayerOption[] = getAvailableTileLayers();
+  activeTileLayer = signal<TileLayerType>(this.resolveInitialTileLayer());
+
+  // MapLibre style for base raster tiles
   readonly mapStyle = {
     version: 8 as const,
     sources: {
-      'osm-tiles': {
+      'base-tiles': {
         type: 'raster' as const,
-        tiles: [environment.tileLayerUrl],
+        tiles: [this.activeTileLayerUrl()],
         tileSize: 256,
         attribution: '&copy; StickerMap',
       },
     },
     layers: [
       {
-        id: 'osm-tiles-layer',
+        id: 'base-tiles-layer',
         type: 'raster' as const,
-        source: 'osm-tiles',
+        source: 'base-tiles',
         minzoom: 0,
         maxzoom: 22,
       },
     ],
   };
+
+  private resolveInitialTileLayer(): TileLayerType {
+    const available = this.availableTileLayers;
+    const stored = (typeof localStorage !== 'undefined'
+      ? localStorage.getItem(TILE_LAYER_STORAGE_KEY)
+      : null) as TileLayerType | null;
+    if (stored && available.some((o) => o.id === stored)) return stored;
+    return available[0]?.id ?? 'street';
+  }
+
+  private activeTileLayerUrl(): string {
+    const active = this.activeTileLayer();
+    return (
+      this.availableTileLayers.find((o) => o.id === active)?.url ??
+      this.availableTileLayers[0]?.url ??
+      ''
+    );
+  }
+
+  switchTileLayer(type: TileLayerType): void {
+    if (!type || type === this.activeTileLayer()) return;
+    const option = this.availableTileLayers.find((o) => o.id === type);
+    if (!option) return;
+    this.activeTileLayer.set(type);
+    localStorage.setItem(TILE_LAYER_STORAGE_KEY, type);
+    const source = this.mapInstance?.getSource('base-tiles') as
+      | maplibregl.RasterTileSource
+      | undefined;
+    source?.setTiles([option.url]);
+  }
 
   targetFocus = signal<{ lat: number; lon: number } | null>(null);
   focusStickerId = signal<number | null>(null);
