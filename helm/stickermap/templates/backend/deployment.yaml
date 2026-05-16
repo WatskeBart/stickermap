@@ -37,7 +37,7 @@ spec:
               drop:
                 - ALL
           env:
-            # Database — secret name is the same for both cnpg and standalone modes.
+            # Database
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
@@ -64,42 +64,23 @@ spec:
                   name: {{ include "stickermap.dbSecretName" . }}
                   key: password
             # Keycloak
-            {{- $keycloakUrl := .Values.backend.keycloakUrl }}
-            {{- if not $keycloakUrl }}
-              {{- if .Values.keycloak.enabled }}
-                {{- $keycloakUrl = printf "https://%s" (required "global.hostname is required" .Values.global.hostname) }}
-              {{- else }}
-                {{- $keycloakUrl = required "backend.keycloakUrl is required when keycloak.enabled is false" "" }}
-              {{- end }}
-            {{- end }}
-            {{- $keycloakInternalUrl := .Values.backend.keycloakInternalUrl }}
-            {{- if not $keycloakInternalUrl }}
-              {{- if .Values.keycloak.enabled }}
-                {{- $keycloakInternalUrl = printf "http://%s-keycloak:8080" .Release.Name }}
-              {{- else }}
-                {{- $keycloakInternalUrl = $keycloakUrl }}
-              {{- end }}
-            {{- end }}
+            {{- $keycloakUrl := required "keycloak.url is required" .Values.keycloak.url }}
+            {{- $keycloakInternalUrl := .Values.keycloak.internalUrl | default $keycloakUrl }}
             - name: KEYCLOAK_URL
               value: {{ $keycloakUrl | quote }}
             - name: KEYCLOAK_INTERNAL_URL
               value: {{ $keycloakInternalUrl | quote }}
             - name: KEYCLOAK_REALM
-              value: {{ .Values.backend.keycloakRealm | quote }}
+              value: {{ .Values.keycloak.realm | quote }}
             - name: KEYCLOAK_CLIENT_ID
-              value: {{ .Values.backend.keycloakClientId | quote }}
-            - name: KEYCLOAK_CLIENT_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Release.Name }}-backend
-                  key: keycloak-client-secret
+              value: {{ .Values.keycloak.clientId | quote }}
             # Application
             - name: UPLOAD_DIR
               value: "/app/uploads"
             - name: LOG_LEVEL
               value: {{ .Values.backend.env.logLevel | quote }}
             - name: CORS_ALLOWED_ORIGINS
-              value: {{ .Values.backend.env.corsAllowedOrigins | quote }}
+              value: {{ .Values.backend.env.corsAllowedOrigins | default (printf "https://%s" (required "ingress.hostname is required" .Values.ingress.hostname)) | quote }}
             - name: CORS_ALLOWED_METHODS
               value: {{ .Values.backend.env.corsAllowedMethods | quote }}
             - name: CORS_ALLOWED_HEADERS

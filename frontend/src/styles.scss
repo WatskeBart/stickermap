@@ -112,6 +112,13 @@ $stickermap-dark-theme: mat.m2-define-dark-theme(
 }
 
 // --- CSS custom properties for light / dark ---
+//
+// Theme-agnostic values (same in both modes) live in :root and are NOT
+// overridden in .dark-theme:
+//   --sm-image-dim       Backdrop for the full-size image lightbox.
+//   --sm-modal-scrim     Backdrop for modal overlays (edit modal).
+//   --sm-overlay-close   Hover colour for the lightbox close button.
+//   --sm-brand-orange    Brand accent (#e17000) — keep consistent in both modes.
 :root {
   --sm-text-muted: #555555;
   --sm-heading-color: #0d3662;
@@ -124,6 +131,13 @@ $stickermap-dark-theme: mat.m2-define-dark-theme(
   --sm-text-primary: rgba(0, 0, 0, 0.87);
   --sm-text-secondary: rgba(0, 0, 0, 0.6);
   --sm-overlay-bg: rgba(255, 255, 255, 0.95);
+  --sm-error-color: #b00020;
+
+  // Theme-agnostic (deliberately not overridden in .dark-theme).
+  --sm-brand-orange: #e17000;
+  --sm-image-dim: rgba(0, 0, 0, 0.85);
+  --sm-modal-scrim: rgba(0, 0, 0, 0.7);
+  --sm-overlay-close: #ccc;
 }
 
 .dark-theme {
@@ -138,6 +152,7 @@ $stickermap-dark-theme: mat.m2-define-dark-theme(
   --sm-text-primary: rgba(255, 255, 255, 0.87);
   --sm-text-secondary: rgba(255, 255, 255, 0.6);
   --sm-overlay-bg: rgba(18, 18, 18, 0.95);
+  --sm-error-color: #ef5350;
 
   body {
     background-color: #121212;

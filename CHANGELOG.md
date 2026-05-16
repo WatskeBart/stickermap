@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-05-16
+
+### Added
+
+- Map tile-type toggle (fixes #62) — switch between street, satellite, and terrain base layers from a `mat-button-toggle-group` in the bottom-left of the map. The active selection persists in `localStorage` and switching uses MapLibre's `setTiles()` so sticker markers and custom layers remain intact. Tile URLs are injected at runtime via three independent ngssc environment variables; any layer whose URL is unset is hidden from the toggle, and the toggle itself is hidden when only one layer is configured.
+
+### Changed
+
+- **Tile-server environment variable split** — `TILESERVER_URL` is replaced by `TILESERVER_URL_STREET`, `TILESERVER_URL_SATELLITE`, and `TILESERVER_URL_TERRAIN`. The street layer falls back to the bundled OpenStreetMap URL when its variable is unset. Helm `frontend.tileserverUrl` becomes `frontend.tileLayers.{street,satellite,terrain}`.
+- **Helm chart refactored to external-only database and Keycloak** (chart version `0.3.0`) — breaking change for existing installs:
+  - Removed embedded database support (CNPG `Cluster` CR and standalone `StatefulSet`); the chart no longer manages a database. Provide credentials via `database.existingSecretName` (reference an existing Secret) or raw `database.host/port/dbname/username/password` values (chart creates the Secret).
+  - Removed embedded Keycloak deployment and realm auto-import (`stickermap-realm.json`). Configure an external Keycloak via the new top-level `keycloak` section (`keycloak.url`, `keycloak.internalUrl`, `keycloak.realm`, `keycloak.clientId`).
+  - `global.hostname` moved to `ingress.hostname`.
+  - Keycloak connection settings (`keycloakUrl`, `keycloakInternalUrl`, `keycloakRealm`, `keycloakClientId`, `keycloakClientSecret`) removed from `backend`; replaced by the `keycloak` section and a separate Secret.
+  - CORS defaults tightened: `corsAllowedOrigins` now defaults to `https://<ingress.hostname>` (was `*`); `corsAllowedMethods` and `corsAllowedHeaders` are now explicit lists instead of `*`.
+  - Backend memory limit raised from `256Mi` to `512Mi`.
+  - Image `pullPolicy` changed from `IfNotPresent` to `Always` for backend, migrations, and frontend.
+
+### Removed
+
+- Helm templates for embedded Keycloak (`deployment`, `service`, `secret`, `configmap`) and bundled realm JSON
+- Helm templates for CNPG `Cluster` and standalone PostgreSQL `StatefulSet`, `ConfigMap`, `Secret`, and `Service`
+
+### Fixed
+
+- Category filter no longer overlaps the map controls on mobile — left offset increased from `12px` to `60px` below the 600px breakpoint
+
 ## [1.16.0] - 2026-05-16
 
 ### Added
@@ -335,7 +362,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.16.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.17.0...HEAD
+[1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0
 [1.14.0]: https://github.com/WatskeBart/stickermap/compare/1.13.0...1.14.0

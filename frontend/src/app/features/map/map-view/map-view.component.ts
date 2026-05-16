@@ -10,7 +10,7 @@ import { AuthService } from '../../../core/services/auth.service';
   standalone: true,
   imports: [MapComponent],
   templateUrl: './map-view.component.html',
-  styleUrls: ['./map-view.component.scss']
+  styleUrl: './map-view.component.scss'
 })
 export class MapViewComponent {
   private readonly mapChild = viewChild(MapComponent);

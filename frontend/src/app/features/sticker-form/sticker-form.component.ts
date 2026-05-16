@@ -30,7 +30,7 @@ import { CategorySelectorComponent } from '../../shared/components/category-sele
     CategorySelectorComponent,
   ],
   templateUrl: './sticker-form.component.html',
-  styleUrls: ['./sticker-form.component.scss'],
+  styleUrl: './sticker-form.component.scss',
 })
 export class StickerFormComponent implements OnInit {
   readonly stickerCreated = output<void>();
