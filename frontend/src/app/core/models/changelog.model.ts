@@ -11,6 +11,32 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.15.0',
+    date: '2026-05-16',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'GeoJSON and CSV export endpoint for editors and admins',
+          'Private sticker visibility toggle: uploaders can mark a sticker as private so it is hidden from unauthenticated visitors; any authenticated user with at least <code>sm-viewer</code> can still see it. Private stickers show a lock indicator on the map marker, in popups, and in the sticker overview table',
+          'Clicking the sticker thumbnail in the map popup now opens the full-size image for unauthenticated users',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Backend split into routers (<code>stickers</code>, <code>categories</code>, <code>reports</code>) and a <code>core/</code> module (<code>auth</code>, <code>config</code>, <code>connections</code>, <code>logger</code>) for better separation of concerns',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Corrected Dutch authorization message shown to unauthenticated users in the map popup',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.14.0',
     date: '2026-05-14',
     sections: [
