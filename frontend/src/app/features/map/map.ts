@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../core/services/auth.service';
 import { StickerService } from '../../core/services/sticker.service';
@@ -55,6 +56,7 @@ interface ProcessedSticker {
   category_id: number | null;
   category_name: string | null;
   category_icon_url: string | null;
+  private: boolean;
 }
 
 @Component({
@@ -72,6 +74,7 @@ interface ProcessedSticker {
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
+    MatCheckboxModule,
     CategorySelectorComponent,
   ],
   templateUrl: './map.html',
@@ -124,6 +127,7 @@ export class MapComponent implements OnInit {
     category_id: number | null;
   } | null>(null);
   editCategoryId = signal<number | null>(null);
+  editIsPrivate = signal(false);
   editSaving = signal(false);
   editSelectingLocation = signal(false);
   editImageUrl = signal('');
@@ -304,6 +308,7 @@ export class MapComponent implements OnInit {
             const categoryId: number | null = s[11] ?? null;
             const categoryName: string | null = s[12] ?? null;
             const categoryIconFile: string | null = s[13] ?? null;
+            const isPrivate: boolean = s[14] ?? false;
 
             return {
               id: s[0],
@@ -325,6 +330,7 @@ export class MapComponent implements OnInit {
               category_id: categoryId,
               category_name: categoryName,
               category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
+              private: isPrivate,
             };
           });
 
@@ -427,6 +433,7 @@ export class MapComponent implements OnInit {
         this.editHasRotated.set(false);
         this.editRotating.set(null);
         const categoryId: number | null = sticker[9] ?? null;
+        const isPrivate: boolean = sticker[12] ?? false;
         this.editingSticker.set({
           id: sticker[0],
           poster: sticker[2],
@@ -437,6 +444,7 @@ export class MapComponent implements OnInit {
           uploaded_by: sticker[7],
           location: { lat: geom.coordinates[1], lon: geom.coordinates[0] },
           category_id: categoryId,
+          private: isPrivate,
         });
         this.editForm.set({
           poster: sticker[2],
@@ -446,6 +454,7 @@ export class MapComponent implements OnInit {
           category_id: categoryId,
         });
         this.editCategoryId.set(categoryId);
+        this.editIsPrivate.set(isPrivate);
       },
       error: (err: any) => {
         console.error('Failed to fetch sticker:', err);
@@ -457,6 +466,7 @@ export class MapComponent implements OnInit {
     this.editingSticker.set(null);
     this.editForm.set(null);
     this.editCategoryId.set(null);
+    this.editIsPrivate.set(false);
     this.editSaving.set(false);
     this.editSelectingLocation.set(false);
     this.editRotating.set(null);
@@ -493,6 +503,9 @@ export class MapComponent implements OnInit {
     }
     if (this.editCategoryId() !== currentEditingSticker.category_id) {
       updates.category_id = this.editCategoryId();
+    }
+    if (this.editIsPrivate() !== currentEditingSticker.private) {
+      updates.private = this.editIsPrivate();
     }
 
     if (Object.keys(updates).length === 0) {

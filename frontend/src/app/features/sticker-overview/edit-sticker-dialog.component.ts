@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
@@ -39,6 +40,7 @@ export interface EditDialogResult {
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    MatCheckboxModule,
     CategorySelectorComponent,
   ],
   templateUrl: './edit-sticker-dialog.component.html',
@@ -63,6 +65,7 @@ export class EditStickerDialogComponent implements OnInit {
   lon = signal(0);
   uploader = signal('');
   categoryId = signal<number | null>(null);
+  isPrivate = signal(false);
 
   ngOnInit(): void {
     const s = this.data.sticker;
@@ -73,6 +76,7 @@ export class EditStickerDialogComponent implements OnInit {
     this.lon.set(s.lon);
     this.uploader.set(s.uploader);
     this.categoryId.set(s.category_id);
+    this.isPrivate.set(s.private ?? false);
 
     if (this.data.isAdmin) {
       this.stickerService.getUploaders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -96,6 +100,9 @@ export class EditStickerDialogComponent implements OnInit {
     }
     if (this.categoryId() !== s.category_id) {
       updates.category_id = this.categoryId();
+    }
+    if (this.isPrivate() !== s.private) {
+      updates.private = this.isPrivate();
     }
 
     if (Object.keys(updates).length === 0) {

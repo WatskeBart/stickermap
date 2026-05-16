@@ -107,11 +107,12 @@ def create_sticker(
             upload_date = datetime.now(UTC).replace(microsecond=0)
             image = sticker.image
             category_id = sticker.category_id
+            private = sticker.private or False
             cursor.execute(t"""
-                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, uploaded_by, category_id)
+                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, uploaded_by, category_id, private)
                 VALUES (
                     ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326),
-                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {uploaded_by}, {category_id}
+                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {uploaded_by}, {category_id}, {private}
                 )
                 RETURNING *;
                 """)
@@ -129,11 +130,12 @@ def get_all_stickers(
     conn=Depends(get_db),
     current_user: dict | None = Depends(get_current_user),
 ):
-    """Retrieve all stickers. Metadata fields are omitted for non-viewers; only id, location, and image are returned."""
+    """Retrieve all stickers. Private stickers are excluded for unauthenticated requests. Metadata fields are omitted for non-viewers."""
     is_viewer = ROLE_VIEWER in get_user_roles(current_user) if current_user else False
+    privacy_filter = "" if is_viewer else "WHERE s.private = FALSE"
     cursor = conn.cursor()
     try:
-        cursor.execute("""
+        cursor.execute(f"""
             SELECT
                 s.id,
                 ST_AsGeoJSON(s.location),
@@ -149,14 +151,16 @@ def get_all_stickers(
                 s.archived,
                 s.category_id,
                 c.name,
-                c.icon_filename
+                c.icon_filename,
+                s.private
             FROM stickers s
             LEFT JOIN categories c ON c.id = s.category_id
+            {privacy_filter}
         """)
         rows = cursor.fetchall()
         if not is_viewer:
             rows = [
-                (r[0], r[1], None, None, None, None, r[6], None, None, 0, r[10], r[11], r[12], r[13])
+                (r[0], r[1], None, None, None, None, r[6], None, None, 0, r[10], r[11], r[12], r[13], r[14])
                 for r in rows
             ]
         return rows
@@ -175,7 +179,7 @@ def get_sticker(id: int, conn=Depends(get_db), current_user: dict = Depends(requ
             t"""
             SELECT s.id, ST_AsGeoJSON(s.location), s.poster, s.uploader, s.post_date,
                 s.upload_date, s.image, s.uploaded_by, s.updated_at,
-                s.category_id, c.name, c.icon_filename
+                s.category_id, c.name, c.icon_filename, s.private
             FROM stickers s
             LEFT JOIN categories c ON c.id = s.category_id
             WHERE s.id = {id}
@@ -281,6 +285,10 @@ def update_sticker(
         if "category_id" in update_data:
             set_clauses.append("category_id = %s")
             params.append(update_data["category_id"])
+
+        if "private" in update_data:
+            set_clauses.append("private = %s")
+            params.append(update_data["private"])
 
         set_clauses.append("updated_at = NOW()")
         params.append(sticker_id)

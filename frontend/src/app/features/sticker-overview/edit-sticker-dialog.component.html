@@ -68,6 +68,17 @@
     }
 
     <app-category-selector [(categoryId)]="categoryId" />
+
+    <div class="private-row">
+      <mat-checkbox
+        [ngModel]="isPrivate()"
+        (ngModelChange)="isPrivate.set($event)"
+        [matTooltip]="'Privé stickers zijn alleen zichtbaar voor ingelogde gebruikers (minimaal kijker-rol). Niet-ingelogde bezoekers zien deze sticker niet op de kaart of in de lijst.'"
+        matTooltipPosition="right"
+      >
+        Privé sticker
+      </mat-checkbox>
+    </div>
   </div>
 </mat-dialog-content>
 
@@ -143,5 +154,9 @@
 
   .dialog-actions-spacer {
     flex: 1;
+  }
+
+  .private-row {
+    padding: 4px 0 8px;
   }
 </style>

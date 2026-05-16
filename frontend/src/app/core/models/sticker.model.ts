@@ -23,6 +23,7 @@ export interface StickerData {
   post_date: string;
   image: string;
   category_id?: number | null;
+  private?: boolean;
 }
 
 export interface CreateStickersRequest {
@@ -35,6 +36,7 @@ export interface UpdateStickerRequest {
   location?: StickerLocation;
   uploader?: string;
   category_id?: number | null;
+  private?: boolean;
 }
 
 export interface StickerStats {
@@ -69,6 +71,7 @@ export interface ParsedSticker {
   category_id: number | null;
   category_name: string | null;
   category_icon_url: string | null;
+  private: boolean;
 }
 
 export interface RemovalReport {
