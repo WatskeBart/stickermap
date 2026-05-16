@@ -4,6 +4,7 @@ import { MapViewComponent } from './features/map/map-view/map-view.component';
 import { AddStickerViewComponent } from './features/add-sticker/add-sticker-view.component';
 import { authGuard } from './core/guards/auth.guard';
 import { moderatorGuard } from './core/guards/moderator.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -23,6 +24,12 @@ export const routes: Routes = [
       import('./features/category-management/category-management.component').then(
         (m) => m.CategoryManagementComponent,
       ),
+  },
+  {
+    path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    loadComponent: () =>
+      import('./features/admin/admin.component').then((m) => m.AdminComponent),
   },
   { path: '**', redirectTo: '' }
 ];

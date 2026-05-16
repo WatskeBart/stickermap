@@ -14,6 +14,7 @@ class StickerData(BaseModel):
     uploader: str
     post_date: str
     image: str
+    thumbnail: Optional[str] = None
     category_id: Optional[int] = None
     private: Optional[bool] = False
 
