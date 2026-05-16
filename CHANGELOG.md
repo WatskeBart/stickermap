@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Sticker overview now persists the selected page size across sessions and supports sorting by category
+
+### Changed
+
+- Map tiles and GeoJSON are now loaded lazily so the initial map render is faster (fixes #39)
+
 ## [1.15.0] - 2026-05-16
 
 ### Added
