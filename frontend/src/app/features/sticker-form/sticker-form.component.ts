@@ -8,6 +8,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { StickerService } from '../../core/services/sticker.service';
 import { AuthService } from '../../core/services/auth.service';
 import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
@@ -23,6 +25,8 @@ import { CategorySelectorComponent } from '../../shared/components/category-sele
     MatButtonModule,
     MatProgressSpinnerModule,
     MatCardModule,
+    MatCheckboxModule,
+    MatTooltipModule,
     CategorySelectorComponent,
   ],
   templateUrl: './sticker-form.component.html',
@@ -56,6 +60,7 @@ export class StickerFormComponent implements OnInit {
   uploader = signal('');
   postDate = signal('');
   categoryId = signal<number | null>(null);
+  isPrivate = signal(false);
 
   // Auto-fill indicators
   isLocationAutoFilled = signal(false);
@@ -334,6 +339,7 @@ export class StickerFormComponent implements OnInit {
       post_date: this.convertToBackendFormat(this.postDate()),
       image: this.uploadedFilename()!,
       category_id: this.categoryId(),
+      private: this.isPrivate(),
     };
 
     this.stickerService.createSticker(stickerData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -370,6 +376,7 @@ export class StickerFormComponent implements OnInit {
     this.poster.set('');
     this.postDate.set('');
     this.categoryId.set(null);
+    this.isPrivate.set(false);
     this.coordError.set('');
     this.isSelectingLocation.set(false);
     this.isLocationAutoFilled.set(false);

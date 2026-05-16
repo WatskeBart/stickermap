@@ -194,6 +194,7 @@ export class StickerOverviewComponent implements OnInit {
           const categoryId: number | null = s[11] ?? null;
           const categoryName: string | null = s[12] ?? null;
           const categoryIconFile: string | null = s[13] ?? null;
+          const isPrivate: boolean = s[14] ?? false;
           return {
             id: s[0],
             lat,
@@ -215,6 +216,7 @@ export class StickerOverviewComponent implements OnInit {
             category_id: categoryId,
             category_name: categoryName,
             category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
+            private: isPrivate,
           };
         });
         this.dataSource.data = parsed;

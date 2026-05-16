@@ -17,6 +17,29 @@ mgl-map {
   width: 25px;
   height: 41px;
   display: block;
+  position: relative;
+}
+
+.marker-private-overlay {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.marker-lock {
+  font-size: 10px;
+  width: 10px;
+  height: 10px;
+  color: white;
 }
 
 .marker-icon img {
@@ -202,6 +225,24 @@ mgl-map {
   &:hover {
     background: rgba(225, 112, 0, 0.08);
   }
+}
+
+.sticker-popup-private-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #e17000;
+  background: rgba(225, 112, 0, 0.08);
+  border-top: 1px solid rgba(225, 112, 0, 0.2);
+}
+
+.private-badge-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #e17000;
 }
 
 .sticker-popup-report-badge {
@@ -403,6 +444,10 @@ mgl-map {
 .location-field {
   flex: 1;
   min-width: 120px;
+}
+
+.modal-private-toggle {
+  padding: 4px 0 8px;
 }
 
 .modal-actions {

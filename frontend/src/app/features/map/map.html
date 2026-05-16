@@ -25,6 +25,11 @@
                 alt="sticker marker"
               />
             }
+            @if (sticker.private) {
+              <div class="marker-private-overlay">
+                <mat-icon class="marker-lock">lock</mat-icon>
+              </div>
+            }
           </div>
         </mgl-marker>
       }
@@ -62,6 +67,12 @@
                   </p>
                 }
               </div>
+              @if (sticker.private) {
+                <div class="sticker-popup-private-badge">
+                  <mat-icon class="private-badge-icon">lock</mat-icon>
+                  Privé sticker
+                </div>
+              }
               @if (sticker.removalCount > 0) {
                 <div class="sticker-popup-report-badge">
                   <mat-icon class="report-badge-icon">warning</mat-icon>
@@ -253,6 +264,17 @@
           }
 
           <app-category-selector [(categoryId)]="editCategoryId" />
+
+          <div class="modal-private-toggle">
+            <mat-checkbox
+              [ngModel]="editIsPrivate()"
+              (ngModelChange)="editIsPrivate.set($event)"
+              [matTooltip]="'Privé stickers zijn alleen zichtbaar voor ingelogde gebruikers (minimaal kijker-rol). Niet-ingelogde bezoekers zien deze sticker niet op de kaart of in de lijst.'"
+              matTooltipPosition="right"
+            >
+              Privé sticker
+            </mat-checkbox>
+          </div>
 
           <div class="modal-actions">
             <button mat-flat-button color="accent" (click)="saveEdit()" [disabled]="editSaving()">
