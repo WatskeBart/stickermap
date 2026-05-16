@@ -1,8 +1,10 @@
 <div class="map-container">
+  @if (initialViewport(); as iv) {
   <mgl-map
     [mapStyle]="mapStyle"
-    [zoom]="[5]"
-    [center]="[6.129131, 49.611267]"
+    [zoom]="[iv.zoom]"
+    [center]="iv.center"
+    [maxTileCacheSize]="150"
     (mapLoad)="onMapLoad($event)"
     (mapClick)="onMapClick($event)"
   >
@@ -133,6 +135,7 @@
       </mgl-marker>
     }
   </mgl-map>
+  }
 
   @if (!locationSelectionMode() && !editSelectingLocation() && categories().length > 0) {
     <div class="category-filter">

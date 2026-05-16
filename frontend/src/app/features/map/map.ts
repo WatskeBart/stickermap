@@ -164,6 +164,7 @@ export class MapComponent implements OnInit {
   targetFocus = signal<{ lat: number; lon: number } | null>(null);
   focusStickerId = signal<number | null>(null);
   viewportParams = signal<{ lat: number; lng: number; zoom: number } | null>(null);
+  initialViewport = signal<{ center: [number, number]; zoom: number } | null>(null);
 
   private destroyRef = inject(DestroyRef);
 
@@ -195,6 +196,7 @@ export class MapComponent implements OnInit {
     const params = this.route.snapshot.queryParams;
     if (params['lat'] && params['lon']) {
       this.targetFocus.set({ lat: +params['lat'], lon: +params['lon'] });
+      this.initialViewport.set({ center: [+params['lon'], +params['lat']], zoom: 17 });
     }
     if (params['id']) {
       this.focusStickerId.set(+params['id']);
@@ -207,6 +209,7 @@ export class MapComponent implements OnInit {
           lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 &&
           zoom >= 0 && zoom <= 22) {
         this.viewportParams.set({ lat, lng, zoom });
+        this.initialViewport.set({ center: [lng, lat], zoom });
       }
     }
     this.loadStickers();
@@ -260,11 +263,12 @@ export class MapComponent implements OnInit {
       this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
     } else if (viewport) {
       this.mapInstance.jumpTo({ center: [viewport.lng, viewport.lat], zoom: viewport.zoom });
-    } else {
-      // Handle race: stickers may have loaded before map was ready
+    } else if (this.focusStickerId() === null) {
+      // Refine the approximate initialViewport with pixel-perfect fitBounds; no animation
+      // so the viewport is settled before the user can interact with markers.
       const s = this.stickers();
       if (s.length > 0) {
-        this.fitBoundsToStickers(s);
+        this.fitBoundsToStickers(s, { animate: false });
       }
     }
 
@@ -338,32 +342,60 @@ export class MapComponent implements OnInit {
         this.stickerCount.set(processed.length);
 
         const focusId = this.focusStickerId();
-        if (focusId !== null) {
-          const target = processed.find((s) => s.id === focusId);
-          if (target) {
-            this.openPopupStickerId.set(focusId);
-            if (this.mapInstance) {
-              this.mapInstance.jumpTo({ center: [target.lon, target.lat], zoom: 17 });
+        if (this.initialViewport() === null) {
+          if (focusId !== null) {
+            const target = processed.find((s) => s.id === focusId);
+            if (target) {
+              this.openPopupStickerId.set(focusId);
+              this.initialViewport.set({ center: [target.lon, target.lat], zoom: 17 });
+            } else {
+              this.initialViewport.set(
+                processed.length > 0
+                  ? this.boundsToViewport(processed)
+                  : { center: [6.129131, 49.611267], zoom: 5 },
+              );
             }
-          } else if (!this.viewportParams()) {
-            this.fitBoundsToStickers(processed);
+          } else {
+            this.initialViewport.set(
+              processed.length > 0
+                ? this.boundsToViewport(processed)
+                : { center: [6.129131, 49.611267], zoom: 5 },
+            );
           }
-        } else if (!this.viewportParams()) {
-          this.fitBoundsToStickers(processed);
+        } else if (focusId !== null) {
+          const target = processed.find((s) => s.id === focusId);
+          if (target) this.openPopupStickerId.set(focusId);
         }
 
-        setTimeout(() => {
-          this.isLoading.set(false);
-        }, 300);
+        this.isLoading.set(false);
       },
       error: (error) => {
         console.error('Stickers laden is mislukt:', error);
+        if (this.initialViewport() === null) {
+          this.initialViewport.set({ center: [6.129131, 49.611267], zoom: 5 });
+        }
         this.isLoading.set(false);
       },
     });
   }
 
-  private fitBoundsToStickers(stickers: ProcessedSticker[]): void {
+  private boundsToViewport(stickers: ProcessedSticker[]): { center: [number, number]; zoom: number } {
+    if (stickers.length === 1) {
+      return { center: [stickers[0].lon, stickers[0].lat], zoom: 13 };
+    }
+    const lons = stickers.map((s) => s.lon);
+    const lats = stickers.map((s) => s.lat);
+    const centerLon = (Math.min(...lons) + Math.max(...lons)) / 2;
+    const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+    const span = Math.max(Math.max(...lons) - Math.min(...lons), Math.max(...lats) - Math.min(...lats));
+    const zoom = span === 0 ? 13 : Math.min(14, Math.max(1, Math.log2(360 / span) - 1));
+    return { center: [centerLon, centerLat], zoom };
+  }
+
+  private fitBoundsToStickers(
+    stickers: ProcessedSticker[],
+    options: maplibregl.FitBoundsOptions = {},
+  ): void {
     if (!this.mapInstance || stickers.length === 0) return;
 
     if (stickers.length === 1) {
@@ -378,8 +410,12 @@ export class MapComponent implements OnInit {
         [Math.min(...lons), Math.min(...lats)],
         [Math.max(...lons), Math.max(...lats)],
       ],
-      { padding: 50, maxZoom: 15 },
+      { padding: 50, maxZoom: 15, ...options },
     );
+  }
+
+  fitToAllStickers(): void {
+    this.fitBoundsToStickers(this.stickers());
   }
 
   onMapClick(e: maplibregl.MapMouseEvent): void {
