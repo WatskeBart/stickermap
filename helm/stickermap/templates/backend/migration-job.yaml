@@ -11,8 +11,6 @@ metadata:
     # Negative weight so this runs before any other post-install/post-upgrade hooks.
     "helm.sh/hook-weight": "-5"
 spec:
-  # Allow several retries to handle the case where the database is still
-  # bootstrapping (e.g. CNPG cluster initialisation) when the Job first runs.
   backoffLimit: 5
   template:
     metadata:

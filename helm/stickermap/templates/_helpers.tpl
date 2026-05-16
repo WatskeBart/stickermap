@@ -1,13 +1,11 @@
 {{/*
 Return the name of the secret containing database credentials.
-For CNPG mode: CNPG creates <cluster-name>-<owner>, i.e. <release>-db-stickermap.
-Override via database.cnpg.secretName when using an existingCluster whose
-secret follows a different naming convention.
-For standalone mode: always <release>-db-stickermap (created by this chart).
+When database.existingSecretName is set, reference that secret directly.
+Otherwise the chart creates <release>-db-stickermap from the raw values.
 */}}
 {{- define "stickermap.dbSecretName" -}}
-{{- if and (eq .Values.database.mode "cnpg") .Values.database.cnpg.secretName -}}
-{{- .Values.database.cnpg.secretName -}}
+{{- if .Values.database.existingSecretName -}}
+{{- .Values.database.existingSecretName -}}
 {{- else -}}
 {{- printf "%s-db-stickermap" .Release.Name -}}
 {{- end -}}

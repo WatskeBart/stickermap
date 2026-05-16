@@ -39,34 +39,16 @@ spec:
               add:
                 - NET_BIND_SERVICE
           env:
-            {{- $frontendKeycloakUrl := .Values.frontend.keycloakUrl }}
-            {{- if not $frontendKeycloakUrl }}
-              {{- if .Values.keycloak.enabled }}
-                {{- $frontendKeycloakUrl = printf "https://%s" (required "global.hostname is required" .Values.global.hostname) }}
-              {{- else }}
-                {{- $frontendKeycloakUrl = required "frontend.keycloakUrl or backend.keycloakUrl is required when keycloak.enabled is false" .Values.backend.keycloakUrl }}
-              {{- end }}
-            {{- end }}
-            {{- $frontendKeycloakInternalUrl := .Values.backend.keycloakInternalUrl }}
-            {{- if not $frontendKeycloakInternalUrl }}
-              {{- if .Values.keycloak.enabled }}
-                {{- $frontendKeycloakInternalUrl = printf "http://%s-keycloak:8080" .Release.Name }}
-              {{- else }}
-                {{- $frontendKeycloakInternalUrl = $frontendKeycloakUrl }}
-              {{- end }}
-            {{- end }}
             - name: PUBLIC_URL
               value: {{ .Values.frontend.publicUrl | quote }}
             - name: BACKEND_URL
               value: {{ .Values.frontend.backendUrl | default (printf "http://%s-backend:5555" .Release.Name) | quote }}
             - name: KEYCLOAK_URL
-              value: {{ $frontendKeycloakUrl | quote }}
-            - name: KEYCLOAK_INTERNAL_URL
-              value: {{ $frontendKeycloakInternalUrl | quote }}
+              value: {{ required "keycloak.url is required" .Values.keycloak.url | quote }}
             - name: KEYCLOAK_REALM
-              value: {{ .Values.backend.keycloakRealm | quote }}
+              value: {{ .Values.keycloak.realm | quote }}
             - name: KEYCLOAK_CLIENT_ID
-              value: {{ .Values.backend.keycloakClientId | quote }}
+              value: {{ .Values.keycloak.clientId | quote }}
             - name: PRODUCTION
               value: {{ .Values.frontend.production | quote }}
             {{- if .Values.frontend.tileserverUrl }}
