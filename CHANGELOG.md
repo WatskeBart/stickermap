@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Helm chart refactored to external-only database and Keycloak** (chart version `0.3.0`) — breaking change for existing installs:
+  - Removed embedded database support (CNPG `Cluster` CR and standalone `StatefulSet`); the chart no longer manages a database. Provide credentials via `database.existingSecretName` (reference an existing Secret) or raw `database.host/port/dbname/username/password` values (chart creates the Secret).
+  - Removed embedded Keycloak deployment and realm auto-import (`stickermap-realm.json`). Configure an external Keycloak via the new top-level `keycloak` section (`keycloak.url`, `keycloak.internalUrl`, `keycloak.realm`, `keycloak.clientId`).
+  - `global.hostname` moved to `ingress.hostname`.
+  - Keycloak connection settings (`keycloakUrl`, `keycloakInternalUrl`, `keycloakRealm`, `keycloakClientId`, `keycloakClientSecret`) removed from `backend`; replaced by the `keycloak` section and a separate Secret.
+  - CORS defaults tightened: `corsAllowedOrigins` now defaults to `https://<ingress.hostname>` (was `*`); `corsAllowedMethods` and `corsAllowedHeaders` are now explicit lists instead of `*`.
+  - Backend memory limit raised from `256Mi` to `512Mi`.
+  - Image `pullPolicy` changed from `IfNotPresent` to `Always` for backend, migrations, and frontend.
+
+### Removed
+
+- Helm templates for embedded Keycloak (`deployment`, `service`, `secret`, `configmap`) and bundled realm JSON
+- Helm templates for CNPG `Cluster` and standalone PostgreSQL `StatefulSet`, `ConfigMap`, `Secret`, and `Service`
+
 ## [1.16.0] - 2026-05-16
 
 ### Added
