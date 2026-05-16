@@ -20,7 +20,7 @@ const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
   standalone: true,
   imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, MatProgressSpinnerModule, MatDialogModule],
   templateUrl: './landing.component.html',
-  styleUrls: ['./landing.component.scss'],
+  styleUrl: './landing.component.scss',
 })
 export class LandingComponent {
   private router = inject(Router);

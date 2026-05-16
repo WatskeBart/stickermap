@@ -31,7 +31,7 @@ h2 {
   align-items: center;
   gap: 0.75rem;
   padding: 2rem 0;
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: var(--sm-text-muted);
 }
 
 .table-wrapper {
@@ -52,7 +52,7 @@ h2 {
 }
 
 .row-icon-placeholder {
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: var(--sm-text-muted);
 }
 
 .inline-rename {
@@ -83,13 +83,13 @@ h2 {
 
 .status-archived {
   background: rgba(120, 120, 120, 0.2);
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: var(--sm-text-muted);
 }
 
 .no-data-cell {
   text-align: center;
   padding: 2rem;
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: var(--sm-text-muted);
   font-style: italic;
 }
 

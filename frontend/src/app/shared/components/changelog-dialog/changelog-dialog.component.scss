@@ -47,7 +47,7 @@ mat-dialog-content {
 
 .release-date {
   font-size: 12px;
-  color: var(--mat-sys-on-surface-variant, #666);
+  color: var(--sm-text-muted);
 }
 
 .section {
@@ -82,7 +82,7 @@ mat-dialog-content {
   li {
     font-size: 14px;
     line-height: 1.5;
-    color: var(--mat-sys-on-surface-variant, inherit);
+    color: var(--sm-text-primary);
   }
 }
 
@@ -91,7 +91,7 @@ mat-dialog-content {
   flex-direction: column;
   gap: 10px;
   padding: 12px 0;
-  border-top: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12));
+  border-top: 1px solid var(--sm-border-color);
 
   &:first-child {
     border-top: none;
@@ -102,7 +102,7 @@ mat-dialog-content {
 .unreleased-panel,
 .history-panel {
   box-shadow: none !important;
-  border: 1px solid var(--mat-sys-outline-variant, rgba(0, 0, 0, 0.12)) !important;
+  border: 1px solid var(--sm-border-color) !important;
   border-radius: 8px !important;
   margin-bottom: 16px;
 

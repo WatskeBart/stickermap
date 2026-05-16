@@ -85,7 +85,7 @@ interface ProcessedSticker {
     CategorySelectorComponent,
   ],
   templateUrl: './map.html',
-  styleUrls: ['./map.scss'],
+  styleUrl: './map.scss',
 })
 export class MapComponent implements OnInit {
   readonly locationSelectionMode = input(false);

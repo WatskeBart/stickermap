@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './disclaimer-dialog.component.html',
-  styleUrls: ['./disclaimer-dialog.component.scss'],
+  styleUrl: './disclaimer-dialog.component.scss',
 })
 export class DisclaimerDialogComponent {
   constructor(private dialogRef: MatDialogRef<DisclaimerDialogComponent>) {}
