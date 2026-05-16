@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Map tile-type toggle (fixes #62) — switch between street, satellite, and terrain base layers from a `mat-button-toggle-group` in the bottom-left of the map. The active selection persists in `localStorage` and switching uses MapLibre's `setTiles()` so sticker markers and custom layers remain intact. Tile URLs are injected at runtime via three independent ngssc environment variables; any layer whose URL is unset is hidden from the toggle, and the toggle itself is hidden when only one layer is configured.
+
 ### Changed
 
+- **Tile-server environment variable split** — `TILESERVER_URL` is replaced by `TILESERVER_URL_STREET`, `TILESERVER_URL_SATELLITE`, and `TILESERVER_URL_TERRAIN`. The street layer falls back to the bundled OpenStreetMap URL when its variable is unset. Helm `frontend.tileserverUrl` becomes `frontend.tileLayers.{street,satellite,terrain}`.
 - **Helm chart refactored to external-only database and Keycloak** (chart version `0.3.0`) — breaking change for existing installs:
   - Removed embedded database support (CNPG `Cluster` CR and standalone `StatefulSet`); the chart no longer manages a database. Provide credentials via `database.existingSecretName` (reference an existing Secret) or raw `database.host/port/dbname/username/password` values (chart creates the Secret).
   - Removed embedded Keycloak deployment and realm auto-import (`stickermap-realm.json`). Configure an external Keycloak via the new top-level `keycloak` section (`keycloak.url`, `keycloak.internalUrl`, `keycloak.realm`, `keycloak.clientId`).

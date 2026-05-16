@@ -137,6 +137,21 @@
   </mgl-map>
   }
 
+  @if (!locationSelectionMode() && !editSelectingLocation() && availableTileLayers.length > 1) {
+    <div class="tile-layer-toggle">
+      <mat-button-toggle-group
+        [value]="activeTileLayer()"
+        (change)="switchTileLayer($event.value)"
+        aria-label="Kaarttype"
+        hideSingleSelectionIndicator
+      >
+        @for (layer of availableTileLayers; track layer.id) {
+          <mat-button-toggle [value]="layer.id">{{ layer.label }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
+    </div>
+  }
+
   @if (!locationSelectionMode() && !editSelectingLocation() && categories().length > 0) {
     <div class="category-filter">
       <mat-form-field appearance="outline" class="category-filter-field">

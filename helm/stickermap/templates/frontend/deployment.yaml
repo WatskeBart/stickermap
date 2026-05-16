@@ -51,9 +51,19 @@ spec:
               value: {{ .Values.keycloak.clientId | quote }}
             - name: PRODUCTION
               value: {{ .Values.frontend.production | quote }}
-            {{- if .Values.frontend.tileserverUrl }}
-            - name: TILESERVER_URL
-              value: {{ .Values.frontend.tileserverUrl | quote }}
+            {{- if .Values.frontend.tileLayers }}
+            {{- with .Values.frontend.tileLayers.street }}
+            - name: TILESERVER_URL_STREET
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.frontend.tileLayers.satellite }}
+            - name: TILESERVER_URL_SATELLITE
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.frontend.tileLayers.terrain }}
+            - name: TILESERVER_URL_TERRAIN
+              value: {{ . | quote }}
+            {{- end }}
             {{- end }}
           volumeMounts:
             - name: caddy-srv
