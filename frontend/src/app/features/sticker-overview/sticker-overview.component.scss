@@ -20,7 +20,7 @@
   padding: 12px 16px;
   margin-bottom: 1rem;
   font-size: 14px;
-  color: var(--mat-sys-on-surface);
+  color: var(--sm-text-primary);
 
   .banner-icon {
     color: #e17000;
@@ -148,12 +148,12 @@
 }
 
 .category-icon-placeholder {
-  color: var(--mat-sys-on-surface-variant, #555);
+  color: var(--sm-text-muted);
   flex-shrink: 0;
 }
 
 .category-empty {
-  color: var(--mat-sys-on-surface-variant, #888);
+  color: var(--sm-text-muted);
 }
 
 .location-cell {
@@ -188,7 +188,7 @@
 .fullsize-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: var(--sm-image-dim);
   display: flex;
   align-items: center;
   justify-content: center;

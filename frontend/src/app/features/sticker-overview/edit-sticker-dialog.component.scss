@@ -1,0 +1,49 @@
+.image-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.preview-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--sm-border-color);
+}
+
+.rotate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 400px;
+  padding-top: 0.5rem;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.location-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.location-field {
+  flex: 1;
+}
+
+.dialog-actions-spacer {
+  flex: 1;
+}
+
+.private-row {
+  padding: 4px 0 8px;
+}

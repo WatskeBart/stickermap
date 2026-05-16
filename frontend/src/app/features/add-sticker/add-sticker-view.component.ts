@@ -10,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
   standalone: true,
   imports: [MapComponent, StickerFormComponent, MatToolbarModule],
   templateUrl: './add-sticker-view.component.html',
-  styleUrls: ['./add-sticker-view.component.scss']
+  styleUrl: './add-sticker-view.component.scss'
 })
 export class AddStickerViewComponent {
   readonly mapComponent = viewChild.required(MapComponent);
