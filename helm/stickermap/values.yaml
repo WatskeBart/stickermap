@@ -80,9 +80,13 @@ frontend:
   # Passed to ngssc as PRODUCTION; controls Angular production mode flag.
   production: "true"
 
-  # Optional: URL of a custom tile server (MapLibre/OpenStreetMap tile endpoint).
-  # Leave empty to use the default OpenStreetMap tiles baked into the frontend build.
-  tileserverUrl: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+  # Tile layer URLs — one per map type. The map's tile-type toggle is built from
+  # whichever of these are set; if only one is configured the toggle is hidden.
+  # The street layer falls back to the bundled OpenStreetMap URL when left empty.
+  tileLayers:
+    street: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+    satellite: ""
+    terrain: ""
 
 # ------------------------------------------------------------------------------
 # Keycloak (external)
