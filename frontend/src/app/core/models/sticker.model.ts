@@ -8,6 +8,7 @@ export interface GPSInfo {
 export interface UploadResponse {
   message: string;
   filename: string;
+  thumbnail: string;
   gps_info: GPSInfo | { [key: string]: string };
 }
 
@@ -22,6 +23,7 @@ export interface StickerData {
   uploader: string;
   post_date: string;
   image: string;
+  thumbnail?: string | null;
   category_id?: number | null;
   private?: boolean;
 }
@@ -73,6 +75,37 @@ export interface ParsedSticker {
   category_icon_url: string | null;
   private: boolean;
 }
+
+export interface AdminStats {
+  total_stickers: number;
+  missing_thumbnail_db: number;
+  missing_thumbnail_file: number;
+  missing_full_image_file: number;
+  missing_gps: number;
+  archived: number;
+  private: number;
+}
+
+export interface AdminAuditItem {
+  id: number;
+  image: string;
+  thumbnail: string | null;
+  missing_image: boolean;
+  missing_thumbnail: boolean;
+}
+
+export type JobStatus = 'running' | 'done' | 'error';
+
+export interface AdminJob {
+  status: JobStatus;
+  processed: number;
+  total: number;
+  errors: string[];
+  started_at: string;
+  finished_at: string | null;
+}
+
+export type MaintenanceJobType = 'generate-thumbnails' | 'compress-images' | 'strip-exif' | 'cleanup-orphans';
 
 export interface RemovalReport {
   id: number;

@@ -124,30 +124,42 @@ Frontend environment variables are injected at container start via `angular-serv
 
 **CSS theming — light/dark mode:**
 
-The app supports light and dark themes via Angular Material's system-level CSS custom properties. Never use hardcoded colours for text, backgrounds, or borders — always use the CSS variables below so components automatically adapt to both themes.
+The app uses an Angular Material **M2** theme (`mat.m2-define-light-theme` / `mat.m2-define-dark-theme`). The dark theme is activated by adding the `.dark-theme` class to the root element. **Do not use `--mat-sys-*` tokens** — those are M3 system tokens that this M2 setup never emits; they are always undefined and fall back to hardcoded light-mode values, making text invisible in dark mode.
 
-| Purpose | CSS variable | Fallback (light) |
-| --- | --- | --- |
-| Primary text | `var(--mat-sys-on-surface)` | inherits |
-| Secondary / muted text | `var(--mat-sys-on-surface-variant, #555)` | `#555` |
-| Dividers / borders | `var(--mat-sys-outline-variant, rgba(0,0,0,0.12))` | `rgba(0,0,0,0.12)` |
-| Card / surface background | `var(--mat-sys-surface-variant)` | inherits |
+Use the project's own `--sm-*` CSS custom properties, defined in `src/styles.scss`, for all custom element colour rules:
+
+| Purpose | CSS variable | Light value | Dark value |
+| --- | --- | --- | --- |
+| Primary text | `var(--sm-text-primary)` | `rgba(0,0,0,0.87)` | `rgba(255,255,255,0.87)` |
+| Secondary text | `var(--sm-text-secondary)` | `rgba(0,0,0,0.6)` | `rgba(255,255,255,0.6)` |
+| Muted / hint text | `var(--sm-text-muted)` | `#555555` | `rgba(255,255,255,0.5)` |
+| Page / section headings | `var(--sm-heading-color)` | `#0d3662` (navy) | `#90b4d9` (light blue) |
+| Card / panel surface | `var(--sm-surface-color)` | `#ffffff` | `#1e1e1e` |
+| Alternate surface | `var(--sm-surface-alt)` | `#f5f5f5` | `#2a2a2a` |
+| Borders / dividers | `var(--sm-border-color)` | `#e0e0e0` | `rgba(255,255,255,0.12)` |
 
 **Brand accent colour** — `#e17000` (orange). Use this for icons, badges, labels, and interactive highlights. It is intentionally hardcoded because it is the brand colour and must remain consistent in both light and dark modes.
 
-Example pattern (from `disclaimer-dialog` and `changelog-dialog`):
+Example pattern:
 
 ```scss
-// ✅ Correct — adapts automatically
-.label { color: var(--mat-sys-on-surface-variant, #555); }
-.card  { border: 1px solid var(--mat-sys-outline-variant, rgba(0,0,0,0.12)); }
+// ✅ Correct — adapts automatically to light and dark
+.title       { color: var(--sm-heading-color); }
+.description { color: var(--sm-text-muted); }
+.card        { border: 1px solid var(--sm-border-color); background: var(--sm-surface-color); }
 
 // ✅ Correct — brand accent, same in both modes
-.icon  { color: #e17000; }
+.icon { color: #e17000; }
 
-// ❌ Wrong — breaks dark mode
+// ❌ Wrong — --mat-sys-* tokens are M3-only and undefined in this M2 theme;
+//            always falls back to the hardcoded value, invisible in dark mode
+.label { color: var(--mat-sys-on-surface-variant, #555); }
+
+// ❌ Wrong — hardcoded colour breaks dark mode
 .label { color: #555; }
 ```
+
+The `--mat-sys-*` tokens are **only** safe when overriding Angular Material's own component tokens (e.g. `--mdc-chip-label-text-color`), because Material resolves those internally. Never use them on plain HTML elements (`<p>`, `<h2>`, `<span>`, etc.).
 
 ### Auth & RBAC
 

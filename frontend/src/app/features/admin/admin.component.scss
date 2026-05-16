@@ -1,0 +1,162 @@
+.admin-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--sm-heading-color);
+  margin: 0 0 28px;
+
+  .title-icon {
+    color: #e17000;
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+  }
+}
+
+.section {
+  padding: 20px 0;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  flex: 1;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--sm-text-secondary);
+  margin: 0;
+}
+
+.loading-row {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+}
+
+/* Stats */
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stat-card {
+  min-width: 140px;
+  flex: 1 1 140px;
+
+  mat-card-content {
+    padding: 16px !important;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--sm-text-primary);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--sm-text-muted);
+    margin-top: 4px;
+  }
+
+  &.stat-warn .stat-value {
+    color: #e17000;
+  }
+}
+
+/* Audit */
+.empty-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--sm-text-muted);
+  padding: 8px 0;
+
+  .empty-icon {
+    color: #4caf50;
+  }
+}
+
+.audit-table {
+  width: 100%;
+}
+
+/* Chip colours */
+.chip-error {
+  --mdc-chip-label-text-color: #c62828;
+  --mdc-chip-container-color: #ffebee;
+}
+
+.chip-warn {
+  --mdc-chip-label-text-color: #e65100;
+  --mdc-chip-container-color: #fff3e0;
+}
+
+.chip-running {
+  --mdc-chip-label-text-color: var(--mat-sys-on-surface);
+}
+
+.chip-done {
+  --mdc-chip-label-text-color: #2e7d32;
+  --mdc-chip-container-color: #e8f5e9;
+}
+
+/* Actions */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+
+  .action-icon {
+    color: #e17000;
+  }
+
+  .action-description {
+    font-size: 0.85rem;
+    color: var(--sm-text-muted);
+    margin: 8px 0 0;
+    line-height: 1.4;
+  }
+
+  mat-card-actions {
+    margin-top: auto;
+    padding: 8px 16px 16px;
+  }
+}
+
+.job-status {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.error-list {
+  font-size: 0.75rem;
+  color: #c62828;
+  margin: 0;
+  padding-left: 16px;
+  max-height: 80px;
+  overflow-y: auto;
+}

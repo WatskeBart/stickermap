@@ -14,7 +14,7 @@ import { forkJoin } from 'rxjs';
 
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatSortModule, MatSort } from '@angular/material/sort';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -100,6 +100,9 @@ export class StickerOverviewComponent implements OnInit {
     { initialValue: false },
   );
 
+  private static readonly PAGE_SIZE_KEY = 'stickermap_overview_page_size';
+  readonly initialPageSize = parseInt(localStorage.getItem(StickerOverviewComponent.PAGE_SIZE_KEY) ?? '10', 10);
+
   isLoading = signal(false);
   dataSource = new MatTableDataSource<ParsedSticker>([]);
   selection = new SelectionModel<ParsedSticker>(true, []);
@@ -147,6 +150,10 @@ export class StickerOverviewComponent implements OnInit {
     this.selection.changed.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.hasSelection.set(this.selection.hasValue());
     });
+    this.dataSource.sortingDataAccessor = (item: ParsedSticker, property: string) => {
+      if (property === 'category') return item.category_name ?? '';
+      return (item as Record<string, any>)[property] ?? '';
+    };
     this.dataSource.filterPredicate = (data: ParsedSticker, filter: string) => {
       const normalized = filter.trim().toLowerCase();
       return (
@@ -176,6 +183,10 @@ export class StickerOverviewComponent implements OnInit {
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
     }
+  }
+
+  onPageChange(event: PageEvent): void {
+    localStorage.setItem(StickerOverviewComponent.PAGE_SIZE_KEY, String(event.pageSize));
   }
 
   private loadStickers(): void {

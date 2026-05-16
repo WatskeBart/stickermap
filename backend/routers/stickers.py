@@ -106,13 +106,14 @@ def create_sticker(
             poster, uploader, post_date = sticker.poster, sticker.uploader, sticker.post_date
             upload_date = datetime.now(UTC).replace(microsecond=0)
             image = sticker.image
+            thumbnail = sticker.thumbnail
             category_id = sticker.category_id
             private = sticker.private or False
             cursor.execute(t"""
-                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, uploaded_by, category_id, private)
+                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, thumbnail, uploaded_by, category_id, private)
                 VALUES (
                     ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326),
-                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {uploaded_by}, {category_id}, {private}
+                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {thumbnail}, {uploaded_by}, {category_id}, {private}
                 )
                 RETURNING *;
                 """)

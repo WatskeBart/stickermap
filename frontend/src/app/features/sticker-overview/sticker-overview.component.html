@@ -51,9 +51,9 @@
       <mat-progress-spinner mode="indeterminate" diameter="50" />
       <p>Stickers worden geladen...</p>
     </div>
-  } @else {
-    <div class="table-wrapper mat-elevation-z2">
-      <table mat-table [dataSource]="dataSource" matSort class="sticker-table">
+  }
+  <div class="table-wrapper mat-elevation-z2" [hidden]="isLoading()">
+    <table mat-table [dataSource]="dataSource" matSort class="sticker-table">
 
         <!-- Checkbox column -->
         <ng-container matColumnDef="select">
@@ -102,7 +102,7 @@
 
         <!-- Category column -->
         <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef>Categorie</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Categorie</th>
           <td mat-cell *matCellDef="let row">
             @if (row.category_name) {
               <div class="category-cell">
@@ -265,10 +265,11 @@
 
       <mat-paginator
         [pageSizeOptions]="[10, 25, 50, 100]"
+        [pageSize]="initialPageSize"
+        (page)="onPageChange($event)"
         showFirstLastButtons
       />
     </div>
-  }
 
 </div>
 

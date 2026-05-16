@@ -41,6 +41,12 @@
           @if (sidenavExpanded()) { <span matListItemTitle>Categorieën</span> }
         </a>
       }
+      @if (authService.isAdmin()) {
+        <a mat-list-item (click)="navigateToAdmin(); isHandset() && sidenav.close()">
+          <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+          @if (sidenavExpanded()) { <span matListItemTitle>Beheer</span> }
+        </a>
+      }
     </mat-nav-list>
 
     <div class="sidenav-spacer"></div>
