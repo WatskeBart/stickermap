@@ -10,7 +10,7 @@ import { CHANGELOG_DATA, ChangelogRelease } from '../../../core/models/changelog
   standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule, MatExpansionModule],
   templateUrl: './changelog-dialog.component.html',
-  styleUrls: ['./changelog-dialog.component.scss'],
+  styleUrl: './changelog-dialog.component.scss',
 })
 export class ChangelogDialogComponent {
   private dialogRef = inject(MatDialogRef<ChangelogDialogComponent>);

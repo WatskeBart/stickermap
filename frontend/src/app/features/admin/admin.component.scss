@@ -97,7 +97,11 @@
   width: 100%;
 }
 
-/* Chip colours */
+/* Chip colours
+   Light mode uses Material's standard error/warn/success palettes (red 800,
+   orange 900, green 800 on tinted 50-level backgrounds). Dark mode swaps to
+   translucent backgrounds + lighter text so the chips stay legible on the
+   dark surface. */
 .chip-error {
   --mdc-chip-label-text-color: #c62828;
   --mdc-chip-container-color: #ffebee;
@@ -109,12 +113,29 @@
 }
 
 .chip-running {
-  --mdc-chip-label-text-color: var(--mat-sys-on-surface);
+  --mdc-chip-label-text-color: var(--sm-text-primary);
 }
 
 .chip-done {
   --mdc-chip-label-text-color: #2e7d32;
   --mdc-chip-container-color: #e8f5e9;
+}
+
+:host-context(.dark-theme) {
+  .chip-error {
+    --mdc-chip-label-text-color: #ef9a9a;
+    --mdc-chip-container-color: rgba(198, 40, 40, 0.2);
+  }
+
+  .chip-warn {
+    --mdc-chip-label-text-color: #ffb74d;
+    --mdc-chip-container-color: rgba(230, 81, 0, 0.2);
+  }
+
+  .chip-done {
+    --mdc-chip-label-text-color: #a5d6a7;
+    --mdc-chip-container-color: rgba(46, 125, 50, 0.2);
+  }
 }
 
 /* Actions */

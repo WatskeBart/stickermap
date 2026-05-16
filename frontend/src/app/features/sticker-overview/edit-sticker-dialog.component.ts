@@ -44,6 +44,7 @@ export interface EditDialogResult {
     CategorySelectorComponent,
   ],
   templateUrl: './edit-sticker-dialog.component.html',
+  styleUrl: './edit-sticker-dialog.component.scss',
 })
 export class EditStickerDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<EditStickerDialogComponent>);

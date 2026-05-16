@@ -85,8 +85,8 @@ frontend:
   # The street layer falls back to the bundled OpenStreetMap URL when left empty.
   tileLayers:
     street: https://tile.openstreetmap.org/{z}/{x}/{y}.png
-    satellite: ""
-    terrain: ""
+    satellite: https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}
+    terrain: https://server.arcgisonline.com/ArcGIS/rest/services/World_Shaded_Relief/MapServer/tile/{z}/{y}/{x}
 
 # ------------------------------------------------------------------------------
 # Keycloak (external)
