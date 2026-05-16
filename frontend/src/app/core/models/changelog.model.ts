@@ -11,6 +11,38 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.17.0',
+    date: '2026-05-16',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Map tile-type toggle — switch between street, satellite, and terrain base layers from a <code>mat-button-toggle-group</code> in the bottom-left of the map. The active selection persists in <code>localStorage</code> and switching uses MapLibre\'s <code>setTiles()</code> so sticker markers and custom layers remain intact. Tile URLs are injected at runtime via three independent ngssc environment variables; any layer whose URL is unset is hidden from the toggle, and the toggle itself is hidden when only one layer is configured.',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          '**Tile-server environment variable split** — <code>TILESERVER_URL</code> is replaced by <code>TILESERVER_URL_STREET</code>, <code>TILESERVER_URL_SATELLITE</code>, and <code>TILESERVER_URL_TERRAIN</code>. The street layer falls back to the bundled OpenStreetMap URL when its variable is unset. Helm <code>frontend.tileserverUrl</code> becomes <code>frontend.tileLayers.{street,satellite,terrain}</code>.',
+          '**Helm chart refactored to external-only database and Keycloak** (chart version <code>0.3.0</code>) — breaking change for existing installs:',
+        ],
+      },
+      {
+        type: 'Removed',
+        items: [
+          'Helm templates for embedded Keycloak (<code>deployment</code>, <code>service</code>, <code>secret</code>, <code>configmap</code>) and bundled realm JSON',
+          'Helm templates for CNPG <code>Cluster</code> and standalone PostgreSQL <code>StatefulSet</code>, <code>ConfigMap</code>, <code>Secret</code>, and <code>Service</code>',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Category filter no longer overlaps the map controls on mobile — left offset increased from <code>12px</code> to <code>60px</code> below the 600px breakpoint',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.16.0',
     date: '2026-05-16',
     sections: [

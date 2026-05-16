@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-05-16
+
 ### Added
 
 - Map tile-type toggle (fixes #62) — switch between street, satellite, and terrain base layers from a `mat-button-toggle-group` in the bottom-left of the map. The active selection persists in `localStorage` and switching uses MapLibre's `setTiles()` so sticker markers and custom layers remain intact. Tile URLs are injected at runtime via three independent ngssc environment variables; any layer whose URL is unset is hidden from the toggle, and the toggle itself is hidden when only one layer is configured.
@@ -27,6 +29,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Helm templates for embedded Keycloak (`deployment`, `service`, `secret`, `configmap`) and bundled realm JSON
 - Helm templates for CNPG `Cluster` and standalone PostgreSQL `StatefulSet`, `ConfigMap`, `Secret`, and `Service`
+
+### Fixed
+
+- Category filter no longer overlaps the map controls on mobile — left offset increased from `12px` to `60px` below the 600px breakpoint
 
 ## [1.16.0] - 2026-05-16
 
@@ -356,7 +362,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.16.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.17.0...HEAD
+[1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0
 [1.14.0]: https://github.com/WatskeBart/stickermap/compare/1.13.0...1.14.0
