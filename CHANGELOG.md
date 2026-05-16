@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Admin maintenance page (`/admin`) accessible only to `sm-admin` users, with a sidenav link
+  - Stats dashboard: total stickers, missing thumbnails (DB and file), missing GPS, archived, and private counts
+  - File audit panel: lists stickers whose full image or thumbnail file is missing from disk
+  - **Generate missing thumbnails** — creates `_thumb` files for stickers with no thumbnail on disk or in DB
+  - **Compress oversized images** — re-compresses images whose longest side exceeds the configured maximum (1920 px by default); also regenerates their thumbnails
+  - **Strip EXIF data** — re-saves all existing images without EXIF metadata (location, device info) for privacy; regenerates thumbnails
+  - **Cleanup orphan files** — deletes files in the upload directory that are no longer referenced by any sticker or removal report
+  - All maintenance jobs run as fire-and-forget background tasks; a snackbar notification is shown when a job completes or fails
+- `thumbnail` column added to the `stickers` table (migration `0008`); new stickers now persist the thumbnail filename at creation time
 - Sticker overview now persists the selected page size across sessions and supports sorting by category
 
 ### Changed

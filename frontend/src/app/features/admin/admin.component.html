@@ -1,0 +1,180 @@
+<div class="admin-page">
+  <h1 class="page-title">
+    <mat-icon class="title-icon">admin_panel_settings</mat-icon>
+    Beheer
+  </h1>
+
+  <!-- Stats -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Overzicht</h2>
+      <button mat-icon-button (click)="loadStats()" [disabled]="statsLoading()" matTooltip="Vernieuwen">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (statsLoading()) {
+      <div class="loading-row">
+        <mat-spinner diameter="28" />
+      </div>
+    } @else if (stats()) {
+      <div class="stats-grid">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.total_stickers }}</div>
+            <div class="stat-label">Stickers totaal</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_thumbnail_db > 0">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.missing_thumbnail_db }}</div>
+            <div class="stat-label">Thumbnail ontbreekt (DB)</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_thumbnail_file > 0">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.missing_thumbnail_file }}</div>
+            <div class="stat-label">Thumbnail ontbreekt (bestand)</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_full_image_file > 0">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.missing_full_image_file }}</div>
+            <div class="stat-label">Afbeelding ontbreekt (bestand)</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.missing_gps }}</div>
+            <div class="stat-label">Zonder GPS-locatie</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.archived }}</div>
+            <div class="stat-label">Gearchiveerd</div>
+          </mat-card-content>
+        </mat-card>
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-value">{{ stats()!.private }}</div>
+            <div class="stat-label">Privé</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    }
+  </section>
+
+  <mat-divider />
+
+  <!-- File audit -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">Bestandsaudit</h2>
+      <button mat-icon-button (click)="loadAudit()" [disabled]="auditLoading()" matTooltip="Vernieuwen">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    @if (auditLoading()) {
+      <div class="loading-row">
+        <mat-spinner diameter="28" />
+      </div>
+    } @else if (auditItems().length === 0) {
+      <p class="empty-state">
+        <mat-icon class="empty-icon">check_circle</mat-icon>
+        Alle bestanden zijn aanwezig.
+      </p>
+    } @else {
+      <mat-expansion-panel>
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{ auditItems().length }} sticker(s) met ontbrekende bestanden</mat-panel-title>
+        </mat-expansion-panel-header>
+        <table mat-table [dataSource]="auditItems()" class="audit-table">
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let row">{{ row.id }}</td>
+          </ng-container>
+          <ng-container matColumnDef="image">
+            <th mat-header-cell *matHeaderCellDef>Afbeelding</th>
+            <td mat-cell *matCellDef="let row">{{ row.image }}</td>
+          </ng-container>
+          <ng-container matColumnDef="thumbnail">
+            <th mat-header-cell *matHeaderCellDef>Thumbnail</th>
+            <td mat-cell *matCellDef="let row">{{ row.thumbnail ?? '—' }}</td>
+          </ng-container>
+          <ng-container matColumnDef="issues">
+            <th mat-header-cell *matHeaderCellDef>Problemen</th>
+            <td mat-cell *matCellDef="let row">
+              @if (row.missing_image) {
+                <mat-chip class="chip-error">afbeelding ontbreekt</mat-chip>
+              }
+              @if (row.missing_thumbnail) {
+                <mat-chip class="chip-warn">thumbnail ontbreekt</mat-chip>
+              }
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="auditColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: auditColumns;"></tr>
+        </table>
+      </mat-expansion-panel>
+    }
+  </section>
+
+  <mat-divider />
+
+  <!-- Maintenance actions -->
+  <section class="section">
+    <h2 class="section-title">Onderhoudstaken</h2>
+    <div class="actions-grid">
+      @for (action of actions; track action.type) {
+        <mat-card class="action-card">
+          <mat-card-header>
+            <mat-icon mat-card-avatar class="action-icon">{{ action.icon }}</mat-icon>
+            <mat-card-title>{{ action.title }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="action-description">{{ action.description }}</p>
+            @if (jobFor(action.type); as job) {
+              <div class="job-status">
+                @if (job.info.status === 'running') {
+                  <mat-chip class="chip-running">
+                    <mat-spinner matChipAvatar diameter="16" />
+                    Bezig… {{ job.info.processed }}/{{ job.info.total }}
+                  </mat-chip>
+                } @else if (job.info.status === 'done') {
+                  <mat-chip class="chip-done">
+                    <mat-icon matChipAvatar>check</mat-icon>
+                    Klaar — {{ job.info.processed }} verwerkt
+                  </mat-chip>
+                } @else {
+                  <mat-chip class="chip-error">
+                    <mat-icon matChipAvatar>error</mat-icon>
+                    Fout ({{ job.info.errors.length }})
+                  </mat-chip>
+                }
+                @if (job.info.errors.length > 0) {
+                  <ul class="error-list">
+                    @for (err of job.info.errors; track $index) {
+                      <li>{{ err }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </mat-card-content>
+          <mat-card-actions>
+            <button
+              mat-flat-button
+              [disabled]="isRunning()(action.type)"
+              (click)="startJob(action.type)"
+            >
+              <mat-icon>play_arrow</mat-icon>
+              Starten
+            </button>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  </section>
+</div>

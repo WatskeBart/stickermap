@@ -43,6 +43,7 @@ export class StickerFormComponent implements OnInit {
   selectedFile = signal<File | null>(null);
   imagePreviewUrl = signal<string | null>(null);
   uploadedFilename = signal<string | null>(null);
+  uploadedThumbnail = signal<string | null>(null);
 
   // GPS data from EXIF
   extractedGPS = signal<GPSInfo | null>(null);
@@ -161,6 +162,7 @@ export class StickerFormComponent implements OnInit {
       next: (response) => {
         this.uploading.set(false);
         this.uploadedFilename.set(response.filename);
+        this.uploadedThumbnail.set(response.thumbnail);
 
         if (
           response.gps_info &&
@@ -338,6 +340,7 @@ export class StickerFormComponent implements OnInit {
       uploader: this.uploader().trim(),
       post_date: this.convertToBackendFormat(this.postDate()),
       image: this.uploadedFilename()!,
+      thumbnail: this.uploadedThumbnail(),
       category_id: this.categoryId(),
       private: this.isPrivate(),
     };
@@ -366,6 +369,7 @@ export class StickerFormComponent implements OnInit {
     this.selectedFile.set(null);
     this.imagePreviewUrl.set(null);
     this.uploadedFilename.set(null);
+    this.uploadedThumbnail.set(null);
     this.extractedGPS.set(null);
     this.hasGPSData.set(false);
     this.hasImageDate.set(false);

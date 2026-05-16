@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport } from '../models/sticker.model';
+import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport, AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType } from '../models/sticker.model';
 
 @Injectable({
   providedIn: 'root'
@@ -87,5 +87,21 @@ export class StickerService {
       params: { format },
       responseType: 'blob',
     });
+  }
+
+  getAdminStats(): Observable<AdminStats> {
+    return this.http.get<AdminStats>(`${this.apiUrl}/admin/stats`);
+  }
+
+  getAdminAudit(): Observable<AdminAuditItem[]> {
+    return this.http.get<AdminAuditItem[]>(`${this.apiUrl}/admin/audit`);
+  }
+
+  startMaintenanceJob(type: MaintenanceJobType): Observable<{ job_id: string }> {
+    return this.http.post<{ job_id: string }>(`${this.apiUrl}/admin/jobs/${type}`, {});
+  }
+
+  getAdminJobStatus(jobId: string): Observable<AdminJob> {
+    return this.http.get<AdminJob>(`${this.apiUrl}/admin/jobs/${jobId}`);
   }
 }

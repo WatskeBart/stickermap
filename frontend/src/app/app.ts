@@ -149,6 +149,10 @@ export class App implements OnInit {
     this.router.navigate(['/categories']);
   }
 
+  navigateToAdmin(): void {
+    this.router.navigate(['/admin']);
+  }
+
   openChangelog(): void {
     this.dialog.open(ChangelogDialogComponent, { width: '640px', maxHeight: '80vh' });
   }
