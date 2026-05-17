@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StickerMap</title>
+  <style>
+    :root {
+      --orange: #fb8237;
+      --yellow: #d4fb37;
+      --dark: #1a1a1a;
+      --darker: #111111;
+      --muted: #888;
+      --text: #e8e8e8;
+      --card-bg: #222222;
+      --border: #333;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--darker);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header {
+      background: var(--dark);
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .logo svg {
+      stroke: var(--orange);
+      flex-shrink: 0;
+    }
+
+    nav { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+    nav a { color: var(--muted); font-size: 0.9rem; transition: color 0.2s; }
+    nav a:hover { color: var(--text); text-decoration: none; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 4rem;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero h1 span { color: var(--orange); }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #aaa;
+      max-width: 560px;
+      margin: 0 auto 2rem;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.65rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+
+    .btn:hover { opacity: 0.85; text-decoration: none; }
+
+    .btn-primary { background: var(--orange); color: #000; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+
+    /* ── Badges ── */
+    .badges {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 2.5rem;
+    }
+
+    /* ── Features ── */
+    .section {
+      padding: 4rem 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.4rem; }
+    .card p { font-size: 0.875rem; color: #999; }
+
+    /* ── Stack table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.6rem 1rem;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      color: #ccc;
+    }
+
+    td:first-child { color: var(--text); font-weight: 500; }
+
+    tr:nth-child(even) td { background: #1c1c1c; }
+
+    /* ── Helm install ── */
+    .helm-block {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .helm-block-header {
+      background: #2a2a2a;
+      padding: 0.6rem 1rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+
+    pre {
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-size: 0.875rem;
+      line-height: 1.7;
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    .token-comment { color: #6a737d; }
+    .token-cmd     { color: var(--yellow); }
+    .token-arg     { color: var(--orange); }
+    .token-flag    { color: #79b8ff; }
+    .token-string  { color: #9ecbff; }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21,3 L21,11 C21,16.5228475 16.5228475,21 11,21 L3,21 L3,3 L21,3 Z"/>
+      <path d="M9,21 C11.6666667,21 13,19.6666667 13,17 C13,17 13,15.6666667 13,13 L17,13 C19.6666667,13 21,11.6666667 21,9"/>
+    </svg>
+    StickerMap
+  </div>
+  <nav>
+    <a href="https://github.com/WatskeBart/stickermap">GitHub</a>
+    <a href="#install">Helm Chart</a>
+    <a href="#stack">Stack</a>
+    <a href="https://github.com/WatskeBart/stickermap/releases">Releases</a>
+  </nav>
+</header>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <h1>View your stickers<br /><span>on the map</span></h1>
+  <p>
+    A self-hosted web application for uploading, viewing, and managing sticker
+    locations worldwide — with automatic GPS extraction from photos.
+  </p>
+  <div class="btn-group">
+    <a class="btn btn-primary" href="https://github.com/WatskeBart/stickermap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+      View on GitHub
+    </a>
+    <a class="btn btn-secondary" href="#install">Helm Install →</a>
+  </div>
+
+  <div class="badges">
+    <img src="https://img.shields.io/github/actions/workflow/status/WatskeBart/stickermap/build-images.yml?branch=develop&style=flat-square&labelColor=1f1f1f" alt="Build" />
+    <img src="https://img.shields.io/github/v/release/WatskeBart/stickermap?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Release" />
+    <img src="https://img.shields.io/badge/license-AGPL3-green?style=flat-square&color=d4fb37&labelColor=1f1f1f" alt="AGPL3" />
+    <img src="https://img.shields.io/github/stars/WatskeBart/stickermap?style=flat-square&color=fb8237&labelColor=1f1f1f" alt="Stars" />
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Features ── -->
+<section class="section">
+  <div class="section-title">Features</div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-icon">📍</div>
+      <h3>Interactive Map</h3>
+      <p>Browse all sticker locations on a MapLibre GL powered world map with smooth zoom and pan.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">📷</div>
+      <h3>GPS Extraction</h3>
+      <p>Upload a photo and GPS coordinates are automatically read from EXIF metadata — no manual entry needed.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔐</div>
+      <h3>Role-based Access</h3>
+      <p>Keycloak-backed authentication with four hierarchical roles: viewer, uploader, editor, and admin.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">☸️</div>
+      <h3>Kubernetes Ready</h3>
+      <p>Air-gap friendly Helm chart with CNPG database support and embedded Keycloak — no external dependencies.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🗂️</div>
+      <h3>Category Management</h3>
+      <p>Organise stickers into custom categories with admin tooling to manage, merge, and moderate.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🛡️</div>
+      <h3>Self-hosted</h3>
+      <p>AGPL-3.0 licensed. Run it on your own infrastructure — your data stays yours.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Helm install ── -->
+<section class="section" id="install">
+  <div class="section-title">Helm Chart</div>
+
+  <div class="helm-block" style="margin-bottom: 1.5rem;">
+    <div class="helm-block-header">Add the Helm repository</div>
+    <pre><span class="token-comment"># Add repo</span>
+<span class="token-cmd">helm</span> repo <span class="token-arg">add</span> stickermap <span class="token-string">https://watskebart.github.io/stickermap</span>
+<span class="token-cmd">helm</span> repo <span class="token-arg">update</span></pre>
+  </div>
+
+  <div class="helm-block" style="margin-bottom: 1.5rem;">
+    <div class="helm-block-header">Minimal install</div>
+    <pre><span class="token-cmd">helm</span> install <span class="token-arg">stickermap</span> stickermap/stickermap \
+  <span class="token-flag">--namespace</span> stickermap <span class="token-flag">--create-namespace</span> \
+  <span class="token-flag">--set</span> <span class="token-string">global.domain=stickers.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">global.storageClass=standard</span></pre>
+  </div>
+
+  <div class="helm-block">
+    <div class="helm-block-header">OCI alternative (GHCR)</div>
+    <pre><span class="token-cmd">helm</span> install <span class="token-arg">stickermap</span> \
+  oci://ghcr.io/watskebart/stickermap/stickermap-helm/stickermap \
+  <span class="token-flag">--namespace</span> stickermap <span class="token-flag">--create-namespace</span></pre>
+  </div>
+
+  <p style="margin-top: 1.25rem; font-size: 0.875rem; color: var(--muted);">
+    Full configuration reference and mandatory values:
+    <a href="https://github.com/WatskeBart/stickermap/blob/main/helm/README.md">helm/README.md</a>
+  </p>
+</section>
+
+<hr class="divider" />
+
+<!-- ── Stack ── -->
+<section class="section" id="stack">
+  <div class="section-title">Technology Stack</div>
+  <table>
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>Technology</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Frontend</td><td>Angular 21 (zoneless), TypeScript 5.9, MapLibre GL 5.x</td></tr>
+      <tr><td>Backend</td><td>Python 3.14, FastAPI, Pydantic</td></tr>
+      <tr><td>Database</td><td>PostgreSQL with PostGIS (SRID 4326)</td></tr>
+      <tr><td>Authentication</td><td>Keycloak, JWT RS256</td></tr>
+      <tr><td>Container</td><td>Podman / Docker, compose</td></tr>
+      <tr><td>Kubernetes</td><td>Helm v4, CNPG, embedded Keycloak</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <p>
+    StickerMap is open source under the
+    <a href="https://github.com/WatskeBart/stickermap/blob/main/LICENSE">AGPL-3.0 license</a>.
+    &nbsp;·&nbsp;
+    <a href="https://github.com/WatskeBart/stickermap">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/WatskeBart/stickermap/releases">Releases</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/WatskeBart/stickermap/issues">Issues</a>
+  </p>
+</footer>
+
+</body>
+</html>
