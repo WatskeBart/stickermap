@@ -25,10 +25,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Helm
-        uses: azure/setup-helm@v4
+        uses: azure/setup-helm@v5
 
       - name: Determine chart version from tag
         id: tag
@@ -43,7 +43,7 @@ jobs:
         run: helm package helm/stickermap --version ${{ steps.tag.outputs.value }} --app-version ${{ steps.tag.outputs.value }}
 
       - name: Checkout gh-pages branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           path: gh-pages
