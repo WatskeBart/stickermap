@@ -16,12 +16,17 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+*'
 
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
 jobs:
   publish:
     name: Package & publish Helm chart to gh-pages
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout repository
@@ -42,7 +47,7 @@ jobs:
       - name: Package Helm chart
         run: helm package helm/stickermap --version ${{ steps.tag.outputs.value }} --app-version ${{ steps.tag.outputs.value }}
 
-      - name: Checkout gh-pages branch
+      - name: Checkout gh-pages branch (existing chart history)
         uses: actions/checkout@v6
         with:
           ref: gh-pages
@@ -61,11 +66,11 @@ jobs:
             --url https://watskebart.github.io/stickermap \
             $MERGE_FLAG
 
-      - name: Commit and push updated index to gh-pages
-        run: |
-          cd gh-pages
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.yaml stickermap-${{ steps.tag.outputs.value }}.tgz
-          git commit -m "chore: publish stickermap chart ${{ steps.tag.outputs.value }}"
-          git push
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: gh-pages
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
