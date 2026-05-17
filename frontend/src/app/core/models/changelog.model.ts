@@ -11,6 +11,18 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.17.1',
+    date: '2026-05-17',
+    sections: [
+      {
+        type: 'Fixed',
+        items: [
+          'Set default values for helm chart to prevent template render errors',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.17.0',
     date: '2026-05-16',
     sections: [
