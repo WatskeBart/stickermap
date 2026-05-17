@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.2] - 2026-05-17
+
+### Added
+
+- Added latest (image) tag to helm values
+
+### Fixed
+
+- Fixed image name in helm values
+
 ## [1.17.1] - 2026-05-17
 
 ### Fixed

@@ -10,7 +10,7 @@
 backend:
   image:
     repository: ghcr.io/watskebart/stickermap/stickermap-backend
-    tag: main
+    tag: latest
     pullPolicy: Always
   resources:
     requests:
@@ -21,8 +21,8 @@ backend:
 
   migrations:
     image:
-      repository: ghcr.io/watskebart/stickermap/stickermap-migrations
-      tag: main
+      repository: ghcr.io/watskebart/stickermap/stickermap-database_migrations
+      tag: latest
       pullPolicy: Always
     resources:
       requests:
@@ -60,7 +60,7 @@ backend:
 frontend:
   image:
     repository: ghcr.io/watskebart/stickermap/stickermap-frontend
-    tag: main
+    tag: latest
     pullPolicy: Always
   resources:
     requests:
