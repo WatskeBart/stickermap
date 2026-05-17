@@ -53,9 +53,13 @@ jobs:
 
       - name: Regenerate Helm repo index
         run: |
+          MERGE_FLAG=""
+          if [ -f gh-pages/index.yaml ]; then
+            MERGE_FLAG="--merge gh-pages/index.yaml"
+          fi
           helm repo index gh-pages \
             --url https://watskebart.github.io/stickermap \
-            --merge gh-pages/index.yaml
+            $MERGE_FLAG
 
       - name: Commit and push updated index to gh-pages
         run: |
