@@ -11,6 +11,24 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.17.2',
+    date: '2026-05-17',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Added latest (image) tag to helm values',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Fixed image name in helm values',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.17.1',
     date: '2026-05-17',
     sections: [
