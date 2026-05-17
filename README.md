@@ -1,5 +1,5 @@
 <h1 align="center">
-StickerMap
+<a href="https://watskebart.github.io/stickermap">StickerMap</a>
 </h1>
 
 <p align="center">

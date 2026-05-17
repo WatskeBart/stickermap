@@ -1,6 +1,6 @@
 FROM docker.io/astral/uv:python3.14-alpine
 
-ARG IMAGE_VERSION=1.17.0
+ARG IMAGE_VERSION=1.17.1
 
 LABEL org.opencontainers.image.title="Stickermap Database Migrations" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
