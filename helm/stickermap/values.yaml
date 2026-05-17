@@ -75,7 +75,7 @@ frontend:
 
   # Internal backend URL Caddy uses to proxy /api and /uploads.
   # Defaults to http://<release>-backend:5555 when empty.
-  backendUrl: ""
+  backendUrl: "backend-service.stickermap.svc.cluster.local:5555"
 
   # Passed to ngssc as PRODUCTION; controls Angular production mode flag.
   production: "true"
@@ -93,9 +93,9 @@ frontend:
 # ------------------------------------------------------------------------------
 keycloak:
   # REQUIRED: Public URL the browser uses to reach Keycloak, e.g. https://auth.example.com
-  url: ""
+  url: "https://auth.example.com"
   # Internal URL (e.g. keycloak service) for backend JWKS/token validation. Falls back to url when empty.
-  internalUrl: ""
+  internalUrl: "keycloak-service.keycloak.svc.cluster.local:8080"
   realm: "stickermap"
   clientId: "stickermap-client"
 
@@ -104,7 +104,7 @@ keycloak:
 # ------------------------------------------------------------------------------
 ingress:
   # REQUIRED: External hostname, e.g. stickermap.example.com
-  hostname: ""
+  hostname: "stickermap.example.com"
   className: traefik
   annotations: {}
     # cert-manager.io/cluster-issuer: stepca
@@ -120,12 +120,12 @@ database:
   # Name of a pre-existing Kubernetes Secret containing DB credentials (e.g. CNPG cluster-example-app).
   # Required keys: host, port, dbname, username, password.
   # When set, the chart references this secret directly and ignores the fields below.
-  existingSecretName: ""
+  existingSecretName: "cluster-example-app"
 
   # Used only when existingSecretName is empty.
   # The chart creates a Secret named <release>-db-stickermap from these values.
-  host: ""      # REQUIRED when existingSecretName is empty
+  host: "cluster-example-rw"      # REQUIRED when existingSecretName is empty
   port: "5432"
   dbname: "stickermap"
   username: "stickermap"
-  password: ""  # REQUIRED when existingSecretName is empty
+  password: "changeme"  # REQUIRED when existingSecretName is empty
