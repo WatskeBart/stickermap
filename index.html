@@ -328,8 +328,10 @@
     <div class="helm-block-header">Minimal install</div>
     <pre><span class="token-cmd">helm</span> install <span class="token-arg">stickermap</span> stickermap/stickermap \
   <span class="token-flag">--namespace</span> stickermap <span class="token-flag">--create-namespace</span> \
-  <span class="token-flag">--set</span> <span class="token-string">global.domain=stickers.example.com</span> \
-  <span class="token-flag">--set</span> <span class="token-string">global.storageClass=standard</span></pre>
+  <span class="token-flag">--set</span> <span class="token-string">ingress.hostname=stickers.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">keycloak.url=https://auth.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">database.host=postgres.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">database.password=changeme</span></pre>
   </div>
 
   <div class="helm-block">
@@ -358,7 +360,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Frontend</td><td>Angular 21 (zoneless), TypeScript 5.9, MapLibre GL 5.x</td></tr>
+      <tr><td>Frontend</td><td>Angular 21 (zoneless), TypeScript 5.9, MapLibre GL 5.24</td></tr>
       <tr><td>Backend</td><td>Python 3.14, FastAPI, Pydantic</td></tr>
       <tr><td>Database</td><td>PostgreSQL with PostGIS (SRID 4326)</td></tr>
       <tr><td>Authentication</td><td>Keycloak, JWT RS256</td></tr>
