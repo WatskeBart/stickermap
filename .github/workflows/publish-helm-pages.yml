@@ -16,7 +16,7 @@ on:
       - '[0-9]+.[0-9]+.[0-9]+*'
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -65,6 +65,15 @@ jobs:
           helm repo index gh-pages \
             --url https://watskebart.github.io/stickermap \
             $MERGE_FLAG
+
+      - name: Commit and push updated chart to gh-pages
+        run: |
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add stickermap-${{ steps.tag.outputs.value }}.tgz index.yaml
+          git commit -m "Add stickermap ${{ steps.tag.outputs.value }}"
+          git push
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
