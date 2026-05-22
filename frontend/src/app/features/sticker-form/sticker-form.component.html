@@ -112,15 +112,21 @@
                     matInput
                     class="coord-input"
                     [ngModel]="manualLocationInput()"
-                    (ngModelChange)="manualLocationInput.set($event)"
-                    (input)="onManualLocationInput(manualLocationInput())"
+                    (ngModelChange)="onCoordInputChange($event)"
+                    [errorStateMatcher]="coordErrorStateMatcher"
                     placeholder="49.611267, 6.129131"
                     name="manualLocationInput"
                   />
-                  @if (coordError()) {
-                    <mat-error>{{ coordError() }}</mat-error>
-                  }
+                  <mat-error>{{ coordError() }}</mat-error>
                 </mat-form-field>
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="accent"
+                  (click)="onConfirmManualLocation()"
+                >
+                  Bevestig locatie
+                </button>
               </mat-card-content>
             </mat-card>
           </div>

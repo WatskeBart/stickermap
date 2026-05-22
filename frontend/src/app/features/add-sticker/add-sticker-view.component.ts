@@ -1,6 +1,7 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
 import { MapComponent } from '../map/map';
 import { StickerFormComponent } from '../sticker-form/sticker-form.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -8,7 +9,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-add-sticker-view',
   standalone: true,
-  imports: [MapComponent, StickerFormComponent, MatToolbarModule],
+  imports: [MapComponent, StickerFormComponent, MatToolbarModule, MatButtonModule],
   templateUrl: './add-sticker-view.component.html',
   styleUrl: './add-sticker-view.component.scss'
 })
@@ -17,6 +18,8 @@ export class AddStickerViewComponent {
   readonly formComponent = viewChild.required(StickerFormComponent);
 
   locationSelectionMode = signal(false);
+  previewOnlyMode = signal(false);
+  lastKnownLocation = signal<{ lat: number; lon: number } | null>(null);
 
   constructor(
     private router: Router,
@@ -24,29 +27,27 @@ export class AddStickerViewComponent {
   ) {}
 
   onLocationSelectionRequested(): void {
+    this.previewOnlyMode.set(false);
     this.locationSelectionMode.set(true);
-    if (this.formComponent().manualLocation().lat !== null) {
-      this.updateMapPreview();
-    }
   }
 
   onLocationSelected(location: { lat: number, lon: number }): void {
     this.locationSelectionMode.set(false);
+    this.previewOnlyMode.set(false);
+    this.lastKnownLocation.set(location);
     this.formComponent().setManualLocation(location.lat, location.lon);
   }
 
-  private updateMapPreview(): void {
-    const loc = this.formComponent().manualLocation();
-    if (loc.lat !== null) {
-      this.mapComponent().previewLocation(loc.lat!, loc.lon!);
-    }
-  }
-
   onPreviewLocationRequested(location: { lat: number, lon: number }): void {
-    this.locationSelectionMode.set(true);
+    this.lastKnownLocation.set(location);
+    this.previewOnlyMode.set(true);
     setTimeout(() => {
       this.mapComponent().previewLocation(location.lat, location.lon);
     }, 100);
+  }
+
+  onClosePreview(): void {
+    this.previewOnlyMode.set(false);
   }
 
   onStickerCreated(): void {

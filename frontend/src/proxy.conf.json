@@ -1,5 +1,5 @@
 {
-  "_comment": "This proxy config is only used for local development (npm start). Docker uses nginx instead.",
+  "_comment": "This proxy config is only used for local development (pnpm start).",
   "/api/v1": {
     "target": "http://localhost:5555",
     "secure": false

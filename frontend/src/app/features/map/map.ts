@@ -89,6 +89,7 @@ interface ProcessedSticker {
 })
 export class MapComponent implements OnInit {
   readonly locationSelectionMode = input(false);
+  readonly selectionStartLocation = input<{ lat: number; lon: number } | null>(null);
   readonly isAuthenticated = input(false);
   readonly isViewer = input(false);
   readonly isUploader = input(false);
@@ -222,9 +223,15 @@ export class MapComponent implements OnInit {
 
       if (selectionMode) {
         this.setMapCursor('crosshair');
+        const startLoc = this.selectionStartLocation();
         setTimeout(() => {
           this.mapInstance!.resize();
-          this.mapInstance!.jumpTo({ center: [6.129131, 49.611267], zoom: 5 });
+          if (startLoc) {
+            this.activeSelectionMarker.set({ lat: startLoc.lat, lon: startLoc.lon, color: 'blue' });
+            this.mapInstance!.jumpTo({ center: [startLoc.lon, startLoc.lat], zoom: 7 });
+          } else {
+            this.mapInstance!.jumpTo({ center: [5.680191, 51.658250], zoom: 7 });
+          }
         }, 0);
       } else {
         this.setF35Cursor(0);
@@ -388,19 +395,19 @@ export class MapComponent implements OnInit {
             const target = processed.find((s) => s.id === focusId);
             if (target) {
               this.openPopupStickerId.set(focusId);
-              this.initialViewport.set({ center: [target.lon, target.lat], zoom: 17 });
+              this.initialViewport.set({ center: [target.lon, target.lat], zoom: 15 });
             } else {
               this.initialViewport.set(
                 processed.length > 0
                   ? this.boundsToViewport(processed)
-                  : { center: [6.129131, 49.611267], zoom: 5 },
+                  : { center: [5.680191, 51.658250], zoom: 7 },
               );
             }
           } else {
             this.initialViewport.set(
               processed.length > 0
                 ? this.boundsToViewport(processed)
-                : { center: [6.129131, 49.611267], zoom: 5 },
+                : { center: [5.680191, 51.658250], zoom: 7 },
             );
           }
         } else if (focusId !== null) {
@@ -413,7 +420,7 @@ export class MapComponent implements OnInit {
       error: (error) => {
         console.error('Stickers laden is mislukt:', error);
         if (this.initialViewport() === null) {
-          this.initialViewport.set({ center: [6.129131, 49.611267], zoom: 5 });
+          this.initialViewport.set({ center: [5.680191, 51.658250], zoom: 7 });
         }
         this.isLoading.set(false);
       },
