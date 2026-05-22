@@ -7,21 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-05-22
+
+### Added
+
+- Unknown post date support (fixes #119) — upload and edit forms now include a "Date unknown" checkbox; when checked, the date field is disabled and the sticker is stored with an epoch sentinel (`1970-01-01 00:00:00`). The map popup and sticker overview recognise the sentinel and display "Unknown" instead of the raw date.
+- Added pnpm overrides in pnpm-workspace.yaml.
+
+### Changed
+
+- Reverted OIDC session storage back to `sessionStorage` (the library default); the earlier switch to `localStorage` introduced in 1.13.0 is undone so authentication tokens are no longer persisted across browser sessions.
+- Split sidenav menu items to top and bottom
+- Changing to a new location will show the previous location as a blue marker.
+- Changed various default zoom levels to more sensible values.
+
+### Fixed
+
+- Fixed some small UI issues in sticker edit and upload forms.
+- Fixed bug on manual coördinate input field.
+
+### Removed
+
+- Removed pnpm overrides from package.json.
+
 ## [1.17.2] - 2026-05-17
 
 ### Added
 
-- Added latest (image) tag to helm values
+- Added latest (image) tag to helm values.
 
 ### Fixed
 
-- Fixed image name in helm values
+- Fixed image name in helm values.
 
 ## [1.17.1] - 2026-05-17
 
 ### Fixed
 
-- Set default values for helm chart to prevent template render errors
+- Set default values for helm chart to prevent template render errors.
 
 ## [1.17.0] - 2026-05-16
 
@@ -378,7 +401,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.17.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.18.0...HEAD
+[1.18.0]: https://github.com/WatskeBart/stickermap/compare/1.17.2...1.18.0
 [1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0

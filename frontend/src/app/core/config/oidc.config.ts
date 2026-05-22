@@ -1,6 +1,6 @@
 import { EnvironmentProviders, inject, Provider, provideAppInitializer } from '@angular/core';
 import { Router } from '@angular/router';
-import { provideAuth, PassedInitialConfig, OidcSecurityService, DefaultLocalStorageService, AbstractSecurityStorage } from 'angular-auth-oidc-client';
+import { provideAuth, PassedInitialConfig, OidcSecurityService } from 'angular-auth-oidc-client';
 import { firstValueFrom } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -26,7 +26,6 @@ function buildOidcConfig(): PassedInitialConfig {
 export function provideOidcConfig(): (Provider | EnvironmentProviders)[] {
   return [
     provideAuth(buildOidcConfig()),
-    { provide: AbstractSecurityStorage, useClass: DefaultLocalStorageService },
     provideAppInitializer(() => {
       const oidcSecurityService = inject(OidcSecurityService);
       const router = inject(Router);
@@ -34,9 +33,9 @@ export function provideOidcConfig(): (Provider | EnvironmentProviders)[] {
         oidcSecurityService.checkAuth().pipe(
           tap(({ isAuthenticated }) => {
             if (isAuthenticated) {
-              const redirectUrl = localStorage.getItem('redirect_url');
+              const redirectUrl = sessionStorage.getItem('redirect_url');
               if (redirectUrl) {
-                localStorage.removeItem('redirect_url');
+                sessionStorage.removeItem('redirect_url');
                 router.navigateByUrl(redirectUrl);
               }
             }

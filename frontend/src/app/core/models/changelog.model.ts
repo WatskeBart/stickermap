@@ -11,19 +11,54 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.18.0',
+    date: '2026-05-22',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Unknown post date support — upload and edit forms now include a "Date unknown" checkbox; when checked, the date field is disabled and the sticker is stored with an epoch sentinel (<code>1970-01-01 00:00:00</code>). The map popup and sticker overview recognise the sentinel and display "Unknown" instead of the raw date.',
+          'Added pnpm overrides in pnpm-workspace.yaml.',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Reverted OIDC session storage back to <code>sessionStorage</code> (the library default); the earlier switch to <code>localStorage</code> introduced in 1.13.0 is undone so authentication tokens are no longer persisted across browser sessions.',
+          'Split sidenav menu items to top and bottom',
+          'Changing to a new location will show the previous location as a blue marker.',
+          'Changed various default zoom levels to more sensible values.',
+        ],
+      },
+      {
+        type: 'Fixed',
+        items: [
+          'Fixed some small UI issues in sticker edit and upload forms.',
+          'Fixed bug on manual coördinate input field.',
+        ],
+      },
+      {
+        type: 'Removed',
+        items: [
+          'Removed pnpm overrides from package.json.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.17.2',
     date: '2026-05-17',
     sections: [
       {
         type: 'Added',
         items: [
-          'Added latest (image) tag to helm values',
+          'Added latest (image) tag to helm values.',
         ],
       },
       {
         type: 'Fixed',
         items: [
-          'Fixed image name in helm values',
+          'Fixed image name in helm values.',
         ],
       },
     ],
@@ -35,7 +70,7 @@ export const CHANGELOG_DATA: ChangelogRelease[] = [
       {
         type: 'Fixed',
         items: [
-          'Set default values for helm chart to prevent template render errors',
+          'Set default values for helm chart to prevent template render errors.',
         ],
       },
     ],
