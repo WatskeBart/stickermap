@@ -275,4 +275,13 @@
     float: right;
     color: #e17000;
   }
+
+  .date-unknown-toggle {
+    margin-top: 8px;
+  }
+
+  .date-input:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
 }

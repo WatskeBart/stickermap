@@ -205,12 +205,22 @@
           [ngModel]="postDate()"
           (ngModelChange)="postDate.set($event)"
           name="postDate"
+          [disabled]="dateUnknown()"
           required
         />
         <small>Geef de lokale tijd aan (tijden worden automatisch geconverteerd naar UTC)</small>
-        @if (isDateAutoFilled()) {
+        @if (isDateAutoFilled() && !dateUnknown()) {
           <small class="auto-filled">Automatisch ingevuld uit afbeelding</small>
         }
+        <div class="date-unknown-toggle">
+          <mat-checkbox
+            [ngModel]="dateUnknown()"
+            (ngModelChange)="onDateUnknownChange($event)"
+            name="dateUnknown"
+          >
+            Plakdatum onbekend
+          </mat-checkbox>
+        </div>
       </div>
     }
 

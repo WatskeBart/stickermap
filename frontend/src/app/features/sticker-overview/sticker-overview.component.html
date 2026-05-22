@@ -139,7 +139,15 @@
         <!-- Post date column -->
         <ng-container matColumnDef="post_date">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Plakdatum</th>
-          <td mat-cell *matCellDef="let row">{{ row.post_date }}</td>
+          <td mat-cell *matCellDef="let row">
+            @if (isViewer() && isUnknownDate(row.post_date)) {
+              <span class="unknown-date-cell" matTooltip="Plakdatum onbekend — moet nog ingevuld worden">
+                <mat-icon class="unknown-date-icon">priority_high</mat-icon>Onbekend
+              </span>
+            } @else {
+              {{ row.post_date }}
+            }
+          </td>
         </ng-container>
 
         <!-- Upload date column -->

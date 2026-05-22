@@ -69,6 +69,10 @@ export class StickerFormComponent implements OnInit {
   isDateAutoFilled = signal(false);
   isUploaderAutoFilled = signal(false);
 
+  // Date unknown
+  dateUnknown = signal(false);
+  private previousPostDate = signal('');
+
   // UI state
   uploading = signal(false);
   creating = signal(false);
@@ -296,6 +300,16 @@ export class StickerFormComponent implements OnInit {
     this.isSelectingLocation.set(false);
   }
 
+  onDateUnknownChange(checked: boolean): void {
+    if (checked) {
+      this.previousPostDate.set(this.postDate());
+      this.postDate.set('1970-01-01T00:00');
+    } else {
+      this.postDate.set(this.previousPostDate());
+    }
+    this.dateUnknown.set(checked);
+  }
+
   canSubmit(): boolean {
     const loc = this.manualLocation();
     return !!(
@@ -341,7 +355,7 @@ export class StickerFormComponent implements OnInit {
       location: location,
       poster: this.poster().trim(),
       uploader: this.uploader().trim(),
-      post_date: this.convertToBackendFormat(this.postDate()),
+      post_date: this.dateUnknown() ? '1970-01-01 00:00:00' : this.convertToBackendFormat(this.postDate()),
       image: this.uploadedFilename()!,
       thumbnail: this.uploadedThumbnail(),
       category_id: this.categoryId(),
@@ -387,6 +401,8 @@ export class StickerFormComponent implements OnInit {
     this.isSelectingLocation.set(false);
     this.isLocationAutoFilled.set(false);
     this.isDateAutoFilled.set(false);
+    this.dateUnknown.set(false);
+    this.previousPostDate.set('');
 
     if (!this.isUploaderAutoFilled()) {
       this.uploader.set('');

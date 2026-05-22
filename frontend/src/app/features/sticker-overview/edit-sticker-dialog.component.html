@@ -37,10 +37,25 @@
       <input matInput type="text" [ngModel]="poster()" (ngModelChange)="poster.set($event)" />
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Plakdatum</mat-label>
-      <input matInput type="datetime-local" [ngModel]="postDate()" (ngModelChange)="postDate.set($event)" />
-    </mat-form-field>
+    <div class="date-field">
+      <label class="date-label">Plakdatum</label>
+      <input
+        type="datetime-local"
+        class="date-input"
+        [ngModel]="postDate()"
+        (ngModelChange)="postDate.set($event)"
+        [disabled]="dateUnknown()"
+      />
+      <div class="date-unknown-toggle">
+        <mat-checkbox
+          [ngModel]="dateUnknown()"
+          (ngModelChange)="onDateUnknownChange($event)"
+          name="dateUnknown"
+        >
+          Plakdatum onbekend
+        </mat-checkbox>
+      </div>
+    </div>
 
     <div class="location-row">
       <mat-form-field appearance="outline" class="location-field">
