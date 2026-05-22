@@ -3,6 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -68,11 +69,20 @@ export class StickerFormComponent implements OnInit {
   isDateAutoFilled = signal(false);
   isUploaderAutoFilled = signal(false);
 
+  // Date unknown
+  dateUnknown = signal(false);
+  private previousPostDate = signal('');
+
   // UI state
   uploading = signal(false);
   creating = signal(false);
-  coordError = signal('');
   isSelectingLocation = signal(false);
+
+  coordError = signal('');
+
+  coordErrorStateMatcher: ErrorStateMatcher = {
+    isErrorState: () => this.coordError() !== '',
+  };
 
   private destroyRef = inject(DestroyRef);
 
@@ -136,7 +146,6 @@ export class StickerFormComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile.set(file);
-      this.coordError.set('');
 
       const reader = new FileReader();
       reader.onload = (e: any) => {
@@ -240,20 +249,22 @@ export class StickerFormComponent implements OnInit {
     });
   }
 
-  onManualLocationInput(input: string): void {
-    const trimmed = input.trim();
+  onCoordInputChange(value: string): void {
+    this.manualLocationInput.set(value);
+    if (this.coordError()) this.coordError.set('');
+  }
+
+  onConfirmManualLocation(): void {
+    const trimmed = this.manualLocationInput().trim();
 
     if (!trimmed) {
-      this.manualLocation.set({ lat: null, lon: null });
-      this.coordError.set('');
+      this.coordError.set('Vul het coordinaat in dit formaat: latitude, longitude');
       return;
     }
 
     const parts = trimmed.split(',').map((p) => p.trim());
-
     if (parts.length !== 2) {
       this.coordError.set('Vul het coordinaat in dit formaat: latitude, longitude');
-      this.manualLocation.set({ lat: null, lon: null });
       return;
     }
 
@@ -262,35 +273,41 @@ export class StickerFormComponent implements OnInit {
 
     if (isNaN(lat) || isNaN(lon)) {
       this.coordError.set('Ongeldige coordinaten. Vul een valide getallen in.');
-      this.manualLocation.set({ lat: null, lon: null });
       return;
     }
-
     if (lat < -90 || lat > 90) {
       this.coordError.set('Latitude moet zijn tussen de -90 en 90');
-      this.manualLocation.set({ lat: null, lon: null });
       return;
     }
-
     if (lon < -180 || lon > 180) {
       this.coordError.set('Longitude moet zijn tussen de -180 en 180');
-      this.manualLocation.set({ lat: null, lon: null });
       return;
     }
 
-    this.manualLocation.set({ lat, lon });
+    const truncLat = parseFloat(lat.toFixed(6));
+    const truncLon = parseFloat(lon.toFixed(6));
     this.coordError.set('');
-    this.snackBar.open(`Locatie ingesteld: ${lat.toFixed(6)}, ${lon.toFixed(6)}`, 'OK', {
+    this.manualLocation.set({ lat: truncLat, lon: truncLon });
+    this.snackBar.open(`Locatie ingesteld: ${truncLat.toFixed(6)}, ${truncLon.toFixed(6)}`, 'OK', {
       duration: 3000,
     });
-
-    this.previewLocationRequested.emit({ lat, lon });
+    this.previewLocationRequested.emit({ lat: truncLat, lon: truncLon });
   }
 
   changeLocation(): void {
     this.manualLocation.set({ lat: null, lon: null });
     this.manualLocationInput.set('');
     this.isSelectingLocation.set(false);
+  }
+
+  onDateUnknownChange(checked: boolean): void {
+    if (checked) {
+      this.previousPostDate.set(this.postDate());
+      this.postDate.set('1970-01-01T00:00');
+    } else {
+      this.postDate.set(this.previousPostDate());
+    }
+    this.dateUnknown.set(checked);
   }
 
   canSubmit(): boolean {
@@ -338,7 +355,7 @@ export class StickerFormComponent implements OnInit {
       location: location,
       poster: this.poster().trim(),
       uploader: this.uploader().trim(),
-      post_date: this.convertToBackendFormat(this.postDate()),
+      post_date: this.dateUnknown() ? '1970-01-01 00:00:00' : this.convertToBackendFormat(this.postDate()),
       image: this.uploadedFilename()!,
       thumbnail: this.uploadedThumbnail(),
       category_id: this.categoryId(),
@@ -381,10 +398,11 @@ export class StickerFormComponent implements OnInit {
     this.postDate.set('');
     this.categoryId.set(null);
     this.isPrivate.set(false);
-    this.coordError.set('');
     this.isSelectingLocation.set(false);
     this.isLocationAutoFilled.set(false);
     this.isDateAutoFilled.set(false);
+    this.dateUnknown.set(false);
+    this.previousPostDate.set('');
 
     if (!this.isUploaderAutoFilled()) {
       this.uploader.set('');

@@ -32,8 +32,13 @@ $expanded-width: 240px;
   border-right: none;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
   transition: width 0.2s ease;
-  display: flex;
-  flex-direction: column;
+
+  ::ng-deep .mat-drawer-inner-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-x: hidden;
+  }
 
   &.expanded {
     width: $expanded-width;
@@ -110,30 +115,20 @@ $expanded-width: 240px;
     opacity: 0.85;
     color: white !important;
   }
-}
 
-.sidenav-footer {
-  background: rgba(0, 0, 0, 0.25);
-  color: rgba(255, 255, 255, 0.7);
-  height: 40px;
-  min-height: 40px;
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 1rem;
+  .version-row {
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.25);
 
-  &:hover {
-    color: white;
-    text-decoration: underline;
-  }
+    ::ng-deep .mdc-list-item__primary-text {
+      font-size: 0.75rem !important;
+      letter-spacing: 0.04em;
+      opacity: 0.7;
+    }
 
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
+    &:hover ::ng-deep .mdc-list-item__primary-text {
+      opacity: 1;
+    }
   }
 }
 

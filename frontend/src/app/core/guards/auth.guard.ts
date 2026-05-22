@@ -5,7 +5,7 @@ import { map, take } from 'rxjs/operators';
 
 /**
  * Auth guard that checks OIDC authentication state.
- * Stores the target URL in localStorage so initializeAuth() can redirect there after login.
+ * Stores the target URL in sessionStorage so initializeAuth() can redirect there after login.
  */
 export const authGuard: CanActivateFn = (
   _route: ActivatedRouteSnapshot,
@@ -20,7 +20,7 @@ export const authGuard: CanActivateFn = (
         return true;
       }
 
-      localStorage.setItem('redirect_url', state.url);
+      sessionStorage.setItem('redirect_url', state.url);
       oidcSecurityService.authorize();
       return false;
     }),

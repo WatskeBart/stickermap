@@ -1,7 +1,7 @@
 <div class="add-sticker-container">
   <div class="content-wrapper">
     <!-- Form Section -->
-    <div class="form-section" [class.hidden]="locationSelectionMode()">
+    <div class="form-section" [class.hidden]="locationSelectionMode() || previewOnlyMode()">
       <app-sticker-form
         (stickerCreated)="onStickerCreated()"
         (locationSelectionRequested)="onLocationSelectionRequested()"
@@ -9,14 +9,19 @@
       ></app-sticker-form>
     </div>
 
-    <!-- Location Selection Map -->
-    <div class="map-section" [class.visible]="locationSelectionMode()">
+    <!-- Location Selection / Preview Map -->
+    <div class="map-section" [class.visible]="locationSelectionMode() || previewOnlyMode()">
       <mat-toolbar color="primary" class="map-overlay-header">
-        <span>Klik op de kaart om de sticker locatie te bepalen</span>
-        <span class="overlay-hint">— Zoom in voor een nauwkeuriger locatie</span>
+        @if (locationSelectionMode()) {
+          <span>Klik op de kaart om de sticker locatie te bepalen</span>
+          <span class="overlay-hint">— Zoom in voor een nauwkeuriger locatie</span>
+        } @else {
+          <span>Locatie op de kaart</span>
+        }
       </mat-toolbar>
       <app-map
         [locationSelectionMode]="locationSelectionMode()"
+        [selectionStartLocation]="lastKnownLocation()"
         [isAuthenticated]="authService.isAuthenticated()"
         [isViewer]="authService.isViewer()"
         [isUploader]="authService.isUploader()"
@@ -24,6 +29,17 @@
         [isAdmin]="authService.isAdmin()"
         (locationSelected)="onLocationSelected($event)"
       ></app-map>
+
+      @if (previewOnlyMode() && lastKnownLocation(); as loc) {
+        <div class="preview-panel">
+          <span class="preview-coords">
+            {{ loc.lat.toFixed(6) }}, {{ loc.lon.toFixed(6) }}
+          </span>
+          <button mat-flat-button color="accent" (click)="onClosePreview()">
+            Terug naar formulier
+          </button>
+        </div>
+      }
     </div>
   </div>
 </div>

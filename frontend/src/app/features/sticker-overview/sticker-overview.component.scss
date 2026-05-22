@@ -178,6 +178,23 @@
   color: #e17000;
 }
 
+.unknown-date-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: #e17000;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: default;
+}
+
+.unknown-date-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #e17000;
+}
+
 .no-data-cell {
   text-align: center;
   padding: 2rem;

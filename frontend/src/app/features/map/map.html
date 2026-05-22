@@ -32,6 +32,11 @@
                 <mat-icon class="marker-lock">lock</mat-icon>
               </div>
             }
+            @if (isViewer() && sticker.dateUnknown) {
+              <div class="marker-unknown-date-overlay">
+                <mat-icon class="marker-unknown-date-icon">priority_high</mat-icon>
+              </div>
+            }
           </div>
         </mgl-marker>
       }
@@ -57,7 +62,15 @@
               <div class="sticker-popup-info">
                 <p><strong>Geplakt door:</strong> {{ sticker.poster }}</p>
                 <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
-                <p><strong>Plak datum:</strong> {{ sticker.post_date }}</p>
+                <p><strong>Plak datum:</strong>
+                  @if (sticker.dateUnknown) {
+                    <span class="unknown-date-badge">
+                      <mat-icon class="unknown-date-icon">priority_high</mat-icon>Onbekend
+                    </span>
+                  } @else {
+                    {{ sticker.post_date }}
+                  }
+                </p>
                 <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
                 @if (sticker.category_name) {
                   <p class="popup-category">
@@ -248,10 +261,25 @@
             <input matInput type="text" [(ngModel)]="form.poster" />
           </mat-form-field>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Plak datum</mat-label>
-            <input matInput type="datetime-local" [(ngModel)]="form.post_date" />
-          </mat-form-field>
+          <div class="date-field">
+            <label class="date-label">Plak datum</label>
+            <input
+              type="datetime-local"
+              class="date-input"
+              [ngModel]="editPostDateInput()"
+              (ngModelChange)="editPostDateInput.set($event)"
+              [disabled]="editDateUnknown()"
+            />
+            <div class="date-unknown-toggle">
+              <mat-checkbox
+                [ngModel]="editDateUnknown()"
+                (ngModelChange)="onEditDateUnknownChange($event)"
+                name="editDateUnknown"
+              >
+                Plakdatum onbekend
+              </mat-checkbox>
+            </div>
+          </div>
 
           <div class="form-location">
             <mat-form-field appearance="outline" class="location-field">

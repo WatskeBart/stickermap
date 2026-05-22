@@ -86,15 +86,12 @@
           }
         </a>
       }
-    </div>
 
-    <mat-toolbar class="sidenav-footer" (click)="openChangelog()" matTooltip="Changelog bekijken" matTooltipPosition="right">
-      @if (sidenavExpanded()) {
-        <span>v{{ appVersion }}</span>
-      } @else {
-        <mat-icon>info</mat-icon>
-      }
-    </mat-toolbar>
+      <a mat-list-item class="version-row" (click)="openChangelog()" matTooltip="Changelog bekijken" matTooltipPosition="right">
+        <mat-icon matListItemIcon>info</mat-icon>
+        @if (sidenavExpanded()) { <span matListItemTitle>v{{ appVersion }}</span> }
+      </a>
+    </div>
   </mat-sidenav>
 
   <mat-sidenav-content class="app-content">
