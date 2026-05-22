@@ -42,6 +42,12 @@ import { CategoryService } from '../../core/services/category.service';
 import type { Category } from '../../core/models/category.model';
 import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
+function isEpochSentinel(dateStr: string): boolean {
+  if (!dateStr) return false;
+  const ms = Date.parse(dateStr.trim().replace(' ', 'T') + 'Z');
+  return !isNaN(ms) && Math.abs(ms) <= 14 * 3600 * 1000;
+}
+
 interface ProcessedSticker {
   id: number;
   lat: number;
@@ -63,6 +69,7 @@ interface ProcessedSticker {
   category_name: string | null;
   category_icon_url: string | null;
   private: boolean;
+  dateUnknown: boolean;
 }
 
 @Component({
@@ -140,6 +147,9 @@ export class MapComponent implements OnInit {
   editImageUrl = signal('');
   editRotating = signal<'cw' | 'ccw' | null>(null);
   editHasRotated = signal(false);
+  editPostDateInput = signal('');
+  editDateUnknown = signal(false);
+  private editPreviousPostDateInput = signal('');
   uploaderList = signal<string[]>([]);
 
   // Category filter
@@ -376,6 +386,7 @@ export class MapComponent implements OnInit {
               category_name: categoryName,
               category_icon_url: categoryIconFile ? `/uploads/categories/${categoryIconFile}` : null,
               private: isPrivate,
+              dateUnknown: isEpochSentinel(s[4]),
             };
           });
 
@@ -530,6 +541,9 @@ export class MapComponent implements OnInit {
           uploader: sticker[3],
           category_id: categoryId,
         });
+        const unknown = isEpochSentinel(sticker[4]);
+        this.editDateUnknown.set(unknown);
+        this.editPostDateInput.set(unknown ? '1970-01-01T00:00' : this.convertToInputFormat(sticker[4]));
         this.editCategoryId.set(categoryId);
         this.editIsPrivate.set(isPrivate);
       },
@@ -548,6 +562,9 @@ export class MapComponent implements OnInit {
     this.editSelectingLocation.set(false);
     this.editRotating.set(null);
     this.editHasRotated.set(false);
+    this.editPostDateInput.set('');
+    this.editDateUnknown.set(false);
+    this.editPreviousPostDateInput.set('');
   }
 
   saveEdit(): void {
@@ -563,8 +580,9 @@ export class MapComponent implements OnInit {
     if (currentEditForm.poster !== currentEditingSticker.poster) {
       updates.poster = currentEditForm.poster;
     }
-    if (currentEditForm.post_date !== currentEditingSticker.post_date) {
-      updates.post_date = currentEditForm.post_date;
+    const newPostDate = this.editDateUnknown() ? '1970-01-01 00:00:00' : this.convertToBackendFormat(this.editPostDateInput());
+    if (newPostDate !== currentEditingSticker.post_date) {
+      updates.post_date = newPostDate;
     }
     if (
       currentEditForm.location.lat !== currentEditingSticker.location.lat ||
@@ -638,6 +656,30 @@ export class MapComponent implements OnInit {
     if (this.mapInstance) {
       this.mapInstance.getCanvas().style.cursor = cursor;
     }
+  }
+
+  private convertToInputFormat(backendDate: string): string {
+    if (!backendDate) return '';
+    const d = new Date(backendDate.replace(' ', 'T') + 'Z');
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  private convertToBackendFormat(inputDate: string): string {
+    if (!inputDate) return '';
+    const d = new Date(inputDate);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+  }
+
+  onEditDateUnknownChange(checked: boolean): void {
+    if (checked) {
+      this.editPreviousPostDateInput.set(this.editPostDateInput());
+      this.editPostDateInput.set('1970-01-01T00:00');
+    } else {
+      this.editPostDateInput.set(this.editPreviousPostDateInput());
+    }
+    this.editDateUnknown.set(checked);
   }
 
   startEditLocationSelection(): void {

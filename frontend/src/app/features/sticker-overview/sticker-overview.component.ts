@@ -385,6 +385,12 @@ export class StickerOverviewComponent implements OnInit {
     this.fullSizeImageUrl.set(null);
   }
 
+  isUnknownDate(dateStr: string): boolean {
+    if (!dateStr) return false;
+    const ms = Date.parse(dateStr.trim().replace(' ', 'T') + 'Z');
+    return !isNaN(ms) && Math.abs(ms) <= 14 * 3600 * 1000;
+  }
+
   downloadExport(format: 'geojson' | 'csv'): void {
     this.stickerService.exportStickers(format)
       .pipe(takeUntilDestroyed(this.destroyRef))
