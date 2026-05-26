@@ -39,9 +39,9 @@ podman run --name stickermap-postgis -d --network stickermap -p 5432:5432 \
 
 # Start Keycloak
 podman run --name stickermap-keycloak -d --network stickermap -p 8080:8080 \
-  -e KEYCLOAK_ADMIN=admin \
-  -e KEYCLOAK_ADMIN_PASSWORD=admin \
-  quay.io/keycloak/keycloak:latest start-dev
+  -e KC_BOOTSTRAP_ADMIN_USERNAME=admin \
+  -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin \
+  quay.io/keycloak/keycloak:26.6 start-dev
 
 # Wait 30-60 seconds for Keycloak to start, then import the realm:
 # http://localhost:8080 → admin console → Create Realm → import general/keycloak_realm/stickermap-realm.json
@@ -83,6 +83,7 @@ Copy `.env.example` and adjust as needed.
 | `KEYCLOAK_INTERNAL_URL` | Internal URL for JWKS fetching | `KEYCLOAK_URL` |
 | `KEYCLOAK_REALM` | Realm name | required |
 | `KEYCLOAK_CLIENT_ID` | Client ID | required |
+| `KEYCLOAK_CLIENT_SECRET` | Client secret (read by config; only needed for confidential-client flows) | `""` |
 
 ### Other
 
@@ -111,44 +112,85 @@ Copy `.env.example` and adjust as needed.
 
 ## API Endpoints
 
-### Public Endpoints
+The Swagger UI at <http://localhost:5555/api/v1/docs> is the authoritative reference. Summary below.
+
+### Public
 
 ```text
-GET  /api/v1/
-     Returns API welcome message
-
-GET  /api/v1/get_all_stickers
-     Returns all stickers with GeoJSON locations
-
-GET  /api/v1/get_sticker/{id}
-     Returns single sticker by ID
-
-GET  /uploads/{filename}
-     Serve uploaded image files
+GET  /api/v1/                       API welcome message
+GET  /api/v1/get_all_stickers       All stickers as GeoJSON (anonymous + non-viewer
+                                    callers receive a stripped payload, no private stickers)
+GET  /api/v1/stats                  Sticker statistics (name fields gated to sm-viewer+)
+GET  /api/v1/categories             Categories (non-moderators see approved + non-archived only)
+GET  /uploads/{filename}            Serve uploaded image files
 ```
 
-### Role-Protected Endpoints
+### Stickers — `sm-uploader`+
 
 ```text
-POST  /api/v1/upload            (requires sm-uploader role)
-      Upload image with automatic EXIF GPS extraction, resizing, and thumbnail generation
-      Form data: file
-      Returns: filename, thumbnail, message, gps_info
+GET   /api/v1/get_sticker/{id}      Single sticker (used in edit flows)
+GET   /api/v1/uploaders             Distinct uploader names (edit dropdown)
+POST  /api/v1/upload                Validate, resize, generate thumbnail, extract EXIF GPS
+POST  /api/v1/create_sticker        Create one or more stickers (uploaded_by from JWT)
+PATCH /api/v1/sticker/{id}          Update poster/post_date/location/category/private
+                                    Uploaders: own stickers only
+                                    Editors:   any sticker
+                                    Admins:    additionally may change `uploader`
+PATCH /api/v1/stickers/{id}/rotate  Rotate image 90 CW / 90 CCW / 180 (own only; editor+ any)
+```
 
-POST  /api/v1/create_sticker    (requires sm-uploader role)
-      Create one or more stickers
-      JSON body: CreateStickersRequest
-      Returns: created sticker IDs
-      Note: uploaded_by is set automatically from the JWT token
+### Stickers — `sm-editor`+
 
-PATCH  /api/v1/sticker/{id}    (requires sm-uploader role)
-       Update sticker fields
-       Uploaders: poster, post_date, location (own stickers only)
-       Editors: poster, post_date, location (any sticker)
-       Admins: all fields including uploader
+```text
+GET   /api/v1/stickers/export             Export as GeoJSON (default) or CSV (?format=csv)
+PATCH /api/v1/stickers/{id}/archive       Archive directly
+PATCH /api/v1/stickers/{id}/unarchive     Unarchive
+```
 
-DELETE /api/v1/sticker/{id}    (requires sm-admin role)
-       Delete sticker and associated image file
+### Stickers — `sm-admin`
+
+```text
+DELETE /api/v1/sticker/{id}         Delete sticker + image + thumbnail
+```
+
+### Categories — `sm-uploader`+
+
+```text
+POST  /api/v1/categories            Propose a new category (pending admin approval)
+```
+
+### Categories — `sm-editor`+ (approval requires `sm-admin`)
+
+```text
+PATCH  /api/v1/categories/{id}            Rename / archive / (admin: approve)
+POST   /api/v1/categories/{id}/icon       Upload SVG or PNG icon
+DELETE /api/v1/categories/{id}/icon       Remove icon
+```
+
+### Removal reports — `sm-viewer`+
+
+```text
+POST  /api/v1/stickers/{id}/reports       Submit a removal report with optional proof image
+```
+
+### Removal reports — `sm-editor`+
+
+```text
+GET   /api/v1/reports/pending             Count of stickers with pending reports
+GET   /api/v1/stickers/{id}/reports       All reports for a sticker
+PATCH /api/v1/reports/{id}/review         Confirm (archives sticker) or dismiss
+```
+
+### Admin — `sm-admin`
+
+```text
+GET   /api/v1/admin/stats                       Health counters for the admin dashboard
+GET   /api/v1/admin/audit                       Stickers whose image or thumbnail is missing
+GET   /api/v1/admin/jobs/{job_id}               Poll background job status
+POST  /api/v1/admin/jobs/generate-thumbnails    Backfill missing thumbnails
+POST  /api/v1/admin/jobs/compress-images        Re-compress images larger than IMAGE_MAX_SIZE
+POST  /api/v1/admin/jobs/strip-exif             Re-save all images without EXIF
+POST  /api/v1/admin/jobs/cleanup-orphans        Delete uploads/ files not referenced by DB
 ```
 
 ## Verifying Changes

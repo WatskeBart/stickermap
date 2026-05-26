@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-05-26
+
+### Changed
+
+- Map component refactored: the edit-sticker modal extracted from `map.ts` into a standalone `EditStickerModalComponent` under `features/map/edit-sticker-modal/`, dropping ~270 lines from `map.ts`. Date-formatting helpers and the F-35 custom-cursor logic moved into reusable modules at `shared/utils/date-utils.ts` and `shared/utils/f35-cursor.ts`.
+
+### Docs
+
+- Root `README.md` Helm features table corrected — the chart has been external-only for both database and Keycloak since 1.17.0; the CNPG/standalone and embedded/external options described in earlier docs no longer exist.
+- Frontend port `8181` added to the compose prerequisites in the root `README.md`.
+- `backend/README.md` API endpoint reference expanded to cover the categories, removal-reports, admin maintenance jobs, archive/unarchive, image rotation, and export routes that previously had no documentation.
+- `backend/README.md` Keycloak manual-run example switched to the `KC_BOOTSTRAP_ADMIN_USERNAME`/`KC_BOOTSTRAP_ADMIN_PASSWORD` env vars and pinned to `quay.io/keycloak/keycloak:26.6` to match `compose.yml`.
+- `KEYCLOAK_CLIENT_SECRET` added to the backend env-variable table.
+- `backend/.env.example` Keycloak variable renamed from the broken `KEYCLOAK_SERVER_URL` to `KEYCLOAK_URL` (the name the config code actually reads); `KEYCLOAK_INTERNAL_URL` added.
+- Migration history table removed from `database_migrations/README.md` to avoid further drift — `uv run alembic history --verbose` is now the source of truth.
+
 ## [1.18.0] - 2026-05-22
 
 ### Added
@@ -401,7 +417,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.18.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.19.0...HEAD
+[1.19.0]: https://github.com/WatskeBart/stickermap/compare/1.18.0...1.19.0
 [1.18.0]: https://github.com/WatskeBart/stickermap/compare/1.17.2...1.18.0
 [1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0

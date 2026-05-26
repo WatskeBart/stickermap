@@ -36,7 +36,7 @@ A web application for uploading, viewing, and managing sticker locations across 
 
 - Podman
 - At least 4 GB of available RAM
-- Ports 5432, 5555, 8080, and 8282 available
+- Ports 5432, 5555, 8080, 8181, and 8282 available
 
 ### Start the application
 
@@ -166,12 +166,9 @@ Frontend: <http://localhost:4200>
 
 ## Kubernetes
 
-A Helm chart is available at [`helm/stickermap/`](helm/stickermap/). It requires **Helm v4** and has no external dependencies — all templates are inlined (air-gap friendly).
+A Helm chart is available at [`helm/stickermap/`](helm/stickermap/). It requires **Helm v4** and has no chart dependencies — all templates are inlined (air-gap friendly).
 
-| Feature | Options |
-| ------- | ------- |
-| Database | CNPG cluster *(default)* or standalone StatefulSet |
-| Keycloak | Embedded *(default)* or external |
+The chart deploys the backend, frontend, and a one-shot migration Job. The PostgreSQL/PostGIS database and Keycloak are **not** included — bring your own and reference them via values.
 
 See [helm/README.md](helm/README.md) for mandatory values, configuration examples, and OCI packaging instructions.
 

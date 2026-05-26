@@ -57,16 +57,6 @@ This creates a new file in `alembic/versions/`. Name it with the next zero-padde
 
 Always implement `downgrade()` so migrations remain reversible.
 
-## Migration History
-
-| Revision | Description |
-| -------- | ----------- |
-| `0001` | Initial schema — `stickers` table with PostGIS geometry and spatial index |
-| `0002` | Add `spotted_count` column to `stickers` |
-| `0003` | Add `updated_at` column to `stickers` |
-| `0004` | Add targeted indexes on frequently queried columns |
-| `0005` | Add `removal_reports` table and `archived` column for community sticker reports |
-
 ## Verifying Changes
 
 There is no automated test suite. Verify a new migration manually against a real PostGIS database:
