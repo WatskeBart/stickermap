@@ -11,6 +11,30 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.19.0',
+    date: '2026-05-26',
+    sections: [
+      {
+        type: 'Changed',
+        items: [
+          'Map component refactored: the edit-sticker modal extracted from <code>map.ts</code> into a standalone <code>EditStickerModalComponent</code> under <code>features/map/edit-sticker-modal/</code>, dropping ~270 lines from <code>map.ts</code>. Date-formatting helpers and the F-35 custom-cursor logic moved into reusable modules at <code>shared/utils/date-utils.ts</code> and <code>shared/utils/f35-cursor.ts</code>.',
+        ],
+      },
+      {
+        type: 'Docs',
+        items: [
+          'Root <code>README.md</code> Helm features table corrected — the chart has been external-only for both database and Keycloak since 1.17.0; the CNPG/standalone and embedded/external options described in earlier docs no longer exist.',
+          'Frontend port <code>8181</code> added to the compose prerequisites in the root <code>README.md</code>.',
+          '<code>backend/README.md</code> API endpoint reference expanded to cover the categories, removal-reports, admin maintenance jobs, archive/unarchive, image rotation, and export routes that previously had no documentation.',
+          '<code>backend/README.md</code> Keycloak manual-run example switched to the <code>KC_BOOTSTRAP_ADMIN_USERNAME</code>/<code>KC_BOOTSTRAP_ADMIN_PASSWORD</code> env vars and pinned to <code>quay.io/keycloak/keycloak:26.6</code> to match <code>compose.yml</code>.',
+          '<code>KEYCLOAK_CLIENT_SECRET</code> added to the backend env-variable table.',
+          '<code>backend/.env.example</code> Keycloak variable renamed from the broken <code>KEYCLOAK_SERVER_URL</code> to <code>KEYCLOAK_URL</code> (the name the config code actually reads); <code>KEYCLOAK_INTERNAL_URL</code> added.',
+          'Migration history table removed from <code>database_migrations/README.md</code> to avoid further drift — <code>uv run alembic history --verbose</code> is now the source of truth.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.18.0',
     date: '2026-05-22',
     sections: [
