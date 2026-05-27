@@ -420,6 +420,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [unreleased]: https://github.com/WatskeBart/stickermap/compare/1.19.0...HEAD
 [1.19.0]: https://github.com/WatskeBart/stickermap/compare/1.18.0...1.19.0
 [1.18.0]: https://github.com/WatskeBart/stickermap/compare/1.17.2...1.18.0
+[1.17.2]: https://github.com/WatskeBart/stickermap/compare/1.17.1...1.17.2
+[1.17.1]: https://github.com/WatskeBart/stickermap/compare/1.17.0...1.17.1
 [1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0
