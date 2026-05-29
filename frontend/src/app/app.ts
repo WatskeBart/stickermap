@@ -1,4 +1,5 @@
 import { Component, DestroyRef, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { UpperCasePipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -12,10 +13,12 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from './core/services/auth.service';
 import { StickerService } from './core/services/sticker.service';
 import { ThemeService } from './core/services/theme.service';
+import { LanguageService, AppLang } from './core/services/language.service';
 import { DisclaimerDialogComponent } from './shared/components/disclaimer-dialog/disclaimer-dialog.component';
 import { ChangelogDialogComponent } from './shared/components/changelog-dialog/changelog-dialog.component';
 import { map } from 'rxjs/operators';
@@ -28,6 +31,7 @@ const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
   selector: 'app-root',
   imports: [
     RouterOutlet,
+    UpperCasePipe,
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
@@ -38,6 +42,7 @@ const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
     MatDividerModule,
     MatDialogModule,
     MatSnackBarModule,
+    TranslatePipe,
   ],
   templateUrl: './app.html',
   styleUrl: './app.scss',
@@ -59,8 +64,12 @@ export class App implements OnInit {
   private hovering = signal(false);
   sidenavExpanded = computed(() => this.isHandset() || this.hovering());
 
+  languageMenuOpen = signal(false);
+
   private stickerService = inject(StickerService);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
+  public languageService = inject(LanguageService);
 
   private pendingNotificationShown = false;
 
@@ -80,8 +89,8 @@ export class App implements OnInit {
             next: (res) => {
               if (res.count > 0) {
                 const ref = this.snackBar.open(
-                  `${res.count} sticker(s) hebben openstaande meldingen als verwijderd.`,
-                  'Bekijken',
+                  this.translate.instant('nav.pendingReports', { count: res.count }),
+                  this.translate.instant('nav.review'),
                   { duration: 8000 },
                 );
                 ref.onAction().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -106,7 +115,20 @@ export class App implements OnInit {
   onSidenavHover(hovering: boolean): void {
     if (!this.isHandset()) {
       this.hovering.set(hovering);
+      // Collapse the language submenu when the rail shrinks back to icons-only.
+      if (!hovering) {
+        this.languageMenuOpen.set(false);
+      }
     }
+  }
+
+  toggleLanguageMenu(): void {
+    this.languageMenuOpen.update((open) => !open);
+  }
+
+  selectLanguage(lang: AppLang): void {
+    this.languageService.use(lang);
+    this.languageMenuOpen.set(false);
   }
 
   login(): void {

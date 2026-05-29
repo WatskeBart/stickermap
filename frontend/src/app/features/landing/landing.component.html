@@ -10,17 +10,17 @@
           <div class="nav-buttons">
             <button mat-flat-button color="accent" (click)="navigateToMap()">
               <mat-icon>map</mat-icon>
-              Bekijk Kaart
+              {{ 'nav.map' | translate }}
             </button>
             @if (authService.isUploader()) {
               <button mat-flat-button color="accent" (click)="navigateToAddSticker()">
                 <mat-icon>add_location_alt</mat-icon>
-                Sticker Toevoegen
+                {{ 'nav.addSticker' | translate }}
               </button>
             }
             <button mat-flat-button color="accent" (click)="navigateToOverview()">
               <mat-icon>table_view</mat-icon>
-              Sticker Overzicht
+              {{ 'nav.overview' | translate }}
             </button>
           </div>
         </mat-card-content>
@@ -36,24 +36,24 @@
               <div class="stats-row">
                 <div class="stat-item">
                   <span class="stat-value">{{ stats()!.total_stickers }}</span>
-                  <span class="stat-label">Stickers in totaal</span>
+                  <span class="stat-label">{{ 'landing.total' | translate }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-value">{{ stats()!.stickers_this_month }}</span>
-                  <span class="stat-label">Stickers deze maand</span>
+                  <span class="stat-label">{{ 'landing.thisMonth' | translate }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-value">{{ stats()!.total_uploaders }}</span>
-                  <span class="stat-label">Actieve uploaders</span>
+                  <span class="stat-label">{{ 'landing.activeUploaders' | translate }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-value stat-value--date">{{ stats()!.last_sticker_date ?? '–' }}</span>
-                  <span class="stat-label">Laatste upload</span>
+                  <span class="stat-label">{{ 'landing.lastUpload' | translate }}</span>
                 </div>
                 @if (stats()!.archived_stickers > 0) {
                   <div class="stat-item">
                     <span class="stat-value">{{ stats()!.archived_stickers }}</span>
-                    <span class="stat-label">Gearchiveerde stickers</span>
+                    <span class="stat-label">{{ 'landing.archived' | translate }}</span>
                   </div>
                 }
               </div>
@@ -65,14 +65,14 @@
                     @if (stats()!.top_poster) {
                       <span class="stat-count">{{ stats()!.top_poster!.count }}×</span>
                     }
-                    <span class="stat-label">Meest actieve plakker</span>
+                    <span class="stat-label">{{ 'landing.topPoster' | translate }}</span>
                   </div>
                   <div class="stat-item">
                     <span class="stat-value stat-value--name">{{ stats()!.top_uploader?.name ?? '–' }}</span>
                     @if (stats()!.top_uploader) {
                       <span class="stat-count">{{ stats()!.top_uploader!.count }}×</span>
                     }
-                    <span class="stat-label">Meest actieve uploader</span>
+                    <span class="stat-label">{{ 'landing.topUploader' | translate }}</span>
                   </div>
                 </div>
               }

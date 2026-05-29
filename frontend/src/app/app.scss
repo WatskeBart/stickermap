@@ -109,6 +109,60 @@ $expanded-width: 240px;
     margin-left: auto;
   }
 
+  .language-row {
+    cursor: pointer;
+
+    .lang-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-left: auto;
+    }
+
+    .lang-code {
+      font-size: 0.8rem;
+      opacity: 0.85;
+      color: white !important;
+    }
+
+    .lang-chevron {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s ease;
+      opacity: 0.85;
+
+      &.open {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  .language-option {
+    cursor: pointer;
+
+    ::ng-deep .mdc-list-item__content {
+      padding-left: 1.75rem;
+    }
+
+    ::ng-deep .mdc-list-item__primary-text {
+      font-size: 0.9rem !important;
+    }
+
+    &.active ::ng-deep .mdc-list-item__primary-text {
+      color: #e17000 !important;
+      font-weight: 600;
+    }
+
+    .lang-check {
+      color: #e17000 !important;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      margin-left: auto;
+    }
+  }
+
   .user-name {
     margin-left: auto;
     font-size: 0.8rem;

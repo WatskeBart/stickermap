@@ -13,10 +13,10 @@
     <div class="map-section" [class.visible]="locationSelectionMode() || previewOnlyMode()">
       <mat-toolbar color="primary" class="map-overlay-header">
         @if (locationSelectionMode()) {
-          <span>Klik op de kaart om de sticker locatie te bepalen</span>
-          <span class="overlay-hint">— Zoom in voor een nauwkeuriger locatie</span>
+          <span>{{ 'addSticker.clickToPlace' | translate }}</span>
+          <span class="overlay-hint">{{ 'addSticker.zoomHint' | translate }}</span>
         } @else {
-          <span>Locatie op de kaart</span>
+          <span>{{ 'addSticker.locationOnMap' | translate }}</span>
         }
       </mat-toolbar>
       <app-map
@@ -36,7 +36,7 @@
             {{ loc.lat.toFixed(6) }}, {{ loc.lon.toFixed(6) }}
           </span>
           <button mat-flat-button color="accent" (click)="onClosePreview()">
-            Terug naar formulier
+            {{ 'addSticker.backToForm' | translate }}
           </button>
         </div>
       }

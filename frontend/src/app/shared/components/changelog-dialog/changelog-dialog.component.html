@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>
   <mat-icon>new_releases</mat-icon>
-  Wat is er nieuw?
+  {{ 'changelog.title' | translate }}
 </h2>
 
 <mat-dialog-content>
@@ -33,7 +33,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>upcoming</mat-icon>
-          Komt eraan (Unreleased)
+          {{ 'changelog.unreleased' | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
       @for (section of unreleasedEntry.sections; track section.type) {
@@ -57,7 +57,7 @@
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>history</mat-icon>
-          Volledige changelog ({{ olderReleases.length }} eerdere releases)
+          {{ 'changelog.fullChangelog' | translate: { count: olderReleases.length } }}
         </mat-panel-title>
       </mat-expansion-panel-header>
       @for (release of olderReleases; track release.version) {
@@ -88,5 +88,5 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-flat-button color="accent" (click)="close()">Begrepen</button>
+  <button mat-flat-button color="accent" (click)="close()">{{ 'changelog.understood' | translate }}</button>
 </mat-dialog-actions>

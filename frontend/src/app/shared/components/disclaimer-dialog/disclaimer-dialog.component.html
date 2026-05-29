@@ -1,73 +1,42 @@
 <h2 mat-dialog-title>
   <mat-icon>policy</mat-icon>
-  Gebruiksvoorwaarden voor uploaden
+  {{ 'disclaimer.title' | translate }}
 </h2>
 
 <mat-dialog-content>
-  <p class="intro">
-    Voordat je een sticker uploadt, vragen we je om de onderstaande richtlijnen te lezen en te
-    accepteren. Door akkoord te gaan verklaar je dat je je aan deze regels houdt.
-  </p>
+  <p class="intro">{{ 'disclaimer.intro' | translate }}</p>
 
   <ul class="disclaimer-list">
     <li>
       <mat-icon class="list-icon">photo_camera_off</mat-icon>
-      <span>
-        <strong>Fotografeer alleen op toegestane locaties.</strong>
-        Maak geen foto's op plaatsen waar fotograferen verboden is, zoals militaire terreinen,
-        beveiligde gebieden, privéterrein zonder toestemming of andere locaties waar dit wettelijk
-        niet is toegestaan.
-      </span>
+      <span [innerHTML]="'disclaimer.rule1' | translate"></span>
     </li>
     <li>
       <mat-icon class="list-icon">block</mat-icon>
-      <span>
-        <strong>Geen aanstootgevende inhoud.</strong>
-        Afbeeldingen die als aanstootgevend, discriminerend, haatdragend of anderszins ongepast
-        worden beschouwd, worden zonder voorafgaande kennisgeving verwijderd.
-      </span>
+      <span [innerHTML]="'disclaimer.rule2' | translate"></span>
     </li>
     <li>
       <mat-icon class="list-icon">gavel</mat-icon>
-      <span>
-        <strong>Houd je aan de wet.</strong>
-        Je bent zelf verantwoordelijk voor het naleven van alle lokale wet- en regelgeving bij het
-        maken en uploaden van foto's. Dit omvat ook privacywetgeving (AVG/GDPR).
-      </span>
+      <span [innerHTML]="'disclaimer.rule3' | translate"></span>
     </li>
     <li>
       <mat-icon class="list-icon">face</mat-icon>
-      <span>
-        <strong>Bescherm de privacy van anderen.</strong>
-        Upload geen afbeeldingen waarop herkenbare personen, gezichten of kentekens zichtbaar zijn
-        zonder hun uitdrukkelijke toestemming.
-      </span>
+      <span [innerHTML]="'disclaimer.rule4' | translate"></span>
     </li>
     <li>
       <mat-icon class="list-icon">copyright</mat-icon>
-      <span>
-        <strong>Respecteer auteursrechten.</strong>
-        Upload alleen foto's die je zelf hebt gemaakt of waarvoor je de rechten bezit. Inbreuk op
-        het auteursrecht van derden is niet toegestaan.
-      </span>
+      <span [innerHTML]="'disclaimer.rule5' | translate"></span>
     </li>
     <li>
       <mat-icon class="list-icon">location_off</mat-icon>
-      <span>
-        <strong>Wees bewust van locatiegegevens.</strong>
-        Je foto kan GPS-coördinaten bevatten. Zorg dat je niet onbedoeld de locatie van je thuis,
-        werkplek of andere gevoelige locaties deelt.
-      </span>
+      <span [innerHTML]="'disclaimer.rule6' | translate"></span>
     </li>
   </ul>
 
-  <p class="footer-note">
-    Overtredingen van deze regels kunnen leiden tot verwijdering van content en/of blokkering van
-    je account.
-  </p>
+  <p class="footer-note">{{ 'disclaimer.footer' | translate }}</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="decline()">Annuleren</button>
-  <button mat-flat-button color="accent" (click)="accept()">Akkoord</button>
+  <button mat-stroked-button (click)="decline()">{{ 'common.cancel' | translate }}</button>
+  <button mat-flat-button color="accent" (click)="accept()">{{ 'disclaimer.accept' | translate }}</button>
 </mat-dialog-actions>

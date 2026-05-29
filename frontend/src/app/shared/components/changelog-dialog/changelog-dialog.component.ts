@@ -3,12 +3,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { TranslatePipe } from '@ngx-translate/core';
 import { CHANGELOG_DATA, ChangelogRelease } from '../../../core/models/changelog.model';
 
 @Component({
   selector: 'app-changelog-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatExpansionModule],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatExpansionModule, TranslatePipe],
   templateUrl: './changelog-dialog.component.html',
   styleUrl: './changelog-dialog.component.scss',
 })

@@ -33,6 +33,8 @@
     "@angular/router": "^21.2.12",
     "@fontsource/roboto": "^5.2.10",
     "@maplibre/ngx-maplibre-gl": "^21.0.2",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "angular-auth-oidc-client": "^21.0.2",
     "angular-server-side-configuration": "^21.0.4",
     "maplibre-gl": "^5.24.0",

@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   getAvailableTileLayers,
   TILE_LAYER_STORAGE_KEY,
@@ -77,6 +78,7 @@ interface ProcessedSticker {
     MatIconModule,
     MatButtonToggleModule,
     EditStickerModalComponent,
+    TranslatePipe,
   ],
   templateUrl: './map.html',
   styleUrl: './map.scss',
@@ -95,6 +97,7 @@ export class MapComponent implements OnInit {
   private lastMousePos: maplibregl.Point | null = null;
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   // Loading state
   isLoading = signal(false);
@@ -526,7 +529,7 @@ export class MapComponent implements OnInit {
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: ReportRemovalDialogResult | undefined) => {
       if (result?.reported) {
         this.refreshStickers();
-        this.snackBar.open('Sticker gemeld als verwijderd.', 'Sluiten', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('map.reportedRemoved'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }
@@ -542,7 +545,7 @@ export class MapComponent implements OnInit {
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: DeleteDialogResult | undefined) => {
       if (result?.deleted) {
         this.refreshStickers();
-        this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('map.deleted'), this.translate.instant('common.close'), { duration: 3000 });
       }
     });
   }

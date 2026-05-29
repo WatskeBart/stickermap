@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../core/services/sticker.service';
 import type { RemovalReport } from '../../core/models/sticker.model';
 
@@ -32,6 +33,7 @@ export interface ReviewReportsDialogResult {
     MatDividerModule,
     MatChipsModule,
     MatTooltipModule,
+    TranslatePipe,
   ],
   templateUrl: './review-reports-dialog.component.html',
   styleUrl: './review-reports-dialog.component.scss',
@@ -39,6 +41,7 @@ export interface ReviewReportsDialogResult {
 export class ReviewReportsDialogComponent implements OnInit {
   private stickerService = inject(StickerService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
   readonly data = inject<ReviewReportsDialogData>(MAT_DIALOG_DATA);
   private dialogRef = inject<MatDialogRef<ReviewReportsDialogComponent, ReviewReportsDialogResult>>(MatDialogRef);
 
@@ -98,7 +101,13 @@ export class ReviewReportsDialogComponent implements OnInit {
   }
 
   statusLabel(status: string): string {
-    return status === 'pending' ? 'In behandeling' : status === 'confirmed' ? 'Bevestigd' : 'Afgewezen';
+    const key =
+      status === 'pending'
+        ? 'reviewReports.statusPending'
+        : status === 'confirmed'
+          ? 'reviewReports.statusConfirmed'
+          : 'reviewReports.statusDismissed';
+    return this.translate.instant(key);
   }
 
   pendingReports(): RemovalReport[] {

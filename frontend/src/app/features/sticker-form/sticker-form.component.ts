@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../core/services/sticker.service';
 import { AuthService } from '../../core/services/auth.service';
 import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
@@ -29,6 +30,7 @@ import { CategorySelectorComponent } from '../../shared/components/category-sele
     MatCheckboxModule,
     MatTooltipModule,
     CategorySelectorComponent,
+    TranslatePipe,
   ],
   templateUrl: './sticker-form.component.html',
   styleUrl: './sticker-form.component.scss',
@@ -39,6 +41,7 @@ export class StickerFormComponent implements OnInit {
   readonly previewLocationRequested = output<{ lat: number; lon: number }>();
 
   private snackBar = inject(MatSnackBar);
+  private translate = inject(TranslateService);
 
   // Form state
   selectedFile = signal<File | null>(null);
@@ -159,7 +162,7 @@ export class StickerFormComponent implements OnInit {
 
   uploadImage(): void {
     if (!this.selectedFile()) {
-      this.snackBar.open('Selecteer een afbeelding', 'Sluiten', { duration: 3000 });
+      this.snackBar.open(this.translate.instant('stickerForm.selectImageFirst'), this.translate.instant('common.close'), { duration: 3000 });
       return;
     }
 
@@ -191,11 +194,11 @@ export class StickerFormComponent implements OnInit {
           }
 
           const dateMsg = this.hasImageDate()
-            ? (this.dateSource() === 'gps' ? ' en datum (GPS)' : ' en datum (EXIF)')
+            ? this.translate.instant(this.dateSource() === 'gps' ? 'stickerForm.dateMsgGps' : 'stickerForm.dateMsgExif')
             : '';
           this.snackBar.open(
-            `GPS locatie gevonden! Locatie${dateMsg} automatisch ingevuld.`,
-            'OK',
+            this.translate.instant('stickerForm.gpsFound', { dateMsg }),
+            this.translate.instant('common.ok'),
             { duration: 4000 },
           );
         } else {
@@ -212,10 +215,10 @@ export class StickerFormComponent implements OnInit {
             this.isDateAutoFilled.set(true);
           }
 
-          const dateMsg = this.hasImageDate() ? ' Datum uit EXIF automatisch ingevuld.' : '';
+          const dateMsg = this.hasImageDate() ? this.translate.instant('stickerForm.dateMsgExifFull') : '';
           this.snackBar.open(
-            `Afbeelding geüpload. Geen GPS locatie gevonden — selecteer een locatie op de kaart.${dateMsg}`,
-            'OK',
+            this.translate.instant('stickerForm.noGps', { dateMsg }),
+            this.translate.instant('common.ok'),
             { duration: 5000 },
           );
         }
@@ -223,8 +226,8 @@ export class StickerFormComponent implements OnInit {
       error: (error) => {
         this.uploading.set(false);
         this.snackBar.open(
-          `Upload mislukt: ${error.error?.detail || error.message}`,
-          'Sluiten',
+          this.translate.instant('stickerForm.uploadFailed', { detail: error.error?.detail || error.message }),
+          this.translate.instant('common.close'),
           { duration: 5000, panelClass: ['snackbar-error'] },
         );
       },
@@ -244,9 +247,11 @@ export class StickerFormComponent implements OnInit {
     this.manualLocation.set({ lat, lon });
     this.isSelectingLocation.set(false);
     this.manualLocationInput.set(`${lat.toFixed(6)}, ${lon.toFixed(6)}`);
-    this.snackBar.open(`Locatie geselecteerd: ${lat.toFixed(6)}, ${lon.toFixed(6)}`, 'OK', {
-      duration: 3000,
-    });
+    this.snackBar.open(
+      this.translate.instant('stickerForm.locationPicked', { coords: `${lat.toFixed(6)}, ${lon.toFixed(6)}` }),
+      this.translate.instant('common.ok'),
+      { duration: 3000 },
+    );
   }
 
   onCoordInputChange(value: string): void {
@@ -258,13 +263,13 @@ export class StickerFormComponent implements OnInit {
     const trimmed = this.manualLocationInput().trim();
 
     if (!trimmed) {
-      this.coordError.set('Vul het coordinaat in dit formaat: latitude, longitude');
+      this.coordError.set(this.translate.instant('stickerForm.coordFormat'));
       return;
     }
 
     const parts = trimmed.split(',').map((p) => p.trim());
     if (parts.length !== 2) {
-      this.coordError.set('Vul het coordinaat in dit formaat: latitude, longitude');
+      this.coordError.set(this.translate.instant('stickerForm.coordFormat'));
       return;
     }
 
@@ -272,15 +277,15 @@ export class StickerFormComponent implements OnInit {
     const lon = parseFloat(parts[1]);
 
     if (isNaN(lat) || isNaN(lon)) {
-      this.coordError.set('Ongeldige coordinaten. Vul een valide getallen in.');
+      this.coordError.set(this.translate.instant('stickerForm.coordInvalid'));
       return;
     }
     if (lat < -90 || lat > 90) {
-      this.coordError.set('Latitude moet zijn tussen de -90 en 90');
+      this.coordError.set(this.translate.instant('stickerForm.latRange'));
       return;
     }
     if (lon < -180 || lon > 180) {
-      this.coordError.set('Longitude moet zijn tussen de -180 en 180');
+      this.coordError.set(this.translate.instant('stickerForm.lonRange'));
       return;
     }
 
@@ -288,9 +293,11 @@ export class StickerFormComponent implements OnInit {
     const truncLon = parseFloat(lon.toFixed(6));
     this.coordError.set('');
     this.manualLocation.set({ lat: truncLat, lon: truncLon });
-    this.snackBar.open(`Locatie ingesteld: ${truncLat.toFixed(6)}, ${truncLon.toFixed(6)}`, 'OK', {
-      duration: 3000,
-    });
+    this.snackBar.open(
+      this.translate.instant('stickerForm.locationSet', { coords: `${truncLat.toFixed(6)}, ${truncLon.toFixed(6)}` }),
+      this.translate.instant('common.ok'),
+      { duration: 3000 },
+    );
     this.previewLocationRequested.emit({ lat: truncLat, lon: truncLon });
   }
 
@@ -324,8 +331,8 @@ export class StickerFormComponent implements OnInit {
   onSubmit(): void {
     if (!this.canSubmit()) {
       this.snackBar.open(
-        'Vul alle verplichte velden in en zorg dat de locatie is ingesteld.',
-        'Sluiten',
+        this.translate.instant('stickerForm.fillRequired'),
+        this.translate.instant('common.close'),
         { duration: 4000, panelClass: ['snackbar-error'] },
       );
       return;
@@ -343,7 +350,7 @@ export class StickerFormComponent implements OnInit {
         lon: this.extractedGPS()!.longitude!,
       };
     } else {
-      this.snackBar.open('Geen geldige locatie beschikbaar.', 'Sluiten', {
+      this.snackBar.open(this.translate.instant('stickerForm.noValidLocation'), this.translate.instant('common.close'), {
         duration: 4000,
         panelClass: ['snackbar-error'],
       });
@@ -365,7 +372,7 @@ export class StickerFormComponent implements OnInit {
     this.stickerService.createSticker(stickerData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.creating.set(false);
-        this.snackBar.open('Sticker succesvol toegevoegd!', 'OK', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('stickerForm.added'), this.translate.instant('common.ok'), { duration: 3000 });
         setTimeout(() => {
           this.resetForm();
           this.stickerCreated.emit();
@@ -374,8 +381,8 @@ export class StickerFormComponent implements OnInit {
       error: (error) => {
         this.creating.set(false);
         this.snackBar.open(
-          `Sticker toevoegen is mislukt: ${error.error?.detail || error.message}`,
-          'Sluiten',
+          this.translate.instant('stickerForm.createFailed', { detail: error.error?.detail || error.message }),
+          this.translate.instant('common.close'),
           { duration: 5000, panelClass: ['snackbar-error'] },
         );
       },

@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../../core/services/sticker.service';
 import type { UpdateStickerRequest } from '../../../core/models/sticker.model';
 import { CategorySelectorComponent } from '../../../shared/components/category-selector/category-selector.component';
@@ -29,6 +30,7 @@ import { isEpochSentinel, formatDateForInput, formatDateForBackend } from '../..
     MatCheckboxModule,
     MatProgressSpinnerModule,
     CategorySelectorComponent,
+    TranslatePipe,
   ],
   templateUrl: './edit-sticker-modal.component.html',
   styleUrl: './edit-sticker-modal.component.scss',
@@ -45,6 +47,7 @@ export class EditStickerModalComponent {
 
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   editingSticker = signal<any>(null);
   editForm = signal<{
@@ -175,9 +178,9 @@ export class EditStickerModalComponent {
         this.editSaving.set(false);
         this.modalClosed.emit();
         this.stickersChanged.emit();
-        this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('editSticker.updated'), this.translate.instant('common.close'), { duration: 3000 });
       } else {
-        this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('editSticker.noChanges'), this.translate.instant('common.close'), { duration: 3000 });
         this.editSaving.set(false);
       }
       return;
@@ -191,13 +194,13 @@ export class EditStickerModalComponent {
           this.editSaving.set(false);
           this.modalClosed.emit();
           this.stickersChanged.emit();
-          this.snackBar.open('Sticker succesvol bijgewerkt!', 'Sluiten', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('editSticker.updated'), this.translate.instant('common.close'), { duration: 3000 });
         },
         error: (err: any) => {
           this.editSaving.set(false);
           this.snackBar.open(
-            `Bijwerken mislukt: ${err.error?.detail || err.message}`,
-            'Sluiten',
+            this.translate.instant('editSticker.updateFailed', { detail: err.error?.detail || err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000, panelClass: ['snackbar-error'] },
           );
         },
@@ -241,8 +244,8 @@ export class EditStickerModalComponent {
         error: (err: any) => {
           this.editRotating.set(null);
           this.snackBar.open(
-            `Roteren mislukt: ${err.error?.detail || err.message}`,
-            'Sluiten',
+            this.translate.instant('editSticker.rotateFailed', { detail: err.error?.detail || err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },
