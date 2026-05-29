@@ -27,6 +27,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs/operators';
@@ -77,6 +78,7 @@ import {
     MatInputModule,
     MatBadgeModule,
     MatMenuModule,
+    TranslatePipe,
   ],
   templateUrl: './sticker-overview.component.html',
   styleUrl: './sticker-overview.component.scss',
@@ -92,6 +94,7 @@ export class StickerOverviewComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
   private breakpointObserver = inject(BreakpointObserver);
+  private translate = inject(TranslateService);
 
   isHandset = toSignal(
     this.breakpointObserver
@@ -263,8 +266,8 @@ export class StickerOverviewComponent implements OnInit {
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: EditDialogResult | undefined) => {
       if (result?.updated) {
         this.loadStickers();
-        const msg = result.archived ? 'Sticker gearchiveerd.' : 'Sticker succesvol bijgewerkt!';
-        this.snackBar.open(msg, 'Sluiten', { duration: 3000 });
+        const msg = this.translate.instant(result.archived ? 'overview.archivedMsg' : 'overview.updated');
+        this.snackBar.open(msg, this.translate.instant('common.close'), { duration: 3000 });
       }
     });
   }
@@ -277,7 +280,7 @@ export class StickerOverviewComponent implements OnInit {
     ref.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((result: DeleteDialogResult | undefined) => {
       if (result?.deleted) {
         this.loadStickers();
-        this.snackBar.open('Sticker verwijderd.', 'Sluiten', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('overview.deleted'), this.translate.instant('common.close'), { duration: 3000 });
       }
     });
   }
@@ -291,7 +294,7 @@ export class StickerOverviewComponent implements OnInit {
       if (result?.reported) {
         this.loadStickers();
         this.loadPendingReportsCount();
-        this.snackBar.open('Sticker gemeld als verwijderd.', 'Sluiten', { duration: 4000 });
+        this.snackBar.open(this.translate.instant('overview.reportedRemoved'), this.translate.instant('common.close'), { duration: 4000 });
       }
     });
   }
@@ -316,12 +319,12 @@ export class StickerOverviewComponent implements OnInit {
       .subscribe({
         next: () => {
           this.loadStickers();
-          this.snackBar.open('Sticker gearchiveerd.', 'Sluiten', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('overview.archivedMsg'), this.translate.instant('common.close'), { duration: 3000 });
         },
         error: (err) => {
           this.snackBar.open(
-            `Archiveren mislukt: ${err.error?.detail ?? err.message}`,
-            'Sluiten',
+            this.translate.instant('overview.archiveFailed', { detail: err.error?.detail ?? err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },
@@ -335,12 +338,12 @@ export class StickerOverviewComponent implements OnInit {
         next: () => {
           this.loadStickers();
           this.loadPendingReportsCount();
-          this.snackBar.open('Sticker hersteld.', 'Sluiten', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('overview.restored'), this.translate.instant('common.close'), { duration: 3000 });
         },
         error: (err) => {
           this.snackBar.open(
-            `Herstellen mislukt: ${err.error?.detail ?? err.message}`,
-            'Sluiten',
+            this.translate.instant('overview.restoreFailed', { detail: err.error?.detail ?? err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },
@@ -361,11 +364,11 @@ export class StickerOverviewComponent implements OnInit {
       forkJoin(ids.map((id) => this.stickerService.deleteSticker(id))).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
         next: () => {
           this.loadStickers();
-          this.snackBar.open(`${ids.length} sticker(s) verwijderd.`, 'Sluiten', { duration: 3000 });
+          this.snackBar.open(this.translate.instant('overview.bulkDeleted', { count: ids.length }), this.translate.instant('common.close'), { duration: 3000 });
         },
         error: () => {
           this.loadStickers();
-          this.snackBar.open('Verwijderen deels mislukt.', 'Sluiten', { duration: 5000 });
+          this.snackBar.open(this.translate.instant('overview.bulkPartialFail'), this.translate.instant('common.close'), { duration: 5000 });
         },
       });
     });
@@ -404,7 +407,7 @@ export class StickerOverviewComponent implements OnInit {
           URL.revokeObjectURL(url);
         },
         error: () => {
-          this.snackBar.open('Export mislukt.', 'Sluiten', { duration: 4000 });
+          this.snackBar.open(this.translate.instant('overview.exportFailed'), this.translate.instant('common.close'), { duration: 4000 });
         },
       });
   }

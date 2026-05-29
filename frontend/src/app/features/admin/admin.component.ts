@@ -12,6 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType } from '../../core/models/sticker.model';
@@ -41,6 +42,7 @@ interface ActionDef {
     MatChipsModule,
     MatTooltipModule,
     MatDividerModule,
+    TranslatePipe,
   ],
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.scss',
@@ -49,6 +51,7 @@ export class AdminComponent implements OnInit {
   private readonly stickerService = inject(StickerService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   readonly stats = signal<AdminStats | null>(null);
   readonly statsLoading = signal(false);
@@ -58,30 +61,31 @@ export class AdminComponent implements OnInit {
 
   readonly jobs = signal<Partial<Record<MaintenanceJobType, JobState>>>({});
 
+  // title/description hold i18n keys, resolved with the translate pipe in the template.
   readonly actions: ActionDef[] = [
     {
       type: 'generate-thumbnails',
       icon: 'image_search',
-      title: 'Ontbrekende thumbnails genereren',
-      description: 'Genereert thumbnail-bestanden voor stickers waarbij de thumbnail ontbreekt in de database of op schijf.',
+      title: 'admin.actionThumbsTitle',
+      description: 'admin.actionThumbsDesc',
     },
     {
       type: 'compress-images',
       icon: 'compress',
-      title: 'Afbeeldingen comprimeren',
-      description: `Comprimeert afbeeldingen waarvan de langste zijde groter is dan ${1920}px naar het standaard formaat.`,
+      title: 'admin.actionCompressTitle',
+      description: 'admin.actionCompressDesc',
     },
     {
       type: 'strip-exif',
       icon: 'no_photography',
-      title: 'EXIF-data verwijderen',
-      description: 'Verwijdert alle EXIF-metadata (locatie, apparaatinfo) uit bestaande afbeeldingen voor meer privacy.',
+      title: 'admin.actionExifTitle',
+      description: 'admin.actionExifDesc',
     },
     {
       type: 'cleanup-orphans',
       icon: 'delete_sweep',
-      title: 'Ontbrekende bestanden opruimen',
-      description: 'Verwijdert bestanden in de upload-map die niet meer gekoppeld zijn aan een sticker of rapport.',
+      title: 'admin.actionCleanupTitle',
+      description: 'admin.actionCleanupDesc',
     },
   ];
 
@@ -120,7 +124,7 @@ export class AdminComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: ({ job_id }) => this.pollJob(type, job_id),
-        error: () => this.snackBar.open('Kon taak niet starten.', 'Sluiten', { duration: 4000 }),
+        error: () => this.snackBar.open(this.translate.instant('admin.jobStartFailed'), this.translate.instant('common.close'), { duration: 4000 }),
       });
   }
 
@@ -136,19 +140,27 @@ export class AdminComponent implements OnInit {
           this.onJobFinished(type, info);
         }
       },
-      error: () => this.snackBar.open('Fout bij ophalen taakstatus.', 'Sluiten', { duration: 4000 }),
+      error: () => this.snackBar.open(this.translate.instant('admin.jobStatusFailed'), this.translate.instant('common.close'), { duration: 4000 }),
     });
   }
 
   private onJobFinished(type: MaintenanceJobType, job: AdminJob): void {
     const action = this.actions.find((a) => a.type === type);
-    const label = action?.title ?? type;
+    const label = action ? this.translate.instant(action.title) : type;
     if (job.status === 'done') {
-      this.snackBar.open(`✓ ${label}: ${job.processed} verwerkt.`, 'Sluiten', { duration: 6000 });
+      this.snackBar.open(
+        this.translate.instant('admin.jobFinishedDone', { label, processed: job.processed }),
+        this.translate.instant('common.close'),
+        { duration: 6000 },
+      );
       this.loadStats();
       this.loadAudit();
     } else {
-      this.snackBar.open(`✗ ${label}: fout opgetreden (${job.errors.length} fout(en)).`, 'Sluiten', { duration: 8000 });
+      this.snackBar.open(
+        this.translate.instant('admin.jobFinishedError', { label, count: job.errors.length }),
+        this.translate.instant('common.close'),
+        { duration: 8000 },
+      );
     }
   }
 

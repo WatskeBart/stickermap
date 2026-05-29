@@ -1,14 +1,14 @@
 <div class="admin-page">
   <h1 class="page-title">
     <mat-icon class="title-icon">admin_panel_settings</mat-icon>
-    Beheer
+    {{ 'admin.title' | translate }}
   </h1>
 
   <!-- Stats -->
   <section class="section">
     <div class="section-header">
-      <h2 class="section-title">Overzicht</h2>
-      <button mat-icon-button (click)="loadStats()" [disabled]="statsLoading()" matTooltip="Vernieuwen">
+      <h2 class="section-title">{{ 'admin.overview' | translate }}</h2>
+      <button mat-icon-button (click)="loadStats()" [disabled]="statsLoading()" [matTooltip]="'admin.refreshTooltip' | translate">
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
@@ -22,43 +22,43 @@
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.total_stickers }}</div>
-            <div class="stat-label">Stickers totaal</div>
+            <div class="stat-label">{{ 'admin.totalStickers' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_thumbnail_db > 0">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.missing_thumbnail_db }}</div>
-            <div class="stat-label">Thumbnail ontbreekt (DB)</div>
+            <div class="stat-label">{{ 'admin.missingThumbDb' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_thumbnail_file > 0">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.missing_thumbnail_file }}</div>
-            <div class="stat-label">Thumbnail ontbreekt (bestand)</div>
+            <div class="stat-label">{{ 'admin.missingThumbFile' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card" [class.stat-warn]="stats()!.missing_full_image_file > 0">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.missing_full_image_file }}</div>
-            <div class="stat-label">Afbeelding ontbreekt (bestand)</div>
+            <div class="stat-label">{{ 'admin.missingImageFile' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.missing_gps }}</div>
-            <div class="stat-label">Zonder GPS-locatie</div>
+            <div class="stat-label">{{ 'admin.missingGps' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.archived }}</div>
-            <div class="stat-label">Gearchiveerd</div>
+            <div class="stat-label">{{ 'admin.archived' | translate }}</div>
           </mat-card-content>
         </mat-card>
         <mat-card class="stat-card">
           <mat-card-content>
             <div class="stat-value">{{ stats()!.private }}</div>
-            <div class="stat-label">Privé</div>
+            <div class="stat-label">{{ 'admin.private' | translate }}</div>
           </mat-card-content>
         </mat-card>
       </div>
@@ -70,8 +70,8 @@
   <!-- File audit -->
   <section class="section">
     <div class="section-header">
-      <h2 class="section-title">Bestandsaudit</h2>
-      <button mat-icon-button (click)="loadAudit()" [disabled]="auditLoading()" matTooltip="Vernieuwen">
+      <h2 class="section-title">{{ 'admin.fileAudit' | translate }}</h2>
+      <button mat-icon-button (click)="loadAudit()" [disabled]="auditLoading()" [matTooltip]="'admin.refreshTooltip' | translate">
         <mat-icon>refresh</mat-icon>
       </button>
     </div>
@@ -83,34 +83,34 @@
     } @else if (auditItems().length === 0) {
       <p class="empty-state">
         <mat-icon class="empty-icon">check_circle</mat-icon>
-        Alle bestanden zijn aanwezig.
+        {{ 'admin.allFilesPresent' | translate }}
       </p>
     } @else {
       <mat-expansion-panel>
         <mat-expansion-panel-header>
-          <mat-panel-title>{{ auditItems().length }} sticker(s) met ontbrekende bestanden</mat-panel-title>
+          <mat-panel-title>{{ 'admin.missingFilesPanel' | translate: { count: auditItems().length } }}</mat-panel-title>
         </mat-expansion-panel-header>
         <table mat-table [dataSource]="auditItems()" class="audit-table">
           <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'admin.colId' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.id }}</td>
           </ng-container>
           <ng-container matColumnDef="image">
-            <th mat-header-cell *matHeaderCellDef>Afbeelding</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'admin.colImage' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.image }}</td>
           </ng-container>
           <ng-container matColumnDef="thumbnail">
-            <th mat-header-cell *matHeaderCellDef>Thumbnail</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'admin.colThumbnail' | translate }}</th>
             <td mat-cell *matCellDef="let row">{{ row.thumbnail ?? '—' }}</td>
           </ng-container>
           <ng-container matColumnDef="issues">
-            <th mat-header-cell *matHeaderCellDef>Problemen</th>
+            <th mat-header-cell *matHeaderCellDef>{{ 'admin.colIssues' | translate }}</th>
             <td mat-cell *matCellDef="let row">
               @if (row.missing_image) {
-                <mat-chip class="chip-error">afbeelding ontbreekt</mat-chip>
+                <mat-chip class="chip-error">{{ 'admin.imageMissing' | translate }}</mat-chip>
               }
               @if (row.missing_thumbnail) {
-                <mat-chip class="chip-warn">thumbnail ontbreekt</mat-chip>
+                <mat-chip class="chip-warn">{{ 'admin.thumbnailMissing' | translate }}</mat-chip>
               }
             </td>
           </ng-container>
@@ -125,32 +125,32 @@
 
   <!-- Maintenance actions -->
   <section class="section">
-    <h2 class="section-title">Onderhoudstaken</h2>
+    <h2 class="section-title">{{ 'admin.maintenance' | translate }}</h2>
     <div class="actions-grid">
       @for (action of actions; track action.type) {
         <mat-card class="action-card">
           <mat-card-header>
             <mat-icon mat-card-avatar class="action-icon">{{ action.icon }}</mat-icon>
-            <mat-card-title>{{ action.title }}</mat-card-title>
+            <mat-card-title>{{ action.title | translate }}</mat-card-title>
           </mat-card-header>
           <mat-card-content>
-            <p class="action-description">{{ action.description }}</p>
+            <p class="action-description">{{ action.description | translate }}</p>
             @if (jobFor(action.type); as job) {
               <div class="job-status">
                 @if (job.info.status === 'running') {
                   <mat-chip class="chip-running">
                     <mat-spinner matChipAvatar diameter="16" />
-                    Bezig… {{ job.info.processed }}/{{ job.info.total }}
+                    {{ 'admin.jobRunning' | translate: { processed: job.info.processed, total: job.info.total } }}
                   </mat-chip>
                 } @else if (job.info.status === 'done') {
                   <mat-chip class="chip-done">
                     <mat-icon matChipAvatar>check</mat-icon>
-                    Klaar — {{ job.info.processed }} verwerkt
+                    {{ 'admin.jobDone' | translate: { processed: job.info.processed } }}
                   </mat-chip>
                 } @else {
                   <mat-chip class="chip-error">
                     <mat-icon matChipAvatar>error</mat-icon>
-                    Fout ({{ job.info.errors.length }})
+                    {{ 'admin.jobError' | translate: { count: job.info.errors.length } }}
                   </mat-chip>
                 }
                 @if (job.info.errors.length > 0) {
@@ -170,7 +170,7 @@
               (click)="startJob(action.type)"
             >
               <mat-icon>play_arrow</mat-icon>
-              Starten
+              {{ 'admin.start' | translate }}
             </button>
           </mat-card-actions>
         </mat-card>

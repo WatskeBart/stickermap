@@ -1,10 +1,7 @@
-<h2 mat-dialog-title>Sticker melden als verwijderd</h2>
+<h2 mat-dialog-title>{{ 'reportRemoval.title' | translate }}</h2>
 
 <mat-dialog-content>
-  <p>
-    Wil je de sticker van <strong>{{ data.poster }}</strong> melden als verwijderd?
-    Andere gebruikers en beheerders kunnen je melding bekijken.
-  </p>
+  <p [innerHTML]="'reportRemoval.body' | translate: { poster: data.poster }"></p>
 
   <div class="proof-section">
     <button mat-stroked-button type="button" (click)="fileInput.click()" [disabled]="submitting()">
@@ -12,7 +9,7 @@
       @if (proofFile()) {
         {{ proofFile()!.name }}
       } @else {
-        Bewijsfoto toevoegen (optioneel)
+        {{ 'reportRemoval.addProof' | translate }}
       }
     </button>
     <input
@@ -23,7 +20,7 @@
       (change)="onFileSelected($event)"
     />
     @if (proofFile()) {
-      <button mat-icon-button type="button" (click)="clearFile()" [disabled]="submitting()" aria-label="Foto verwijderen">
+      <button mat-icon-button type="button" (click)="clearFile()" [disabled]="submitting()" [attr.aria-label]="'reportRemoval.removePhotoAria' | translate">
         <mat-icon>close</mat-icon>
       </button>
     }
@@ -35,12 +32,12 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button [mat-dialog-close]="{ reported: false }" [disabled]="submitting()">Annuleren</button>
+  <button mat-button [mat-dialog-close]="{ reported: false }" [disabled]="submitting()">{{ 'common.cancel' | translate }}</button>
   <button mat-flat-button color="warn" (click)="submit()" [disabled]="submitting()">
     @if (submitting()) {
       <mat-progress-spinner mode="indeterminate" diameter="18" />
     } @else {
-      Melden
+      {{ 'reportRemoval.submit' | translate }}
     }
   </button>
 </mat-dialog-actions>

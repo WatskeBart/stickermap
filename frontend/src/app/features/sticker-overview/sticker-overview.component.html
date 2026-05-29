@@ -3,10 +3,7 @@
   @if (canModerate() && pendingReportsCount() > 0) {
     <div class="pending-reports-banner">
       <mat-icon class="banner-icon">warning</mat-icon>
-      <span>
-        <strong>{{ pendingReportsCount() }} sticker(s)</strong> hebben openstaande meldingen als verwijderd.
-        Bekijk de kolom "Meldingen" om ze te beoordelen.
-      </span>
+      <span [innerHTML]="'overview.pendingBanner' | translate: { count: pendingReportsCount() }"></span>
     </div>
   }
 
@@ -14,7 +11,7 @@
     @if (isViewer()) {
       <div class="header-left">
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Zoeken op naam of uploader</mat-label>
+          <mat-label>{{ 'overview.search' | translate }}</mat-label>
           <input matInput [ngModel]="filterValue()" (ngModelChange)="applyFilter($event)" />
           <mat-icon matSuffix>search</mat-icon>
         </mat-form-field>
@@ -22,9 +19,9 @@
     }
     <div class="header-right">
       @if (canModerate()) {
-        <button mat-stroked-button [matMenuTriggerFor]="exportMenu" matTooltip="Exporteer alle stickers">
+        <button mat-stroked-button [matMenuTriggerFor]="exportMenu" [matTooltip]="'overview.exportTooltip' | translate">
           <mat-icon>download</mat-icon>
-          Exporteren
+          {{ 'overview.export' | translate }}
         </button>
         <mat-menu #exportMenu="matMenu">
           <button mat-menu-item (click)="downloadExport('geojson')">
@@ -40,7 +37,7 @@
       @if (bulkDeleteEnabled()) {
         <button mat-flat-button color="warn" (click)="openBulkDelete()">
           <mat-icon>delete_sweep</mat-icon>
-          Geselecteerde verwijderen ({{ selection.selected.length }})
+          {{ 'overview.bulkDelete' | translate: { count: selection.selected.length } }}
         </button>
       }
     </div>
@@ -49,7 +46,7 @@
   @if (isLoading()) {
     <div class="loading-container">
       <mat-progress-spinner mode="indeterminate" diameter="50" />
-      <p>Stickers worden geladen...</p>
+      <p>{{ 'overview.loading' | translate }}</p>
     </div>
   }
   <div class="table-wrapper mat-elevation-z2" [hidden]="isLoading()">
@@ -75,14 +72,14 @@
 
         <!-- Thumbnail column -->
         <ng-container matColumnDef="thumbnail">
-          <th mat-header-cell *matHeaderCellDef>Foto</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'overview.colPhoto' | translate }}</th>
           <td mat-cell *matCellDef="let row">
-            <div class="thumb-wrapper" [matTooltip]="row.archived ? 'Gearchiveerd (bevestigd verwijderd)' : row.private ? 'Privé sticker — alleen zichtbaar voor ingelogde gebruikers' : ''">
+            <div class="thumb-wrapper" [matTooltip]="row.archived ? ('overview.archivedTooltip' | translate) : row.private ? ('overview.privateTooltip' | translate) : ''">
               <img
                 [src]="row.imageUrl"
                 class="sticker-thumb"
                 [class.sticker-thumb--archived]="row.archived"
-                alt="Sticker foto"
+                [alt]="'overview.photoAlt' | translate"
                 (click)="openFullSize(row.imageUrl)"
                 (error)="$any($event.target).style.display='none'"
               />
@@ -102,7 +99,7 @@
 
         <!-- Category column -->
         <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Categorie</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colCategory' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             @if (row.category_name) {
               <div class="category-cell">
@@ -126,23 +123,23 @@
 
         <!-- Poster column -->
         <ng-container matColumnDef="poster">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Geplakt door</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colPostedBy' | translate }}</th>
           <td mat-cell *matCellDef="let row">{{ row.poster }}</td>
         </ng-container>
 
         <!-- Uploader column -->
         <ng-container matColumnDef="uploader">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploader</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colUploader' | translate }}</th>
           <td mat-cell *matCellDef="let row">{{ row.uploader }}</td>
         </ng-container>
 
         <!-- Post date column -->
         <ng-container matColumnDef="post_date">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Plakdatum</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colPostDate' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             @if (isViewer() && isUnknownDate(row.post_date)) {
-              <span class="unknown-date-cell" matTooltip="Plakdatum onbekend — moet nog ingevuld worden">
-                <mat-icon class="unknown-date-icon">priority_high</mat-icon>Onbekend
+              <span class="unknown-date-cell" [matTooltip]="'overview.unknownDateTooltip' | translate">
+                <mat-icon class="unknown-date-icon">priority_high</mat-icon>{{ 'overview.unknown' | translate }}
               </span>
             } @else {
               {{ row.post_date }}
@@ -152,13 +149,13 @@
 
         <!-- Upload date column -->
         <ng-container matColumnDef="upload_date">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Uploaddatum</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colUploadDate' | translate }}</th>
           <td mat-cell *matCellDef="let row">{{ row.upload_date }}</td>
         </ng-container>
 
         <!-- Location column -->
         <ng-container matColumnDef="location">
-          <th mat-header-cell *matHeaderCellDef>Locatie</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'overview.colLocation' | translate }}</th>
           <td mat-cell *matCellDef="let row" class="location-cell">
             {{ row.lat.toFixed(5) }}, {{ row.lon.toFixed(5) }}
           </td>
@@ -166,13 +163,13 @@
 
         <!-- View on map column -->
         <ng-container matColumnDef="view-on-map">
-          <th mat-header-cell *matHeaderCellDef>Kaart</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'overview.colMap' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             @if (!row.archived) {
               <button
                 mat-icon-button
                 (click)="goToMap(row); $event.stopPropagation()"
-                matTooltip="Bekijk op kaart"
+                [matTooltip]="'overview.viewOnMap' | translate"
               >
                 <mat-icon>map</mat-icon>
               </button>
@@ -182,14 +179,14 @@
 
         <!-- Reports column (editor/admin only) -->
         <ng-container matColumnDef="reports">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Meldingen</th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colReports' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             @if (row.removalCount > 0) {
               <button
                 mat-icon-button
                 color="warn"
                 (click)="openReviewReports(row); $event.stopPropagation()"
-                [matTooltip]="(row.removalCount === 1 ? '1 openstaande melding' : row.removalCount + ' openstaande meldingen') + ' — klik om te beoordelen'"
+                [matTooltip]="row.removalCount === 1 ? ('overview.reportTooltipOne' | translate) : ('overview.reportTooltipMany' | translate: { count: row.removalCount })"
               >
                 <mat-icon [matBadge]="row.removalCount" matBadgeColor="warn" matBadgeSize="small">flag</mat-icon>
               </button>
@@ -199,7 +196,7 @@
 
         <!-- Actions column -->
         <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Acties</th>
+          <th mat-header-cell *matHeaderCellDef>{{ 'overview.colActions' | translate }}</th>
           <td mat-cell *matCellDef="let row">
             <div class="action-buttons">
               @if (row.canEdit) {
@@ -207,7 +204,7 @@
                   mat-icon-button
                   color="accent"
                   (click)="openEdit(row); $event.stopPropagation()"
-                  matTooltip="Bewerken"
+                  [matTooltip]="'overview.editTooltip' | translate"
                 >
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -217,7 +214,7 @@
                   mat-icon-button
                   color="warn"
                   (click)="openDelete(row); $event.stopPropagation()"
-                  matTooltip="Verwijderen"
+                  [matTooltip]="'overview.deleteTooltip' | translate"
                 >
                   <mat-icon>delete</mat-icon>
                 </button>
@@ -227,7 +224,7 @@
                   mat-icon-button
                   color="warn"
                   (click)="openArchive(row); $event.stopPropagation()"
-                  matTooltip="Sticker archiveren"
+                  [matTooltip]="'overview.archiveTooltip' | translate"
                 >
                   <mat-icon>archive</mat-icon>
                 </button>
@@ -237,7 +234,7 @@
                   mat-icon-button
                   class="report-btn"
                   (click)="openReport(row); $event.stopPropagation()"
-                  matTooltip="Melden als verwijderd"
+                  [matTooltip]="'overview.reportTooltip' | translate"
                 >
                   <mat-icon>flag</mat-icon>
                 </button>
@@ -247,7 +244,7 @@
                   mat-icon-button
                   color="accent"
                   (click)="openUnarchive(row); $event.stopPropagation()"
-                  matTooltip="Sticker herstellen (archief ongedaan maken)"
+                  [matTooltip]="'overview.unarchiveTooltip' | translate"
                 >
                   <mat-icon>history</mat-icon>
                 </button>
@@ -262,9 +259,9 @@
         <tr class="mat-row" *matNoDataRow>
           <td class="mat-cell no-data-cell" [attr.colspan]="displayedColumns().length">
             @if (filterValue()) {
-              Geen stickers gevonden voor "{{ filterValue() }}".
+              {{ 'overview.noResultsFilter' | translate: { filter: filterValue() } }}
             } @else {
-              Geen stickers gevonden.
+              {{ 'overview.noResults' | translate }}
             }
           </td>
         </tr>
@@ -284,6 +281,6 @@
 <!-- Full-size image overlay -->
 @if (fullSizeImageUrl()) {
   <div class="fullsize-overlay" (click)="closeFullSize()">
-    <img [src]="fullSizeImageUrl()!" class="fullsize-image" alt="Volledige afbeelding" />
+    <img [src]="fullSizeImageUrl()!" class="fullsize-image" [alt]="'overview.fullImageAlt' | translate" />
   </div>
 }

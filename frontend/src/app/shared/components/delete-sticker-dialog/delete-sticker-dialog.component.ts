@@ -2,6 +2,7 @@ import { Component, DestroyRef, inject, signal, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 import { StickerService } from '../../../core/services/sticker.service';
 
 export interface DeleteDialogData {
@@ -16,7 +17,7 @@ export interface DeleteDialogResult {
 @Component({
   selector: 'app-delete-sticker-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './delete-sticker-dialog.component.html',
 })
 export class DeleteStickerDialogComponent implements OnInit {

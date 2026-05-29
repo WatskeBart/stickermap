@@ -1,17 +1,17 @@
-<h2 mat-dialog-title>Meldingen voor sticker van {{ data.poster }}</h2>
+<h2 mat-dialog-title>{{ 'reviewReports.title' | translate: { poster: data.poster } }}</h2>
 
 <mat-dialog-content class="dialog-content">
   @if (isLoading()) {
     <div class="loading-row">
       <mat-progress-spinner mode="indeterminate" diameter="36" />
-      <span>Meldingen laden...</span>
+      <span>{{ 'reviewReports.loading' | translate }}</span>
     </div>
   } @else if (reports().length === 0) {
-    <p class="no-reports">Geen meldingen gevonden.</p>
+    <p class="no-reports">{{ 'reviewReports.none' | translate }}</p>
   } @else {
 
     @if (pendingReports().length > 0) {
-      <h3 class="section-title">In behandeling ({{ pendingReports().length }})</h3>
+      <h3 class="section-title">{{ 'reviewReports.pendingSection' | translate: { count: pendingReports().length } }}</h3>
       @for (report of pendingReports(); track report.id) {
         <div class="report-card report-card--pending">
           <div class="report-meta">
@@ -23,9 +23,9 @@
             <img
               [src]="report.proof_image_url"
               class="proof-thumb"
-              alt="Bewijsfoto"
+              [alt]="'reviewReports.proofAlt' | translate"
               (click)="openFullSize(report.proof_image_url!)"
-              matTooltip="Klik voor volledige afbeelding"
+              [matTooltip]="'reviewReports.proofTooltip' | translate"
             />
           }
 
@@ -35,27 +35,27 @@
               color="warn"
               [disabled]="reviewingId() === report.id"
               (click)="review(report.id, 'confirmed')"
-              matTooltip="Sticker archiveren (verwijderd)"
+              [matTooltip]="'reviewReports.confirmTooltip' | translate"
             >
               @if (reviewingId() === report.id) {
                 <mat-progress-spinner mode="indeterminate" diameter="18" />
               } @else {
                 <mat-icon>check_circle</mat-icon>
               }
-              @if (reviewingId() !== report.id) { Bevestigen }
+              @if (reviewingId() !== report.id) { {{ 'reviewReports.confirm' | translate }} }
             </button>
             <button
               mat-stroked-button
               [disabled]="reviewingId() === report.id"
               (click)="review(report.id, 'dismissed')"
-              matTooltip="Melding afwijzen"
+              [matTooltip]="'reviewReports.dismissTooltip' | translate"
             >
               @if (reviewingId() === report.id) {
                 <mat-progress-spinner mode="indeterminate" diameter="18" />
               } @else {
                 <mat-icon>cancel</mat-icon>
               }
-              @if (reviewingId() !== report.id) { Afwijzen }
+              @if (reviewingId() !== report.id) { {{ 'reviewReports.dismiss' | translate }} }
             </button>
           </div>
         </div>
@@ -64,7 +64,7 @@
     }
 
     @if (reviewedReports().length > 0) {
-      <h3 class="section-title reviewed-title">Beoordeeld ({{ reviewedReports().length }})</h3>
+      <h3 class="section-title reviewed-title">{{ 'reviewReports.reviewedSection' | translate: { count: reviewedReports().length } }}</h3>
       @for (report of reviewedReports(); track report.id) {
         <div class="report-card report-card--reviewed">
           <div class="report-meta">
@@ -75,15 +75,15 @@
             </mat-chip>
           </div>
           @if (report.reviewed_by) {
-            <p class="reviewed-by">Beoordeeld door {{ report.reviewed_by }}</p>
+            <p class="reviewed-by">{{ 'reviewReports.reviewedBy' | translate: { name: report.reviewed_by } }}</p>
           }
           @if (report.proof_image_url) {
             <img
               [src]="report.proof_image_url"
               class="proof-thumb"
-              alt="Bewijsfoto"
+              [alt]="'reviewReports.proofAlt' | translate"
               (click)="openFullSize(report.proof_image_url!)"
-              matTooltip="Klik voor volledige afbeelding"
+              [matTooltip]="'reviewReports.proofTooltip' | translate"
             />
           }
         </div>
@@ -94,12 +94,12 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button (click)="close()">Sluiten</button>
+  <button mat-button (click)="close()">{{ 'common.close' | translate }}</button>
 </mat-dialog-actions>
 
 @if (fullSizeUrl()) {
   <div class="fullsize-overlay" (click)="closeFullSize()">
     <button class="overlay-close" (click)="closeFullSize()">&times;</button>
-    <img [src]="fullSizeUrl()!" alt="Bewijsfoto volledig" (click)="$event.stopPropagation()" />
+    <img [src]="fullSizeUrl()!" [alt]="'reviewReports.proofFullAlt' | translate" (click)="$event.stopPropagation()" />
   </div>
 }

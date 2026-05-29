@@ -1,7 +1,7 @@
 @if (selectingLocation()) {
   <div class="edit-location-banner">
-    <span>Klik op de kaart om een nieuwe locatie te selecteren</span>
-    <button mat-stroked-button (click)="cancelLocationSelection()">Annuleren</button>
+    <span>{{ 'editSticker.selectNewLocationBanner' | translate }}</span>
+    <button mat-stroked-button (click)="cancelLocationSelection()">{{ 'common.cancel' | translate }}</button>
   </div>
 }
 
@@ -9,7 +9,7 @@
   <div class="modal-overlay" (click)="close()">
     <div class="edit-modal" (click)="$event.stopPropagation()">
       <button class="modal-close" (click)="close()">&times;</button>
-      <h3>Sticker Bewerken</h3>
+      <h3>{{ 'editSticker.title' | translate }}</h3>
       <div class="modal-image-preview">
         <img [src]="editImageUrl()" class="modal-preview-img" alt="Sticker preview" />
         <div class="modal-rotate-actions">
@@ -17,7 +17,7 @@
             mat-icon-button
             (click)="rotateEdit('ccw')"
             [disabled]="editRotating() !== null || editSaving()"
-            matTooltip="Roteer links"
+            [matTooltip]="'editSticker.rotateLeft' | translate"
           >
             @if (editRotating() === 'ccw') {
               <mat-progress-spinner mode="indeterminate" diameter="18" />
@@ -29,7 +29,7 @@
             mat-icon-button
             (click)="rotateEdit('cw')"
             [disabled]="editRotating() !== null || editSaving()"
-            matTooltip="Roteer rechts"
+            [matTooltip]="'editSticker.rotateRight' | translate"
           >
             @if (editRotating() === 'cw') {
               <mat-progress-spinner mode="indeterminate" diameter="18" />
@@ -42,12 +42,12 @@
       @if (editForm(); as form) {
         <div class="edit-form">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Geplakt door</mat-label>
+            <mat-label>{{ 'editSticker.postedBy' | translate }}</mat-label>
             <input matInput type="text" [(ngModel)]="form.poster" />
           </mat-form-field>
 
           <div class="date-field">
-            <label class="date-label">Plak datum</label>
+            <label class="date-label">{{ 'editSticker.postDate' | translate }}</label>
             <input
               type="datetime-local"
               class="date-input"
@@ -61,28 +61,28 @@
                 (ngModelChange)="onDateUnknownChange($event)"
                 name="editDateUnknown"
               >
-                Plakdatum onbekend
+                {{ 'editSticker.dateUnknown' | translate }}
               </mat-checkbox>
             </div>
           </div>
 
           <div class="form-location">
             <mat-form-field appearance="outline" class="location-field">
-              <mat-label>Latitude</mat-label>
+              <mat-label>{{ 'fields.latitude' | translate }}</mat-label>
               <input matInput type="number" [(ngModel)]="form.location.lat" step="0.000001" />
             </mat-form-field>
             <mat-form-field appearance="outline" class="location-field">
-              <mat-label>Longitude</mat-label>
+              <mat-label>{{ 'fields.longitude' | translate }}</mat-label>
               <input matInput type="number" [(ngModel)]="form.location.lon" step="0.000001" />
             </mat-form-field>
             <button type="button" mat-stroked-button color="accent" (click)="startLocationSelection()">
-              Kies op kaart
+              {{ 'editSticker.chooseOnMap' | translate }}
             </button>
           </div>
 
           @if (isAdmin()) {
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Uploader</mat-label>
+              <mat-label>{{ 'fields.uploader' | translate }}</mat-label>
               <mat-select [(ngModel)]="form.uploader">
                 @if (!uploaderList().includes(form.uploader)) {
                   <mat-option [value]="form.uploader">{{ form.uploader }}</mat-option>
@@ -100,10 +100,10 @@
             <mat-checkbox
               [ngModel]="editIsPrivate()"
               (ngModelChange)="editIsPrivate.set($event)"
-              [matTooltip]="'Privé stickers zijn alleen zichtbaar voor ingelogde gebruikers (minimaal kijker-rol). Niet-ingelogde bezoekers zien deze sticker niet op de kaart of in de lijst.'"
+              [matTooltip]="'editSticker.privateTooltip' | translate"
               matTooltipPosition="right"
             >
-              Privé sticker
+              {{ 'editSticker.privateSticker' | translate }}
             </mat-checkbox>
           </div>
 
@@ -112,10 +112,10 @@
               @if (editSaving()) {
                 <mat-progress-spinner mode="indeterminate" diameter="18" color="accent" class="inline-spinner"></mat-progress-spinner>
               } @else {
-                Opslaan
+                {{ 'common.save' | translate }}
               }
             </button>
-            <button mat-button (click)="close()">Annuleren</button>
+            <button mat-button (click)="close()">{{ 'common.cancel' | translate }}</button>
           </div>
         </div>
       }

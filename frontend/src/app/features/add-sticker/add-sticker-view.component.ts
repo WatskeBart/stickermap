@@ -2,6 +2,7 @@ import { Component, signal, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 import { MapComponent } from '../map/map';
 import { StickerFormComponent } from '../sticker-form/sticker-form.component';
 import { AuthService } from '../../core/services/auth.service';
@@ -9,7 +10,7 @@ import { AuthService } from '../../core/services/auth.service';
 @Component({
   selector: 'app-add-sticker-view',
   standalone: true,
-  imports: [MapComponent, StickerFormComponent, MatToolbarModule, MatButtonModule],
+  imports: [MapComponent, StickerFormComponent, MatToolbarModule, MatButtonModule, TranslatePipe],
   templateUrl: './add-sticker-view.component.html',
   styleUrl: './add-sticker-view.component.scss'
 })

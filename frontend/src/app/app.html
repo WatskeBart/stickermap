@@ -19,32 +19,32 @@
     <mat-nav-list class="sidenav-nav">
       <a mat-list-item (click)="navigateHome(); isHandset() && sidenav.close()">
         <mat-icon matListItemIcon>home</mat-icon>
-        @if (sidenavExpanded()) { <span matListItemTitle>Home</span> }
+        @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.home' | translate }}</span> }
       </a>
       <a mat-list-item (click)="navigateToMap(); isHandset() && sidenav.close()">
         <mat-icon matListItemIcon>map</mat-icon>
-        @if (sidenavExpanded()) { <span matListItemTitle>Bekijk Kaart</span> }
+        @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.map' | translate }}</span> }
       </a>
       @if (authService.isUploader()) {
         <a mat-list-item (click)="navigateToAddSticker(); isHandset() && sidenav.close()">
           <mat-icon matListItemIcon>add_location_alt</mat-icon>
-          @if (sidenavExpanded()) { <span matListItemTitle>Sticker Toevoegen</span> }
+          @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.addSticker' | translate }}</span> }
         </a>
       }
       <a mat-list-item (click)="navigateToOverview(); isHandset() && sidenav.close()">
         <mat-icon matListItemIcon>table_view</mat-icon>
-        @if (sidenavExpanded()) { <span matListItemTitle>Sticker Overzicht</span> }
+        @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.overview' | translate }}</span> }
       </a>
       @if (authService.isEditor() || authService.isAdmin()) {
         <a mat-list-item (click)="navigateToCategories(); isHandset() && sidenav.close()">
           <mat-icon matListItemIcon>label</mat-icon>
-          @if (sidenavExpanded()) { <span matListItemTitle>Categorieën</span> }
+          @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.categories' | translate }}</span> }
         </a>
       }
       @if (authService.isAdmin()) {
         <a mat-list-item (click)="navigateToAdmin(); isHandset() && sidenav.close()">
           <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
-          @if (sidenavExpanded()) { <span matListItemTitle>Beheer</span> }
+          @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.admin' | translate }}</span> }
         </a>
       }
     </mat-nav-list>
@@ -57,7 +57,7 @@
       <a mat-list-item class="theme-row" (click)="themeService.toggle()">
         <mat-icon matListItemIcon>{{ themeService.isDarkMode() ? 'dark_mode' : 'light_mode' }}</mat-icon>
         @if (sidenavExpanded()) {
-          <span matListItemTitle>Thema</span>
+          <span matListItemTitle>{{ 'nav.theme' | translate }}</span>
         }
         @if (sidenavExpanded()) {
           <mat-slide-toggle
@@ -70,24 +70,52 @@
         }
       </a>
 
+      <a mat-list-item class="language-row" (click)="toggleLanguageMenu()">
+        <mat-icon matListItemIcon>language</mat-icon>
+        @if (sidenavExpanded()) {
+          <span matListItemTitle>{{ 'nav.language' | translate }}</span>
+        }
+        @if (sidenavExpanded()) {
+          <span matListItemMeta class="lang-meta">
+            <span class="lang-code">{{ languageService.current() | uppercase }}</span>
+            <mat-icon class="lang-chevron" [class.open]="languageMenuOpen()">expand_more</mat-icon>
+          </span>
+        }
+      </a>
+      @if (sidenavExpanded() && languageMenuOpen()) {
+        @for (lang of languageService.available; track lang) {
+          <a
+            mat-list-item
+            class="language-option"
+            [class.active]="languageService.current() === lang"
+            (click)="selectLanguage(lang)"
+          >
+            <span matListItemTitle>{{ 'nav.languageName.' + lang | translate }}</span>
+            @if (languageService.current() === lang) {
+              <mat-icon matListItemMeta class="lang-check"></mat-icon>
+            }
+          </a>
+        }
+      }
+
       @if (!authService.isAuthenticated()) {
         <a mat-list-item (click)="login()">
           <mat-icon matListItemIcon>login</mat-icon>
-          @if (sidenavExpanded()) { <span matListItemTitle>Login</span> }
+          @if (sidenavExpanded()) { <span matListItemTitle>{{ 'nav.login' | translate }}</span> }
         </a>
       } @else {
         <a mat-list-item (click)="logout()">
           <mat-icon matListItemIcon>logout</mat-icon>
           @if (sidenavExpanded()) {
-            <span matListItemTitle>Logout</span>
+            <span matListItemTitle>{{ 'nav.logout' | translate }}</span>
           }
           @if (sidenavExpanded()) {
-            <span matListItemMeta class="user-name">{{ authService.getUserInfo()?.given_name || 'User' }}</span>
+            <span matListItemMeta class="user-name">{{ authService.getUserInfo()?.given_name || ('nav.user' | translate) }}</span>
           }
         </a>
       }
 
-      <a mat-list-item class="version-row" (click)="openChangelog()" matTooltip="Changelog bekijken" matTooltipPosition="right">
+      <a mat-list-item class="version-row" (click)="openChangelog()" [matTooltip]="'nav.changelogTooltip' | translate" matTooltipPosition="right">
         <mat-icon matListItemIcon>info</mat-icon>
         @if (sidenavExpanded()) { <span matListItemTitle>v{{ appVersion }}</span> }
       </a>
@@ -96,7 +124,7 @@
 
   <mat-sidenav-content class="app-content">
     @if (isHandset()) {
-      <button mat-icon-button class="mobile-menu-btn" (click)="sidenav.toggle()" aria-label="Menu">
+      <button mat-icon-button class="mobile-menu-btn" (click)="sidenav.toggle()" [attr.aria-label]="'nav.menu' | translate">
         <mat-icon>menu</mat-icon>
       </button>
     }
