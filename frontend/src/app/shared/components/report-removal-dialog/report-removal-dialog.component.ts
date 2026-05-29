@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../../core/services/sticker.service';
 
 export interface ReportRemovalDialogData {
@@ -18,13 +19,14 @@ export interface ReportRemovalDialogResult {
 @Component({
   selector: 'app-report-removal-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './report-removal-dialog.component.html',
   styleUrl: './report-removal-dialog.component.scss',
 })
 export class ReportRemovalDialogComponent {
   private stickerService = inject(StickerService);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
   readonly data = inject<ReportRemovalDialogData>(MAT_DIALOG_DATA);
   private dialogRef = inject<MatDialogRef<ReportRemovalDialogComponent, ReportRemovalDialogResult>>(MatDialogRef);
 
@@ -56,7 +58,7 @@ export class ReportRemovalDialogComponent {
         },
         error: (err) => {
           this.submitting.set(false);
-          this.errorMessage.set(err.error?.detail ?? 'Melding mislukt. Probeer het opnieuw.');
+          this.errorMessage.set(err.error?.detail ?? this.translate.instant('reportRemoval.failed'));
         },
       });
   }

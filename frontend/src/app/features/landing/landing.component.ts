@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { TranslatePipe } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../../core/services/auth.service';
@@ -18,7 +19,7 @@ const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, MatProgressSpinnerModule, MatDialogModule],
+  imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, MatProgressSpinnerModule, MatDialogModule, TranslatePipe],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',
 })

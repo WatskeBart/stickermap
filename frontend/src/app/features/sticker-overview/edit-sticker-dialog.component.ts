@@ -11,6 +11,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
@@ -42,6 +43,7 @@ export interface EditDialogResult {
     MatTooltipModule,
     MatCheckboxModule,
     CategorySelectorComponent,
+    TranslatePipe,
   ],
   templateUrl: './edit-sticker-dialog.component.html',
   styleUrl: './edit-sticker-dialog.component.scss',
@@ -52,6 +54,7 @@ export class EditStickerDialogComponent implements OnInit {
   private stickerService = inject(StickerService);
   private snackBar = inject(MatSnackBar);
   private destroyRef = inject(DestroyRef);
+  private translate = inject(TranslateService);
 
   saving = signal(false);
   archiving = signal(false);
@@ -145,7 +148,7 @@ export class EditStickerDialogComponent implements OnInit {
       if (this.hasRotated()) {
         this.dialogRef.close({ updated: true } satisfies EditDialogResult);
       } else {
-        this.snackBar.open('Geen wijzigingen gedetecteerd', 'Sluiten', { duration: 3000 });
+        this.snackBar.open(this.translate.instant('editSticker.noChanges'), this.translate.instant('common.close'), { duration: 3000 });
       }
       return;
     }
@@ -159,8 +162,8 @@ export class EditStickerDialogComponent implements OnInit {
       error: (err: any) => {
         this.saving.set(false);
         this.snackBar.open(
-          `Bijwerken mislukt: ${err.error?.detail || err.message}`,
-          'Sluiten',
+          this.translate.instant('editSticker.updateFailed', { detail: err.error?.detail || err.message }),
+          this.translate.instant('common.close'),
           { duration: 5000 },
         );
       },
@@ -181,8 +184,8 @@ export class EditStickerDialogComponent implements OnInit {
         error: (err: any) => {
           this.rotating.set(null);
           this.snackBar.open(
-            `Roteren mislukt: ${err.error?.detail || err.message}`,
-            'Sluiten',
+            this.translate.instant('editSticker.rotateFailed', { detail: err.error?.detail || err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },
@@ -201,8 +204,8 @@ export class EditStickerDialogComponent implements OnInit {
         error: (err: any) => {
           this.archiving.set(false);
           this.snackBar.open(
-            `Archiveren mislukt: ${err.error?.detail || err.message}`,
-            'Sluiten',
+            this.translate.instant('editSticker.archiveFailed', { detail: err.error?.detail || err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },

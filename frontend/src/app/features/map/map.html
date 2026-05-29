@@ -60,21 +60,21 @@
                 (error)="$any($event.target).style.display = 'none'"
               />
               <div class="sticker-popup-info">
-                <p><strong>Geplakt door:</strong> {{ sticker.poster }}</p>
-                <p><strong>Uploader:</strong> {{ sticker.uploader }}</p>
-                <p><strong>Plak datum:</strong>
+                <p><strong>{{ 'map.postedBy' | translate }}</strong> {{ sticker.poster }}</p>
+                <p><strong>{{ 'map.uploaderLabel' | translate }}</strong> {{ sticker.uploader }}</p>
+                <p><strong>{{ 'map.postDate' | translate }}</strong>
                   @if (sticker.dateUnknown) {
                     <span class="unknown-date-badge">
-                      <mat-icon class="unknown-date-icon">priority_high</mat-icon>Onbekend
+                      <mat-icon class="unknown-date-icon">priority_high</mat-icon>{{ 'map.unknown' | translate }}
                     </span>
                   } @else {
                     {{ sticker.post_date }}
                   }
                 </p>
-                <p><strong>Upload datum:</strong> {{ sticker.upload_date }}</p>
+                <p><strong>{{ 'map.uploadDate' | translate }}</strong> {{ sticker.upload_date }}</p>
                 @if (sticker.category_name) {
                   <p class="popup-category">
-                    <strong>Categorie:</strong>
+                    <strong>{{ 'map.categoryLabel' | translate }}</strong>
                     @if (sticker.category_icon_url) {
                       <img [src]="sticker.category_icon_url" class="popup-category-icon" alt="" />
                     }
@@ -85,30 +85,32 @@
               @if (sticker.private) {
                 <div class="sticker-popup-private-badge">
                   <mat-icon class="private-badge-icon">lock</mat-icon>
-                  Privé sticker
+                  {{ 'map.privateSticker' | translate }}
                 </div>
               }
               @if (sticker.removalCount > 0) {
                 <div class="sticker-popup-report-badge">
                   <mat-icon class="report-badge-icon">warning</mat-icon>
-                  {{ sticker.removalCount === 1 ? '1 melding als verwijderd' : sticker.removalCount + ' meldingen als verwijderd' }}
+                  {{ sticker.removalCount === 1
+                    ? ('map.reportBadgeOne' | translate)
+                    : ('map.reportBadgeMany' | translate: { count: sticker.removalCount }) }}
                 </div>
               }
               @if (sticker.canEdit || sticker.canDelete || sticker.canReport) {
                 <div class="sticker-popup-actions">
                   @if (sticker.canEdit) {
                     <button class="popup-btn popup-btn-edit" (click)="openEditModal(sticker.id)">
-                      Bewerken
+                      {{ 'common.edit' | translate }}
                     </button>
                   }
                   @if (sticker.canDelete) {
                     <button class="popup-btn popup-btn-delete" (click)="openDeleteConfirm(sticker.id, sticker.poster)">
-                      Verwijderen
+                      {{ 'common.delete' | translate }}
                     </button>
                   }
                   @if (sticker.canReport) {
                     <button class="popup-btn popup-btn-report" (click)="openReportDialog(sticker.id, sticker.poster)">
-                      Melden
+                      {{ 'map.report' | translate }}
                     </button>
                   }
                 </div>
@@ -123,7 +125,7 @@
               />
               @if (isAuthenticated()) {
                 <div class="sticker-popup-info">
-                  <p class="sticker-popup-anon">Je bent niet geautoriseerd om sticker details te bekijken. Vraag toegang aan een beheerder.</p>
+                  <p class="sticker-popup-anon">{{ 'map.unauthorized' | translate }}</p>
                 </div>
               }
             }
@@ -155,7 +157,7 @@
       <mat-button-toggle-group
         [value]="activeTileLayer()"
         (change)="switchTileLayer($event.value)"
-        aria-label="Kaarttype"
+        [attr.aria-label]="'map.mapType' | translate"
         hideSingleSelectionIndicator
       >
         @for (layer of availableTileLayers; track layer.id) {
@@ -168,12 +170,12 @@
   @if (!locationSelectionMode() && !editSelectingLocation() && categories().length > 0) {
     <div class="category-filter">
       <mat-form-field appearance="outline" class="category-filter-field">
-        <mat-label>Filter op categorie</mat-label>
+        <mat-label>{{ 'map.filterCategory' | translate }}</mat-label>
         <mat-select
           [ngModel]="selectedCategoryFilter()"
           (ngModelChange)="selectedCategoryFilter.set($event)"
         >
-          <mat-option value="all">Alle categorieën</mat-option>
+          <mat-option value="all">{{ 'map.allCategories' | translate }}</mat-option>
           @for (c of categories(); track c.id) {
             <mat-option [value]="c.id">
               <span class="filter-option-row">
@@ -195,9 +197,9 @@
     <div class="loading-overlay">
       <div class="loading-content">
         <mat-progress-spinner mode="indeterminate" color="accent" diameter="50"></mat-progress-spinner>
-        <p>Stickers worden geladen uit de database...</p>
+        <p>{{ 'map.loading' | translate }}</p>
         @if (stickerCount() > 0) {
-          <small>{{ stickerCount() }} stickers geladen</small>
+          <small>{{ 'map.stickersLoaded' | translate: { count: stickerCount() } }}</small>
         }
       </div>
     </div>

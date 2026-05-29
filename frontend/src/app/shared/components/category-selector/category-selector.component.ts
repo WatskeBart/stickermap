@@ -18,6 +18,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { CategoryService } from '../../../core/services/category.service';
 import type { Category } from '../../../core/models/category.model';
@@ -40,6 +41,7 @@ import type { Category } from '../../../core/models/category.model';
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
+    TranslatePipe,
   ],
   templateUrl: './category-selector.component.html',
   styleUrl: './category-selector.component.scss',
@@ -47,11 +49,13 @@ import type { Category } from '../../../core/models/category.model';
 export class CategorySelectorComponent implements OnInit {
   readonly categoryId = model<number | null>(null);
   readonly allowCreate = input(true);
-  readonly label = input('Categorie');
+  /** Translation key for the field label (default: the shared "Category" label). */
+  readonly label = input('categorySelector.label');
 
   private readonly categoryService = inject(CategoryService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly translate = inject(TranslateService);
 
   readonly categories = signal<Category[]>([]);
   readonly loading = signal(false);
@@ -100,7 +104,7 @@ export class CategorySelectorComponent implements OnInit {
   submitCreate(): void {
     const name = this.newCategoryName().trim();
     if (!name) {
-      this.snackBar.open('Vul een naam in', 'Sluiten', { duration: 3000 });
+      this.snackBar.open(this.translate.instant('categorySelector.enterName'), this.translate.instant('common.close'), { duration: 3000 });
       return;
     }
     this.creating.set(true);
@@ -117,16 +121,16 @@ export class CategorySelectorComponent implements OnInit {
             this.categories.set([...current, category].sort((a, b) => a.name.localeCompare(b.name)));
           }
           this.categoryId.set(category.id);
-          const msg = category.approved
-            ? 'Categorie aangemaakt.'
-            : 'Categorie aangemaakt — wacht op goedkeuring door een admin.';
-          this.snackBar.open(msg, 'Sluiten', { duration: 4000 });
+          const msg = this.translate.instant(
+            category.approved ? 'categorySelector.created' : 'categorySelector.createdPending',
+          );
+          this.snackBar.open(msg, this.translate.instant('common.close'), { duration: 4000 });
         },
         error: (err) => {
           this.creating.set(false);
           this.snackBar.open(
-            `Aanmaken mislukt: ${err.error?.detail ?? err.message}`,
-            'Sluiten',
+            this.translate.instant('categorySelector.createFailed', { detail: err.error?.detail ?? err.message }),
+            this.translate.instant('common.close'),
             { duration: 5000 },
           );
         },

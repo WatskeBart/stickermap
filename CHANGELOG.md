@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.20.0] - 2026-05-29
+
+### Added
+
+- Runtime i18n with Dutch and English support via `@ngx-translate/core` v17 — all user-facing strings across every feature and shared component are now translatable. Translation files live at `frontend/public/i18n/{nl,en}.json` and are served at `/i18n/*.json`. The active language is persisted in `localStorage` under the key `stickermap-lang`.
+- Language switcher in the sidenav — the user can toggle between Dutch (default) and English at runtime without a page reload. Adding a new language requires only a JSON translation file and a one-line entry in `LanguageService`; the sidenav dropdown renders it automatically. See `frontend/README.md` for the step-by-step guide.
+
 ## [1.19.0] - 2026-05-26
 
 ### Changed
@@ -420,6 +427,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [unreleased]: https://github.com/WatskeBart/stickermap/compare/1.19.0...HEAD
 [1.19.0]: https://github.com/WatskeBart/stickermap/compare/1.18.0...1.19.0
 [1.18.0]: https://github.com/WatskeBart/stickermap/compare/1.17.2...1.18.0
+[1.17.2]: https://github.com/WatskeBart/stickermap/compare/1.17.1...1.17.2
+[1.17.1]: https://github.com/WatskeBart/stickermap/compare/1.17.0...1.17.1
 [1.17.0]: https://github.com/WatskeBart/stickermap/compare/1.16.0...1.17.0
 [1.16.0]: https://github.com/WatskeBart/stickermap/compare/1.15.0...1.16.0
 [1.15.0]: https://github.com/WatskeBart/stickermap/compare/1.14.0...1.15.0

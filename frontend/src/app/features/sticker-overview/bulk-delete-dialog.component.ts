@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface BulkDeleteDialogData {
   count: number;
@@ -9,7 +10,7 @@ export interface BulkDeleteDialogData {
 @Component({
   selector: 'app-bulk-delete-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './bulk-delete-dialog.component.html',
 })
 export class BulkDeleteDialogComponent {

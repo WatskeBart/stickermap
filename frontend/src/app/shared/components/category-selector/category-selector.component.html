@@ -1,13 +1,13 @@
 @if (!showCreateForm()) {
   <div class="selector-row">
     <mat-form-field appearance="outline" class="selector-field">
-      <mat-label>{{ label() }}</mat-label>
+      <mat-label>{{ label() | translate }}</mat-label>
       <mat-select
         [ngModel]="categoryId()"
         (ngModelChange)="onSelect($event)"
         [disabled]="loading()"
       >
-        <mat-option [value]="null">— Geen categorie —</mat-option>
+        <mat-option [value]="null">{{ 'categorySelector.noCategory' | translate }}</mat-option>
         @for (c of categories(); track c.id) {
           <mat-option [value]="c.id">
             <span class="option-row">
@@ -18,7 +18,7 @@
               }
               <span>{{ c.name }}</span>
               @if (!c.approved) {
-                <span class="pending-tag"> (wacht op goedkeuring)</span>
+                <span class="pending-tag">{{ 'categorySelector.pendingTag' | translate }}</span>
               }
             </span>
           </mat-option>
@@ -33,7 +33,7 @@
         type="button"
         mat-icon-button
         (click)="openCreateForm()"
-        matTooltip="Nieuwe categorie voorstellen"
+        [matTooltip]="'categorySelector.newCategoryTooltip' | translate"
       >
         <mat-icon>add</mat-icon>
       </button>
@@ -42,14 +42,14 @@
 } @else {
   <div class="create-row">
     <mat-form-field appearance="outline" class="selector-field">
-      <mat-label>Nieuwe categorie</mat-label>
+      <mat-label>{{ 'categorySelector.newCategory' | translate }}</mat-label>
       <input
         matInput
         type="text"
         [ngModel]="newCategoryName()"
         (ngModelChange)="newCategoryName.set($event)"
         (keydown.enter)="submitCreate()"
-        placeholder="Bijv. politiek, muziek, sport"
+        [placeholder]="'categorySelector.placeholder' | translate"
         maxlength="255"
       />
     </mat-form-field>
@@ -63,7 +63,7 @@
       @if (creating()) {
         <mat-progress-spinner mode="indeterminate" diameter="18" />
       } @else {
-        Toevoegen
+        {{ 'common.add' | translate }}
       }
     </button>
     <button
@@ -72,7 +72,7 @@
       (click)="cancelCreate()"
       [disabled]="creating()"
     >
-      Annuleren
+      {{ 'common.cancel' | translate }}
     </button>
   </div>
 }

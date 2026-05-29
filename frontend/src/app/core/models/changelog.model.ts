@@ -11,6 +11,19 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.20.0',
+    date: '2026-05-29',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Runtime i18n with Dutch and English support via <code>@ngx-translate/core</code> v17 — all user-facing strings across every feature and shared component are now translatable. Translation files live at <code>frontend/public/i18n/{nl,en}.json</code> and are served at <code>/i18n/*.json</code>. The active language is persisted in <code>localStorage</code> under the key <code>stickermap-lang</code>.',
+          'Language switcher in the sidenav — the user can toggle between Dutch (default) and English at runtime without a page reload. Adding a new language requires only a JSON translation file and a one-line entry in <code>LanguageService</code>; the sidenav dropdown renders it automatically. See <code>frontend/README.md</code> for the step-by-step guide.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.19.0',
     date: '2026-05-26',
     sections: [
