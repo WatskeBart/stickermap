@@ -106,6 +106,8 @@ ingress:
   # REQUIRED: External hostname, e.g. stickermap.example.com
   hostname: "stickermap.example.com"
   className: traefik
+  # Redirect HTTP → HTTPS via a Traefik Middleware (requires Traefik CRDs)
+  httpRedirect: true
   annotations: {}
     # cert-manager.io/cluster-issuer: stepca
   tls:

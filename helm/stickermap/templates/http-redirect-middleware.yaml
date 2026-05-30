@@ -1,0 +1,13 @@
+{{- if .Values.ingress.httpRedirect }}
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Release.Name }}-https-redirect
+  labels:
+    app.kubernetes.io/name: stickermap
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}
