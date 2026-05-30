@@ -304,6 +304,11 @@
       <p>Organise stickers into custom categories with admin tooling to manage, merge, and moderate.</p>
     </div>
     <div class="card">
+      <div class="card-icon">🌐</div>
+      <h3>Multi-language</h3>
+      <p>Runtime i18n with English and Dutch support — switch languages without reloading the app.</p>
+    </div>
+    <div class="card">
       <div class="card-icon">🛡️</div>
       <h3>Self-hosted</h3>
       <p>AGPL-3.0 licensed. Run it on your own infrastructure — your data stays yours.</p>
@@ -325,13 +330,23 @@
   </div>
 
   <div class="helm-block" style="margin-bottom: 1.5rem;">
-    <div class="helm-block-header">Minimal install</div>
+    <div class="helm-block-header">Minimal install (raw DB credentials)</div>
     <pre><span class="token-cmd">helm</span> install <span class="token-arg">stickermap</span> stickermap/stickermap \
   <span class="token-flag">--namespace</span> stickermap <span class="token-flag">--create-namespace</span> \
   <span class="token-flag">--set</span> <span class="token-string">ingress.hostname=stickers.example.com</span> \
   <span class="token-flag">--set</span> <span class="token-string">keycloak.url=https://auth.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">database.existingSecretName=</span> \
   <span class="token-flag">--set</span> <span class="token-string">database.host=postgres.example.com</span> \
   <span class="token-flag">--set</span> <span class="token-string">database.password=changeme</span></pre>
+  </div>
+
+  <div class="helm-block" style="margin-bottom: 1.5rem;">
+    <div class="helm-block-header">Minimal install (existing secret)</div>
+    <pre><span class="token-cmd">helm</span> install <span class="token-arg">stickermap</span> stickermap/stickermap \
+  <span class="token-flag">--namespace</span> stickermap <span class="token-flag">--create-namespace</span> \
+  <span class="token-flag">--set</span> <span class="token-string">ingress.hostname=stickers.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">keycloak.url=https://auth.example.com</span> \
+  <span class="token-flag">--set</span> <span class="token-string">database.existingSecretName=my-db-secret</span></pre>
   </div>
 
   <div class="helm-block">
@@ -342,6 +357,10 @@
   </div>
 
   <p style="margin-top: 1.25rem; font-size: 0.875rem; color: var(--muted);">
+    HTTP→HTTPS redirect is enabled by default via a Traefik Middleware (<code>ingress.httpRedirect=true</code>).
+    Set it to <code>false</code> if you use a different ingress controller.
+  </p>
+  <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--muted);">
     Full configuration reference and mandatory values:
     <a href="https://github.com/WatskeBart/stickermap/blob/main/helm/README.md">helm/README.md</a>
   </p>
