@@ -5,9 +5,16 @@ metadata:
   labels:
     app.kubernetes.io/name: stickermap
     app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- $annotations := dict }}
+  {{- if .Values.ingress.httpRedirect }}
+  {{- $_ := set $annotations "traefik.ingress.kubernetes.io/router.middlewares" (printf "%s-%s-https-redirect@kubernetescrd" .Release.Namespace .Release.Name) }}
+  {{- end }}
   {{- with .Values.ingress.annotations }}
+  {{- $annotations = merge $annotations . }}
+  {{- end }}
+  {{- if $annotations }}
   annotations:
-    {{- toYaml . | nindent 4 }}
+    {{- toYaml $annotations | nindent 4 }}
   {{- end }}
 spec:
   {{- if .Values.ingress.className }}

@@ -11,6 +11,18 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.21.0',
+    date: '2026-05-30',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          'Traefik HTTP→HTTPS redirect middleware for the Helm chart — a <code>Middleware</code> CRD resource (<code>traefik.io/v1alpha1</code>) is created when <code>ingress.httpRedirect: true</code> (the new default). The middleware is automatically wired into the <code>Ingress</code> annotations so all plain-HTTP traffic is permanently redirected to HTTPS. Disable by setting <code>ingress.httpRedirect: false</code>. Requires Traefik CRDs to be installed in the cluster.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.20.0',
     date: '2026-05-29',
     sections: [

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.0] - 2026-05-30
+
+### Added
+
+- Traefik HTTP→HTTPS redirect middleware for the Helm chart — a `Middleware` CRD resource (`traefik.io/v1alpha1`) is created when `ingress.httpRedirect: true` (the new default). The middleware is automatically wired into the `Ingress` annotations so all plain-HTTP traffic is permanently redirected to HTTPS. Disable by setting `ingress.httpRedirect: false`. Requires Traefik CRDs to be installed in the cluster.
+
 ## [1.20.0] - 2026-05-29
 
 ### Added
@@ -424,7 +430,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.19.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.0...HEAD
+[1.21.0]: https://github.com/WatskeBart/stickermap/compare/1.20.0...1.21.0
+[1.20.0]: https://github.com/WatskeBart/stickermap/compare/1.19.0...1.20.0
 [1.19.0]: https://github.com/WatskeBart/stickermap/compare/1.18.0...1.19.0
 [1.18.0]: https://github.com/WatskeBart/stickermap/compare/1.17.2...1.18.0
 [1.17.2]: https://github.com/WatskeBart/stickermap/compare/1.17.1...1.17.2
