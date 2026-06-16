@@ -17,3 +17,8 @@ overrides:
   fast-uri: "^3.1.2"
   ip-address: "^10.1.1"
   qs: "^6.15.2"
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  - electron-to-chromium
+  - caniuse-lite

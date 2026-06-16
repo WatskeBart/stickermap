@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.2] - 2026-06-16
+
+### Fixed
+
+- Frontend CI image build failed pnpm's supply-chain `minimumReleaseAge` policy: the lockfile pinned `electron-to-chromium@1.5.374`, published within the 24-hour release-age cutoff, so `pnpm install --frozen-lockfile` aborted with `ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`. The 1.21.1 release was cut before this fix, so its frontend image never published.
+
+### Changed
+
+- Pinned the pnpm supply-chain release-age policy explicitly in `frontend/pnpm-workspace.yaml` (`minimumReleaseAge: 1440`) so the build no longer inherits whatever default the floating pnpm version ships, and excluded the high-churn, low-risk browser-data packages `electron-to-chromium` and `caniuse-lite` (`minimumReleaseAgeExclude`), which are bumped multiple times daily as transitive deps and were the only entries tripping the check.
+
 ## [1.21.1] - 2026-06-16
 
 ### Security
@@ -438,7 +448,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.1...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.2...HEAD
+[1.21.2]: https://github.com/WatskeBart/stickermap/compare/1.21.1...1.21.2
 [1.21.1]: https://github.com/WatskeBart/stickermap/compare/1.21.0...1.21.1
 [1.21.0]: https://github.com/WatskeBart/stickermap/compare/1.20.0...1.21.0
 [1.20.0]: https://github.com/WatskeBart/stickermap/compare/1.19.0...1.20.0
