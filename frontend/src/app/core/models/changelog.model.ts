@@ -11,6 +11,24 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.21.2',
+    date: '2026-06-16',
+    sections: [
+      {
+        type: 'Fixed',
+        items: [
+          'Frontend CI image build failed pnpm\'s supply-chain <code>minimumReleaseAge</code> policy: the lockfile pinned <code>electron-to-chromium@1.5.374</code>, published within the 24-hour release-age cutoff, so <code>pnpm install --frozen-lockfile</code> aborted with <code>ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION</code>. The 1.21.1 release was cut before this fix, so its frontend image never published.',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Pinned the pnpm supply-chain release-age policy explicitly in <code>frontend/pnpm-workspace.yaml</code> (<code>minimumReleaseAge: 1440</code>) so the build no longer inherits whatever default the floating pnpm version ships, and excluded the high-churn, low-risk browser-data packages <code>electron-to-chromium</code> and <code>caniuse-lite</code> (<code>minimumReleaseAgeExclude</code>), which are bumped multiple times daily as transitive deps and were the only entries tripping the check.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.21.1',
     date: '2026-06-16',
     sections: [
