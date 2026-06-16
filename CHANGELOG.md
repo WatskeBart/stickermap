@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.1] - 2026-06-16
+
+### Security
+
+- Resolved all open Dependabot alerts via dependency upgrades (no application code changes):
+  - **Backend** — `PyJWT` 2.12.1 → 2.13.0 (algorithm allow-list bypass, unbounded Base64URL DoS, and unbounded JWKS-request DoS); `starlette` 1.0.0 → 1.3.1 (missing Host-header validation that poisoned `request.url.path`). The `starlette` floor is pinned via `[tool.uv].constraint-dependencies` since it is a transitive FastAPI dependency.
+  - **Frontend** — `@angular/core`, `@angular/common`, and `@angular/compiler` 21.2.12 → 21.2.17 (template/attribute namespace XSS bypasses, `HttpTransferCache` cross-request data leakage/poisoning, and `formatDate`/`digitsInfo` OOM DoS); `hono` → 4.12.25 (routing, cookie-injection, and JWT-scheme issues); `esbuild` 0.27.3 → 0.28.1 (Deno-path RCE and Windows dev-server file read), forced via a `pnpm` override because `@angular/build` pins esbuild exactly.
+
 ## [1.21.0] - 2026-05-30
 
 ### Added
@@ -430,7 +438,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.1...HEAD
+[1.21.1]: https://github.com/WatskeBart/stickermap/compare/1.21.0...1.21.1
 [1.21.0]: https://github.com/WatskeBart/stickermap/compare/1.20.0...1.21.0
 [1.20.0]: https://github.com/WatskeBart/stickermap/compare/1.19.0...1.20.0
 [1.19.0]: https://github.com/WatskeBart/stickermap/compare/1.18.0...1.19.0
