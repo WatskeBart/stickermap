@@ -5,6 +5,7 @@ allowBuilds:
   msgpackr-extract: true
 
 overrides:
+  "@babel/core": ">=7.29.6"
   socket.io-parser: "^4.2.6"
   "glob@^10": "^10.5.0"
   "path-to-regexp@^8": "^8.4.0"

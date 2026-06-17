@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.3] - 2026-06-17
+
+### Security
+
+- Resolved all open Dependabot alerts via dependency floor raises and one targeted override (no application code changes):
+  - **Backend** — `python-multipart` 0.0.28 → 0.0.31+ floor (quadratic-time CPU DoS via semicolon querystring parsing, negative Content-Length full-body buffering, semicolon parameter smuggling, and RFC 2231/5987 Content-Disposition smuggling); `cryptography` 48.0.0 → 48.0.1+ floor (vulnerable OpenSSL bundled in wheels).
+  - **Frontend** — `@babel/core` 7.29.0 → 7.29.6+ override in `pnpm-workspace.yaml` (arbitrary file read via crafted `sourceMappingURL` comment); an override is required because `@angular/build@21.x` pins this dependency exactly.
+
 ## [1.21.2] - 2026-06-16
 
 ### Fixed

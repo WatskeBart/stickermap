@@ -1,6 +1,6 @@
 [project]
 name = "stickermap"
-version = "1.21.2"
+version = "1.21.3"
 description = "Sticker location mapper"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -12,8 +12,8 @@ dependencies = [
     "psycopg-pool>=3.2.0",
     "python-dotenv>=1.2.2",
     "PyJWT>=2.13.0",
-    "cryptography>=48.0.0",
-    "python-multipart>=0.0.27",
+    "cryptography>=48.0.1",
+    "python-multipart>=0.0.31",
     "requests>=2.34.1",
 ]
 
