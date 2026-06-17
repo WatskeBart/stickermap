@@ -2,8 +2,20 @@ apiVersion: v1
 entries:
   stickermap:
   - apiVersion: v2
+    appVersion: 1.21.3
+    created: "2026-06-17T18:09:33.615141379Z"
+    description: StickerMap - a flat chart deploying backend, frontend, and database
+      migrations.
+    digest: 4f833c4d571026746ef1b60b3cc65fb585d0e97619462a05703b08d810386edd
+    icon: data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48c3ZnIHdpZHRoPSI4MDBweCIgaGVpZ2h0PSI4MDBweCIgdmlld0JveD0iMCAwIDI0IDI0IiByb2xlPSJpbWciIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgYXJpYS1sYWJlbGxlZGJ5PSJzdGlja2VySWNvblRpdGxlIiBzdHJva2U9IiMwMDAwMDAiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBmaWxsPSJub25lIiBjb2xvcj0iIzAwMDAwMCI+IDx0aXRsZSBpZD0ic3RpY2tlckljb25UaXRsZSI+U3RpY2tlcjwvdGl0bGU+IDxwYXRoIGQ9Ik0yMSwzIEwyMSwxMSBDMjEsMTYuNTIyODQ3NSAxNi41MjI4NDc1LDIxIDExLDIxIEwzLDIxIEwzLDMgTDIxLDMgWiIvPiA8cGF0aCBkPSJNOSwyMSBDMTEuNjY2NjY2NywyMSAxMywxOS42NjY2NjY3IDEzLDE3IEMxMywxNyAxMywxNS42NjY2NjY3IDEzLDEzIEwxNywxMyBDMTkuNjY2NjY2NywxMyAyMSwxMS42NjY2NjY3IDIxLDkiLz4gPC9zdmc+
+    name: stickermap
+    type: application
+    urls:
+    - https://watskebart.github.io/stickermap/stickermap-1.21.3.tgz
+    version: 1.21.3
+  - apiVersion: v2
     appVersion: 1.21.2
-    created: "2026-06-16T19:17:01.70773153Z"
+    created: "2026-06-17T18:09:33.614533898Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: afd1c24b07d9f1c07ba26dc274fa5f2a22bee6fb8a5804ba007861d6ac49e930
@@ -15,7 +27,7 @@ entries:
     version: 1.21.2
   - apiVersion: v2
     appVersion: 1.21.1
-    created: "2026-06-16T19:17:01.70719676Z"
+    created: "2026-06-17T18:09:33.614017268Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 0b86abd210b113dd7485374446be17e588d7362ac44dea1aba480a9c24008ccd
@@ -27,7 +39,7 @@ entries:
     version: 1.21.1
   - apiVersion: v2
     appVersion: 1.21.0
-    created: "2026-06-16T19:17:01.706733462Z"
+    created: "2026-06-17T18:09:33.6127492Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 35dbff10f5a87a266b53645c8e85de1c83195f023287567878b60eb4f6991591
@@ -39,7 +51,7 @@ entries:
     version: 1.21.0
   - apiVersion: v2
     appVersion: 1.20.0
-    created: "2026-06-16T19:17:01.706183403Z"
+    created: "2026-06-17T18:09:33.611863407Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: a7488339e264a50426f48ab00ccd23cfb25f1f5a01aba4675d8c42689f458d7e
@@ -51,7 +63,7 @@ entries:
     version: 1.20.0
   - apiVersion: v2
     appVersion: 1.19.0
-    created: "2026-06-16T19:17:01.705684269Z"
+    created: "2026-06-17T18:09:33.611368677Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 23b891a091479d8a2c7974f0d4605b34fc5aa3ebaa35598ffe57bea072ac029e
@@ -63,7 +75,7 @@ entries:
     version: 1.19.0
   - apiVersion: v2
     appVersion: 1.18.0
-    created: "2026-06-16T19:17:01.705171158Z"
+    created: "2026-06-17T18:09:33.610889046Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 2fd20114eeffdefdfab54aa853eecbc4dbf6a7c7eb70c5d6f4dc925b2db4027c
@@ -75,7 +87,7 @@ entries:
     version: 1.18.0
   - apiVersion: v2
     appVersion: 1.17.2
-    created: "2026-06-16T19:17:01.704667476Z"
+    created: "2026-06-17T18:09:33.610356877Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 33ea7b6d99361abf2962d9022fc2bb891367241fde7cc50633bd66a1feafda13
@@ -87,7 +99,7 @@ entries:
     version: 1.17.2
   - apiVersion: v2
     appVersion: 1.17.1
-    created: "2026-06-16T19:17:01.704074296Z"
+    created: "2026-06-17T18:09:33.609861586Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: db3d95747d472bab0079939faf9198b55f61d1e6acd581b28f02b9f8fe54d12e
@@ -99,7 +111,7 @@ entries:
     version: 1.17.1
   - apiVersion: v2
     appVersion: 1.17.0
-    created: "2026-06-16T19:17:01.703541238Z"
+    created: "2026-06-17T18:09:33.609293199Z"
     description: StickerMap - a flat chart deploying backend, frontend, and database
       migrations.
     digest: 6b6a8b180a58d94af51d7cd2c1e4d98d151ed716493d72c68762ec46910c6309
@@ -109,4 +121,4 @@ entries:
     urls:
     - https://watskebart.github.io/stickermap/stickermap-1.17.0.tgz
     version: 1.17.0
-generated: "2026-06-16T19:17:01.702859121Z"
+generated: "2026-06-17T18:09:33.608636024Z"
