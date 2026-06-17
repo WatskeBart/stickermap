@@ -17,7 +17,7 @@ export const CHANGELOG_DATA: ChangelogRelease[] = [
       {
         type: 'Security',
         items: [
-          'Resolved all open Dependabot alerts via dependency floor raises and one targeted override (no application code changes):',
+          'Resolved Dependabot alerts via version floor raises in backend dependencies (no application code changes):',
         ],
       },
     ],

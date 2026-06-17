@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Resolved all open Dependabot alerts via dependency floor raises and one targeted override (no application code changes):
+- Resolved Dependabot alerts via version floor raises in backend dependencies (no application code changes):
   - **Backend** — `python-multipart` 0.0.28 → 0.0.31+ floor (quadratic-time CPU DoS via semicolon querystring parsing, negative Content-Length full-body buffering, semicolon parameter smuggling, and RFC 2231/5987 Content-Disposition smuggling); `cryptography` 48.0.0 → 48.0.1+ floor (vulnerable OpenSSL bundled in wheels).
-  - **Frontend** — `@babel/core` 7.29.0 → 7.29.6+ override in `pnpm-workspace.yaml` (arbitrary file read via crafted `sourceMappingURL` comment); an override is required because `@angular/build@21.x` pins this dependency exactly.
+  - **Frontend** — Dependabot alert #83 (`@babel/core` ≤7.29.0, low severity, arbitrary file read via sourceMappingURL comment) cannot be resolved on Angular 21: `@babel/core ≥7.29.1` introduced strict `NumericLiteral` AST validation that breaks `@angular/build@21.2.x`'s Angular compiler plugin when processing Angular Material's fesm2022 output. The alert will be dismissed; it is addressed by upgrading to Angular 22.
 
 ## [1.21.2] - 2026-06-16
 
