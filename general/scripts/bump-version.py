@@ -152,6 +152,9 @@ def main() -> None:
         sys.exit(1)
 
     version = sys.argv[1]
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        print(f"Error: '{version}' is not a valid version (expected X.Y.Z)")
+        sys.exit(1)
     today = date.today().isoformat()
 
     # Resolve repo root relative to this script's location: general/scripts/ → ../../

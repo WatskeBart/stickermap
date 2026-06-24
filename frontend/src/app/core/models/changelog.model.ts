@@ -11,6 +11,18 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.21.4',
+    date: '2026-06-24',
+    sections: [
+      {
+        type: 'Security',
+        items: [
+          'Resolved open Dependabot alerts via version floor raises (no application code changes):',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.21.3',
     date: '2026-06-17',
     sections: [
