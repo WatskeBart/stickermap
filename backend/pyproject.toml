@@ -1,6 +1,6 @@
 [project]
 name = "stickermap"
-version = "1.21.3"
+version = "1.21.4"
 description = "Sticker location mapper"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [tool.uv]
-constraint-dependencies = ["pygments>=2.20.0", "starlette>=1.0.1"]
+constraint-dependencies = ["pygments>=2.20.0", "starlette>=1.0.1", "pydantic-settings>=2.14.2"]
 
 [tool.ruff]
 lint.ignore = ["F541"]

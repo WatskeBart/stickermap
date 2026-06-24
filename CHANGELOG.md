@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.4] - 2026-06-24
+
+### Security
+
+- Resolved open Dependabot alerts via version floor raises (no application code changes):
+  - **Backend** — `pydantic-settings` 2.14.1 → 2.14.2+ floor (GHSA-4xgf-cpjx-pc3j: `NestedSecretsSettingsSource` follows symlinks outside `secrets_dir`, enabling local file read and bypassing `secrets_dir_max_size`). Pinned via `[tool.uv].constraint-dependencies` since it is a transitive dependency of `fastapi[standard]`.
+  - **Frontend** — `@babel/core` 7.29.0 → 7.29.7 (GHSA: arbitrary file read via `sourceMappingURL` comment — contrary to the note in 1.21.3, 7.29.6+ resolves the alert and remains compatible with `@angular/build@21.2.x`); `piscina` 5.1.4 → 5.2.0 (prototype pollution gadget → RCE via inherited `options.filename`, high severity); `undici@7` 7.24.4 → 7.28.0 (six alerts: TLS certificate validation bypass via dropped `requestTls` in SOCKS5 `ProxyAgent`, cross-origin request routing via SOCKS5 proxy pool reuse, cross-user information disclosure via shared cache whitespace bypass, HTTP response queue poisoning via keep-alive socket reuse, HTTP header injection via `Set-Cookie` percent-decoding, and `Set-Cookie` `SameSite` attribute downgrade). All three frontend packages are pinned via `pnpm-workspace.yaml` overrides targeting their respective major-version ranges; `undici@6.27.0` (already at the fixed version) is left untouched.
+
 ## [1.21.3] - 2026-06-17
 
 ### Security
@@ -456,7 +464,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.2...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.4...HEAD
+[1.21.4]: https://github.com/WatskeBart/stickermap/compare/1.21.3...1.21.4
+[1.21.3]: https://github.com/WatskeBart/stickermap/compare/1.21.2...1.21.3
 [1.21.2]: https://github.com/WatskeBart/stickermap/compare/1.21.1...1.21.2
 [1.21.1]: https://github.com/WatskeBart/stickermap/compare/1.21.0...1.21.1
 [1.21.0]: https://github.com/WatskeBart/stickermap/compare/1.20.0...1.21.0
