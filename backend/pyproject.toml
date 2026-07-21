@@ -1,13 +1,13 @@
 [project]
 name = "stickermap"
-version = "1.21.4"
+version = "1.21.5"
 description = "Sticker location mapper"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "exifread>=3.5.1",
     "fastapi[standard]>=0.136.1",
-    "pillow>=12.2.0",
+    "pillow>=12.3.0",
     "psycopg[binary]>=3.3.4",
     "psycopg-pool>=3.2.0",
     "python-dotenv>=1.2.2",

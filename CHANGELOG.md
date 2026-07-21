@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.21.5] - 2026-07-21
+
+### Security
+
+- Resolved open Dependabot alerts via version floor raises (no application code changes):
+  - **Backend** — `pillow` 12.2.0 → 12.3.0 floor (nine alerts: heap out-of-bounds write in `ImageCmsTransform.apply()` via output mode mismatch, JPEG2000 tiled-decode scratch-buffer DoS, decompression-bomb DoS via `PdfParser.PdfStream.decode()`, heap out-of-bounds write in `Image.paste()`/`Image.crop()` via signed coordinate overflow, TGA RLE encoder heap-data leak, `WindowsViewer.get_command()` OS command injection, missing decompression-bomb checks in `GdImageFile._open()`/`BdfFontFile`/`FontFile.compile()`/`PcfFontFile._load_bitmaps()`, out-of-bounds read via row stride on the McIdas AREA mmap path, and an EPS `%%BeginBinary` negative-byte-count infinite loop).
+  - **Frontend** — `tar` (PAX numeric path type confusion causing a process crash) and `brace-expansion` (DoS via exponential-time `{}` group expansion), both transitive dependencies of the `@angular/cli`/`angular-server-side-configuration` toolchain. No override was needed: `frontend/pnpm-lock.yaml` had gone stale at `@angular/cli@21.2.15`, which resolved the vulnerable `tar@7.5.16`/`brace-expansion@2.1.0`/`brace-expansion@5.0.6`. Regenerating the lockfile from scratch picked up `@angular/cli@21.2.19` — already permitted by the existing `^21.2.15` range in `package.json` — which resolves the patched `tar@7.5.20`, `brace-expansion@2.1.2`, and `brace-expansion@5.0.7` on its own.
+
+### Changed
+
+- Audited every override in `frontend/pnpm-workspace.yaml` and removed all 15 that had accumulated since 1.13.0 (`socket.io-parser`, `glob@^10`, `path-to-regexp@^8`, `lodash`, `vite`, `follow-redirects`, `hono`, `esbuild`, `postcss`, `fast-uri`, `ip-address`, `qs`, `undici@^7`, `piscina@^5`, `@babel/core@^7`): a from-scratch lockfile resolution showed every one is now met or exceeded natively by already-permitted patch/minor versions of the `@angular/cli`/`@angular/build` toolchain (`socket.io-parser`, `lodash`, and `follow-redirects` had also dropped out of the dependency tree entirely and were dead weight regardless). `overrides:` in `pnpm-workspace.yaml` is now empty. Going forward, prefer refreshing the lockfile (delete `frontend/pnpm-lock.yaml` and reinstall, or `pnpm update` within existing ranges) over adding an override — reach for an override only when a parent package's own manifest still excludes the fixed version even after that refresh.
+
 ## [1.21.4] - 2026-06-24
 
 ### Security
@@ -464,7 +476,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.4...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.5...HEAD
+[1.21.5]: https://github.com/WatskeBart/stickermap/compare/1.21.4...1.21.5
 [1.21.4]: https://github.com/WatskeBart/stickermap/compare/1.21.3...1.21.4
 [1.21.3]: https://github.com/WatskeBart/stickermap/compare/1.21.2...1.21.3
 [1.21.2]: https://github.com/WatskeBart/stickermap/compare/1.21.1...1.21.2
