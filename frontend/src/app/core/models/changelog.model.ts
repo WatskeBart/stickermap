@@ -11,6 +11,24 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.21.5',
+    date: '2026-07-21',
+    sections: [
+      {
+        type: 'Security',
+        items: [
+          'Resolved open Dependabot alerts via version floor raises (no application code changes):',
+        ],
+      },
+      {
+        type: 'Changed',
+        items: [
+          'Audited every override in <code>frontend/pnpm-workspace.yaml</code> and removed all 15 that had accumulated since 1.13.0 (<code>socket.io-parser</code>, <code>glob@^10</code>, <code>path-to-regexp@^8</code>, <code>lodash</code>, <code>vite</code>, <code>follow-redirects</code>, <code>hono</code>, <code>esbuild</code>, <code>postcss</code>, <code>fast-uri</code>, <code>ip-address</code>, <code>qs</code>, <code>undici@^7</code>, <code>piscina@^5</code>, <code>@babel/core@^7</code>): a from-scratch lockfile resolution showed every one is now met or exceeded natively by already-permitted patch/minor versions of the <code>@angular/cli</code>/<code>@angular/build</code> toolchain (<code>socket.io-parser</code>, <code>lodash</code>, and <code>follow-redirects</code> had also dropped out of the dependency tree entirely and were dead weight regardless). <code>overrides:</code> in <code>pnpm-workspace.yaml</code> is now empty. Going forward, prefer refreshing the lockfile (delete <code>frontend/pnpm-lock.yaml</code> and reinstall, or <code>pnpm update</code> within existing ranges) over adding an override — reach for an override only when a parent package\'s own manifest still excludes the fixed version even after that refresh.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.21.4',
     date: '2026-06-24',
     sections: [
