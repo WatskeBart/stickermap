@@ -31,7 +31,6 @@ interface ActionDef {
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
   imports: [
     MatCardModule,
     MatButtonModule,

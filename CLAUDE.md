@@ -52,7 +52,7 @@ The repository contains no automated tests — verify changes by running the dev
 StickerMap is a geo-tagged sticker tracker. Users upload photos, the backend extracts GPS data from EXIF, and stickers are shown on a MapLibre GL map.
 
 ```text
-Frontend (Angular 21) ──HTTP──▶ Backend (FastAPI :5555)
+Frontend (Angular 22) ──HTTP──▶ Backend (FastAPI :5555)
                                        │
                    Keycloak (OIDC) ◀──┤──▶ PostgreSQL + PostGIS
                                        │
@@ -97,7 +97,9 @@ src/app/
 
 **Non-negotiable Angular standards — always apply these:**
 
-- **Angular 21** — use Angular 21 APIs only. No `NgModules`, no `BrowserModule`, no `BrowserAnimationsModule`, no `provideAnimationsAsync`/`provideAnimations` (animations are automatic). All components must be `standalone: true`.
+- **Angular 22** — use Angular 22 APIs only. No `NgModules`, no `BrowserModule`, no `BrowserAnimationsModule`, no `provideAnimationsAsync`/`provideAnimations` (animations are automatic). Components are standalone by default since v19 — **do not** write `standalone: true`, it is redundant.
+- **TypeScript 6.0** — Angular 22 requires `>=6.0 <6.1`; TypeScript 5.9 is not supported. The build also needs Node `^22.22.3 || ^24.15.0 || >=26`.
+- **`OnPush` is the default** — Angular 22 changed the default `changeDetection` for components that do not declare one from eager to `OnPush`, and this project relies on that default. Do not add `changeDetection:` to a component, and never `ChangeDetectionStrategy.Eager`. Any state a template reads must be a signal (or an `input()`/`output()`/`toSignal()` bridge), otherwise it will not re-render.
 - **Angular Material** — use Angular Material components and theming for all UI. Do not introduce other UI libraries.
 - **Signals for local state** — use `signal()`, `computed()`, `effect()` for local synchronous component state. Do not use `BehaviorSubject` or store state as component-level Observable properties. RxJS/Observables remain the correct tool for async operations (HTTP calls, router events, dialog results, streams) — do not replace these with signals.
 - **Signal queries** — prefer `viewChild()` / `viewChild.required()` over `@ViewChild`, and `output()` over `@Output EventEmitter`. Use `toSignal()` from `@angular/core/rxjs-interop` to bridge an Observable into a signal for template binding where it simplifies the code.
@@ -116,6 +118,10 @@ src/app/
 - **`app.config.ts`** — Bootstrap config; OIDC auth is initialized here before the app starts via `APP_INITIALIZER`.
 - **`core/services/auth.service.ts`** — Wraps `angular-auth-oidc-client`'s `OidcSecurityService`. Observables are bridged to signals via `toSignal()` for zoneless reactivity. Role checks (`isViewer()`, `isUploader()`, `isEditor()`, `isAdmin()`) call `hasClientRole()` which reads `resource_access.<clientId>.roles` from the decoded access token payload.
 - **`core/services/sticker.service.ts`** — All HTTP calls to `/api/v1`. Bearer token is attached automatically by the `authInterceptor()` for routes matching `/api/`.
+
+  **Sticker endpoints return positional tuples, not objects.** The backend returns raw psycopg rows, which serialise to JSON *arrays* — so `get_all_stickers` yields `[[1, "{...geojson}", "poster", ...], ...]` and callers index by position (`s[2]` is the poster). These are typed as labelled tuples in `core/models/sticker.model.ts` (`StickerRow`, `StickerDetailRow`, `StickerRotateRow`); when a column is added to the SQL `SELECT`, add it to the matching tuple type or index access silently drifts.
+
+  **Metadata is null for non-viewers.** `get_all_stickers` blanks out `poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by` and `updated_at` for unauthenticated callers, so those fields are `string | null` on `ParsedSticker`/`ProcessedSticker`. Guard them before calling string methods.
 - **`features/map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
 - **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()` which registers the `APP_INITIALIZER` that calls `checkAuth()` and handles post-login redirects.
 - **`core/guards/auth.guard.ts`** — Functional `CanActivateFn` that checks `OidcSecurityService.isAuthenticated$`, stores the target URL in localStorage, and triggers `authorize()` if unauthenticated.

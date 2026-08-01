@@ -12,13 +12,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../../core/services/sticker.service';
-import type { UpdateStickerRequest } from '../../../core/models/sticker.model';
+import type { StickerPointGeoJson, UpdateStickerRequest } from '../../../core/models/sticker.model';
 import { CategorySelectorComponent } from '../../../shared/components/category-selector/category-selector.component';
 import { isEpochSentinel, formatDateForInput, formatDateForBackend } from '../../../shared/utils/date-utils';
 
 @Component({
   selector: 'app-edit-sticker-modal',
-  standalone: true,
   imports: [
     FormsModule,
     MatFormFieldModule,
@@ -36,6 +35,8 @@ import { isEpochSentinel, formatDateForInput, formatDateForBackend } from '../..
   styleUrl: './edit-sticker-modal.component.scss',
 })
 export class EditStickerModalComponent {
+  private stickerService = inject(StickerService);
+
   readonly stickerId = input<number | null>(null);
   readonly isAdmin = input(false);
   readonly selectedLocation = input<{ lat: number; lon: number } | null>(null);
@@ -69,7 +70,7 @@ export class EditStickerModalComponent {
   uploaderList = signal<string[]>([]);
   private editPreviousPostDateInput = signal('');
 
-  constructor(private stickerService: StickerService) {
+  constructor() {
     effect(() => {
       const id = this.stickerId();
       if (id !== null) {
@@ -97,8 +98,8 @@ export class EditStickerModalComponent {
     });
 
     this.stickerService.getSticker(stickerId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (sticker: any) => {
-        const geom = JSON.parse(sticker[1]);
+      next: (sticker) => {
+        const geom = JSON.parse(sticker[1]) as StickerPointGeoJson;
         this.editImageUrl.set(`/uploads/${sticker[6]}`);
         this.editHasRotated.set(false);
         this.editRotating.set(null);

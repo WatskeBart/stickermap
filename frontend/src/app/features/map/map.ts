@@ -36,6 +36,7 @@ import {
 } from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
 import { CategoryService } from '../../core/services/category.service';
 import type { Category } from '../../core/models/category.model';
+import type { StickerPointGeoJson } from '../../core/models/sticker.model';
 import { isEpochSentinel } from '../../shared/utils/date-utils';
 import { buildF35Cursor } from '../../shared/utils/f35-cursor';
 import { EditStickerModalComponent } from './edit-sticker-modal/edit-sticker-modal.component';
@@ -44,12 +45,13 @@ interface ProcessedSticker {
   id: number;
   lat: number;
   lon: number;
-  poster: string;
-  uploader: string;
-  post_date: string;
-  upload_date: string;
+  /** Null for non-viewers — the backend blanks metadata out for unauthenticated callers. */
+  poster: string | null;
+  uploader: string | null;
+  post_date: string | null;
+  upload_date: string | null;
   image: string;
-  uploaded_by: string;
+  uploaded_by: string | null;
   imageUrl: string;
   thumbnailUrl: string;
   canEdit: boolean;
@@ -66,7 +68,6 @@ interface ProcessedSticker {
 
 @Component({
   selector: 'app-map',
-  standalone: true,
   imports: [
     FormsModule,
     MglMapComponent,
@@ -84,6 +85,11 @@ interface ProcessedSticker {
   styleUrl: './map.scss',
 })
 export class MapComponent implements OnInit {
+  private stickerService = inject(StickerService);
+  private authService = inject(AuthService);
+  private route = inject(ActivatedRoute);
+  private categoryService = inject(CategoryService);
+
   readonly locationSelectionMode = input(false);
   readonly selectionStartLocation = input<{ lat: number; lon: number } | null>(null);
   readonly isAuthenticated = input(false);
@@ -194,12 +200,7 @@ export class MapComponent implements OnInit {
 
   private destroyRef = inject(DestroyRef);
 
-  constructor(
-    private stickerService: StickerService,
-    private authService: AuthService,
-    private route: ActivatedRoute,
-    private categoryService: CategoryService,
-  ) {
+  constructor() {
     // Watch locationSelectionMode to manage cursor and map state
     effect(() => {
       const selectionMode = this.locationSelectionMode();
@@ -319,15 +320,15 @@ export class MapComponent implements OnInit {
     this.stickerCount.set(0);
 
     this.stickerService.getAllStickers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (rawStickers: any[]) => {
+      next: (rawStickers) => {
         const currentUser = this.authService.getUserInfo()?.preferred_username;
 
         const processed: ProcessedSticker[] = rawStickers
-          .filter((s: any) => !s[10])
-          .map((s: any) => {
-            const geom = JSON.parse(s[1]);
+          .filter((s) => !s[10])
+          .map((s) => {
+            const geom = JSON.parse(s[1]) as StickerPointGeoJson;
             const [lon, lat] = geom.coordinates;
-            const uploadedBy: string = s[7];
+            const uploadedBy: string | null = s[7];
             const isOwner = uploadedBy != null && uploadedBy === currentUser;
             const canEdit = this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner);
             const canDelete = this.isAdmin();
@@ -520,7 +521,7 @@ export class MapComponent implements OnInit {
 
   // --- Report as removed (MatDialog) ---
 
-  openReportDialog(stickerId: number, poster: string): void {
+  openReportDialog(stickerId: number, poster: string | null): void {
     this.openPopupStickerId.set(null);
     const ref = this.dialog.open(ReportRemovalDialogComponent, {
       width: '420px',
@@ -536,7 +537,7 @@ export class MapComponent implements OnInit {
 
   // --- Delete Confirmation (MatDialog) ---
 
-  openDeleteConfirm(stickerId: number, poster: string): void {
+  openDeleteConfirm(stickerId: number, poster: string | null): void {
     this.openPopupStickerId.set(null);
     const ref = this.dialog.open(DeleteStickerDialogComponent, {
       width: '400px',

@@ -35,7 +35,7 @@ import { map } from 'rxjs/operators';
 import { Router } from '@angular/router';
 import { StickerService } from '../../core/services/sticker.service';
 import { AuthService } from '../../core/services/auth.service';
-import type { ParsedSticker } from '../../core/models/sticker.model';
+import type { ParsedSticker, StickerPointGeoJson } from '../../core/models/sticker.model';
 import {
   DeleteStickerDialogComponent,
   type DeleteDialogData,
@@ -63,7 +63,6 @@ import {
 
 @Component({
   selector: 'app-sticker-overview',
-  standalone: true,
   imports: [
     FormsModule,
     MatTableModule,
@@ -160,8 +159,8 @@ export class StickerOverviewComponent implements OnInit {
     this.dataSource.filterPredicate = (data: ParsedSticker, filter: string) => {
       const normalized = filter.trim().toLowerCase();
       return (
-        data.poster.toLowerCase().includes(normalized) ||
-        data.uploader.toLowerCase().includes(normalized)
+        (data.poster ?? '').toLowerCase().includes(normalized) ||
+        (data.uploader ?? '').toLowerCase().includes(normalized)
       );
     };
     this.loadStickers();
@@ -196,12 +195,12 @@ export class StickerOverviewComponent implements OnInit {
     this.isLoading.set(true);
     this.selection.clear();
     this.stickerService.getAllStickers().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: (raw: any[]) => {
+      next: (raw) => {
         const currentUser = this.currentUser();
-        const parsed: ParsedSticker[] = raw.map((s: any) => {
-          const geom = JSON.parse(s[1]);
+        const parsed: ParsedSticker[] = raw.map((s) => {
+          const geom = JSON.parse(s[1]) as StickerPointGeoJson;
           const [lon, lat] = geom.coordinates;
-          const uploadedBy: string = s[7];
+          const uploadedBy: string | null = s[7];
           const isOwner = uploadedBy != null && uploadedBy === currentUser;
           const removalCount: number = s[9] ?? 0;
           const archived: boolean = s[10] ?? false;
@@ -209,6 +208,9 @@ export class StickerOverviewComponent implements OnInit {
           const categoryName: string | null = s[12] ?? null;
           const categoryIconFile: string | null = s[13] ?? null;
           const isPrivate: boolean = s[14] ?? false;
+          // Cache-bust the image with the most recent timestamp available; non-viewers
+          // get neither, in which case the plain URL is used.
+          const lastChanged = s[8] ?? s[5];
           return {
             id: s[0],
             lat,
@@ -219,7 +221,7 @@ export class StickerOverviewComponent implements OnInit {
             upload_date: s[5],
             image: s[6],
             uploaded_by: uploadedBy,
-            imageUrl: s[8] ?? s[5] ? `/uploads/${s[6]}?v=${new Date(s[8] ?? s[5]).getTime()}` : `/uploads/${s[6]}`,
+            imageUrl: lastChanged ? `/uploads/${s[6]}?v=${new Date(lastChanged).getTime()}` : `/uploads/${s[6]}`,
             canEdit: (this.isEditor() || this.isAdmin() || (this.isUploader() && isOwner)) && !archived,
             canDelete: this.isAdmin(),
             removalCount,

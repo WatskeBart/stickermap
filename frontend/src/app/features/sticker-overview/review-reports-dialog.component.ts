@@ -14,7 +14,7 @@ import type { RemovalReport } from '../../core/models/sticker.model';
 
 export interface ReviewReportsDialogData {
   stickerId: number;
-  poster: string;
+  poster: string | null;
 }
 
 export interface ReviewReportsDialogResult {
@@ -23,7 +23,6 @@ export interface ReviewReportsDialogResult {
 
 @Component({
   selector: 'app-review-reports-dialog',
-  standalone: true,
   imports: [
     SlicePipe,
     MatDialogModule,

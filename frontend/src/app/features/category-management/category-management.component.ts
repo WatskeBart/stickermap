@@ -19,7 +19,6 @@ import type { Category } from '../../core/models/category.model';
 
 @Component({
   selector: 'app-category-management',
-  standalone: true,
   imports: [
     FormsModule,
     MatTableModule,
