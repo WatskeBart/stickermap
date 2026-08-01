@@ -1,0 +1,60 @@
+# .github/workflows/deploy-pages.yml
+#
+# Publishes the contents of the gh-pages branch (the Helm repository index and
+# the github.io landing page) to GitHub Pages.
+#
+# This file must live on the gh-pages branch: for push events GitHub reads
+# workflow definitions from the branch being pushed, not from develop/main.
+# An identical copy also lives on develop, because GitHub only shows the
+# "Run workflow" button for workflow_dispatch when the file is present on the
+# default branch. Keep the two copies in sync.
+#
+# Triggers:
+#   - push to gh-pages  → deploys the branch as-is
+#   - workflow_dispatch → manual run from the Actions tab
+#
+# Note: pushes made by publish-helm-pages.yml use the default GITHUB_TOKEN,
+# which does not start new workflow runs, so chart releases do not deploy
+# twice - that workflow already calls deploy-pages itself.
+
+name: Deploy gh-pages content
+
+on:
+  push:
+    branches:
+      - gh-pages
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish gh-pages to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          # Pinned so a manual run started from the wrong branch in the UI
+          # still deploys gh-pages, instead of publishing that branch's tree.
+          ref: gh-pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
