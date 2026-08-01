@@ -20,6 +20,14 @@ permissions:
   pages: write
   id-token: write
 
+# Shared with deploy-pages.yml so a chart release and a manual gh-pages deploy
+# cannot race each other. Releases are never cancelled: the job pushes the
+# packaged chart to gh-pages before deploying, so a half-run leaves the Helm
+# repository index published from a stale artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   publish:
     name: Package & publish Helm chart to gh-pages

@@ -4,7 +4,16 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
 
-overrides: {}
+overrides:
+  # GHSA-frvp-7c67-39w9 — @hono/node-server path traversal, patched in 2.0.5.
+  # No version floor raise can reach it: @angular/cli 22.1.2 (latest stable) pins
+  # @modelcontextprotocol/sdk to exactly 1.29.0, which declares
+  # `@hono/node-server: ^1.19.9` — and no 1.x release is patched.
+  # SDK 1.30.0 widens that to `^1.19.9 || ^2.0.5`, so @hono/node-server resolves to
+  # a patched 2.x with every declared range in the tree still satisfied. 1.30.0 is
+  # what @angular/cli 22.2.0-next.0 already pins, so this only pre-adopts upstream.
+  # Remove once @angular/cli 22.2.0 is stable and the floor raise becomes possible.
+  '@modelcontextprotocol/sdk': 1.30.0
 
 minimumReleaseAge: 1440
 minimumReleaseAgeExclude:

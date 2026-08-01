@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.1] - 2026-08-01
+
+### Security
+
+- Resolved both open Dependabot alerts in the frontend toolchain (no application code changes):
+  - **`brace-expansion`** 2.1.2 → 2.1.4 (high — DoS via unbounded expansion length causing an out-of-memory process crash), reached without an override. It is a transitive dependency of `angular-server-side-configuration` → `glob` → `minimatch@9.0.9`, whose `^2.0.2` range already permitted the patched 2.1.3+; only the lockfile pin was stale.
+  - **`@hono/node-server`** 1.19.14 → 2.0.12 (medium — GHSA-frvp-7c67-39w9: path traversal in `serve-static` on Windows via an encoded backslash `%5C`, reachable only through `@angular/cli`'s opt-in `ng mcp` server, never the build). This needed the first `pnpm-workspace.yaml` override since the 1.21.5 cleanup, because no version floor raise can reach the fix: `@angular/cli@22.1.2` — the latest stable — pins `@modelcontextprotocol/sdk` to *exactly* 1.29.0, which declares `@hono/node-server: ^1.19.9`, and no 1.x release is patched (the fix landed in 2.0.5). That is precisely the exception 1.21.5 carved out for overrides: a parent package's own manifest still excludes the fixed version after a lockfile refresh. The override targets `@modelcontextprotocol/sdk` (→ 1.30.0) rather than `@hono/node-server` directly — 1.30.0 widens its own range to `^1.19.9 || ^2.0.5`, so hono resolves to a patched 2.x with every declared semver range in the tree still satisfied, instead of forcing a major version past a `^1` constraint. 1.30.0 is what `@angular/cli@22.2.0-next.0` already pins, so this only pre-adopts upstream; remove the override once CLI 22.2.0 ships stable. `@hono/node-server` 2.x raises its `engines` floor to Node `>=20`, which is already satisfied by the project's `^22.22.3 || ^24.15.0 || >=26` requirement.
+
 ## [1.22.0] - 2026-08-01
 
 ### Changed
@@ -503,7 +511,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.22.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.22.1...HEAD
+[1.22.1]: https://github.com/WatskeBart/stickermap/compare/1.22.0...1.22.1
 [1.22.0]: https://github.com/WatskeBart/stickermap/compare/1.21.5...1.22.0
 [1.21.5]: https://github.com/WatskeBart/stickermap/compare/1.21.4...1.21.5
 [1.21.4]: https://github.com/WatskeBart/stickermap/compare/1.21.3...1.21.4
