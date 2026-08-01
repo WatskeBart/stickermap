@@ -18,7 +18,6 @@ const DISCLAIMER_KEY = 'stickermap_disclaimer_accepted';
 
 @Component({
   selector: 'app-landing',
-  standalone: true,
   imports: [MatCardModule, MatButtonModule, MatIconModule, MatDividerModule, MatProgressSpinnerModule, MatDialogModule, TranslatePipe],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss',

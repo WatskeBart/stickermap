@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport, AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType } from '../models/sticker.model';
+import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport, AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType, StickerRow, StickerDetailRow, StickerRotateRow, MessageResponse, UpdateStickerResponse, SubmitReportResponse } from '../models/sticker.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StickerService {
-  private apiUrl = '/api/v1';
+  private http = inject(HttpClient);
 
-  constructor(private http: HttpClient) { }
+  private apiUrl = '/api/v1';
 
   uploadImage(file: File, uploader: string): Observable<UploadResponse> {
     const formData = new FormData();
@@ -19,47 +19,47 @@ export class StickerService {
     return this.http.post<UploadResponse>(`${this.apiUrl}/upload`, formData);
   }
 
-  createSticker(stickerData: StickerData): Observable<any> {
+  createSticker(stickerData: StickerData): Observable<MessageResponse> {
     const request: CreateStickersRequest = {
       stickers: [stickerData]
     };
-    return this.http.post(`${this.apiUrl}/create_sticker`, request);
+    return this.http.post<MessageResponse>(`${this.apiUrl}/create_sticker`, request);
   }
 
-  getAllStickers(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/get_all_stickers`);
+  getAllStickers(): Observable<StickerRow[]> {
+    return this.http.get<StickerRow[]>(`${this.apiUrl}/get_all_stickers`);
   }
 
-  getSticker(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/get_sticker/${id}`);
+  getSticker(id: number): Observable<StickerDetailRow> {
+    return this.http.get<StickerDetailRow>(`${this.apiUrl}/get_sticker/${id}`);
   }
 
-  updateSticker(id: number, data: UpdateStickerRequest): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/sticker/${id}`, data);
+  updateSticker(id: number, data: UpdateStickerRequest): Observable<UpdateStickerResponse> {
+    return this.http.patch<UpdateStickerResponse>(`${this.apiUrl}/sticker/${id}`, data);
   }
 
-  deleteSticker(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/sticker/${id}`);
+  deleteSticker(id: number): Observable<MessageResponse> {
+    return this.http.delete<MessageResponse>(`${this.apiUrl}/sticker/${id}`);
   }
 
   getUploaders(): Observable<{ uploaders: string[] }> {
     return this.http.get<{ uploaders: string[] }>(`${this.apiUrl}/uploaders`);
   }
 
-  rotateSticker(id: number, direction: 'cw' | 'ccw' | '180'): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/stickers/${id}/rotate`, { direction });
+  rotateSticker(id: number, direction: 'cw' | 'ccw' | '180'): Observable<StickerRotateRow> {
+    return this.http.patch<StickerRotateRow>(`${this.apiUrl}/stickers/${id}/rotate`, { direction });
   }
 
   getStats(): Observable<StickerStats> {
     return this.http.get<StickerStats>(`${this.apiUrl}/stats`);
   }
 
-  submitRemovalReport(stickerId: number, proofImage?: File): Observable<any> {
+  submitRemovalReport(stickerId: number, proofImage?: File): Observable<SubmitReportResponse> {
     const formData = new FormData();
     if (proofImage) {
       formData.append('proof_image', proofImage);
     }
-    return this.http.post(`${this.apiUrl}/stickers/${stickerId}/reports`, formData);
+    return this.http.post<SubmitReportResponse>(`${this.apiUrl}/stickers/${stickerId}/reports`, formData);
   }
 
   getPendingReportsCount(): Observable<{ count: number }> {
@@ -70,16 +70,16 @@ export class StickerService {
     return this.http.get<RemovalReport[]>(`${this.apiUrl}/stickers/${stickerId}/reports`);
   }
 
-  reviewReport(reportId: number, status: 'confirmed' | 'dismissed'): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/reports/${reportId}/review`, { status });
+  reviewReport(reportId: number, status: 'confirmed' | 'dismissed'): Observable<MessageResponse> {
+    return this.http.patch<MessageResponse>(`${this.apiUrl}/reports/${reportId}/review`, { status });
   }
 
-  archiveSticker(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/stickers/${id}/archive`, {});
+  archiveSticker(id: number): Observable<MessageResponse> {
+    return this.http.patch<MessageResponse>(`${this.apiUrl}/stickers/${id}/archive`, {});
   }
 
-  unarchiveSticker(id: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/stickers/${id}/unarchive`, {});
+  unarchiveSticker(id: number): Observable<MessageResponse> {
+    return this.http.patch<MessageResponse>(`${this.apiUrl}/stickers/${id}/unarchive`, {});
   }
 
   exportStickers(format: 'geojson' | 'csv'): Observable<Blob> {

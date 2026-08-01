@@ -9,7 +9,6 @@ export interface BulkDeleteDialogData {
 
 @Component({
   selector: 'app-bulk-delete-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './bulk-delete-dialog.component.html',
 })

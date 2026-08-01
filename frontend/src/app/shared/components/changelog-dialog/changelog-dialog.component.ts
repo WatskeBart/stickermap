@@ -8,7 +8,6 @@ import { CHANGELOG_DATA, ChangelogRelease } from '../../../core/models/changelog
 
 @Component({
   selector: 'app-changelog-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule, MatExpansionModule, TranslatePipe],
   templateUrl: './changelog-dialog.component.html',
   styleUrl: './changelog-dialog.component.scss',

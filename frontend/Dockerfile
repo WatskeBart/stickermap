@@ -14,7 +14,7 @@ RUN pnpm exec ng run frontend:ngsscbuild:production
 
 FROM docker.io/caddy:alpine AS final
 
-ARG IMAGE_VERSION=1.21.5
+ARG IMAGE_VERSION=1.22.0
 
 LABEL org.opencontainers.image.title="Stickermap Frontend" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
@@ -23,7 +23,7 @@ LABEL org.opencontainers.image.title="Stickermap Frontend" \
 
 WORKDIR /app
 
-ARG NGSSC_VERSION=21.0.3
+ARG NGSSC_VERSION=22.0.2
 
 ADD --chmod=755 https://github.com/kyubisation/angular-server-side-configuration/releases/download/v${NGSSC_VERSION}/ngssc_64bit /usr/local/bin/ngssc
 

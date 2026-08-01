@@ -19,7 +19,6 @@ import { CategorySelectorComponent } from '../../shared/components/category-sele
 
 @Component({
   selector: 'app-sticker-form',
-  standalone: true,
   imports: [
     FormsModule,
     MatFormFieldModule,
@@ -36,6 +35,9 @@ import { CategorySelectorComponent } from '../../shared/components/category-sele
   styleUrl: './sticker-form.component.scss',
 })
 export class StickerFormComponent implements OnInit {
+  private stickerService = inject(StickerService);
+  private authService = inject(AuthService);
+
   readonly stickerCreated = output<void>();
   readonly locationSelectionRequested = output<void>();
   readonly previewLocationRequested = output<{ lat: number; lon: number }>();
@@ -88,11 +90,6 @@ export class StickerFormComponent implements OnInit {
   };
 
   private destroyRef = inject(DestroyRef);
-
-  constructor(
-    private stickerService: StickerService,
-    private authService: AuthService,
-  ) {}
 
   ngOnInit(): void {
     // Auto-populate uploader name from Keycloak

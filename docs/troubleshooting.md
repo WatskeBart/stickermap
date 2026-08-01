@@ -39,6 +39,23 @@ podman compose restart backend
 - Verify MapLibre GL assets are loading in the network tab
 - Confirm tile requests to the configured tile server are succeeding
 
+**No basemap, `404` on `maplibre-gl-worker.mjs`** — MapLibre GL v6 loads its web worker
+from a separate file at runtime. Both `maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs`
+must be served as siblings from the app root (copied there by `angular.json` `assets`), and
+`provideMaplibreWorker()` in `frontend/src/app/app.config.ts` must point at the worker.
+The worker fails asynchronously rather than throwing, so look for the 404 in the network
+tab — the console may show nothing obvious.
+
+**Works with `pnpm start`, no basemap in a container** — check the `Content-Type` of the worker:
+
+```bash
+curl -skI https://localhost:8282/maplibre-gl-worker.mjs | grep -i content-type
+# expected: text/javascript
+```
+
+The Caddyfile sets `X-Content-Type-Options: nosniff`, so a `.mjs` served with the wrong MIME
+type is blocked by the browser as a module worker.
+
 ### Keycloak authentication fails
 
 ```bash

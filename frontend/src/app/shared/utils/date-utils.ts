@@ -1,4 +1,4 @@
-export function isEpochSentinel(dateStr: string): boolean {
+export function isEpochSentinel(dateStr: string | null | undefined): boolean {
   if (!dateStr) return false;
   const ms = Date.parse(dateStr.trim().replace(' ', 'T') + 'Z');
   return !isNaN(ms) && Math.abs(ms) <= 14 * 3600 * 1000;

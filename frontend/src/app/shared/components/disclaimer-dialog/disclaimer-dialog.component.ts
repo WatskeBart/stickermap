@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,13 +6,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-disclaimer-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './disclaimer-dialog.component.html',
   styleUrl: './disclaimer-dialog.component.scss',
 })
 export class DisclaimerDialogComponent {
-  constructor(private dialogRef: MatDialogRef<DisclaimerDialogComponent>) {}
+  private dialogRef = inject<MatDialogRef<DisclaimerDialogComponent>>(MatDialogRef);
+
 
   accept(): void {
     localStorage.setItem('stickermap_disclaimer_accepted', 'true');

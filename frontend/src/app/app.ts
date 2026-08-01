@@ -48,6 +48,10 @@ const RELEASE_NOTES_KEY = 'stickermap_last_seen_version';
   styleUrl: './app.scss',
 })
 export class App implements OnInit {
+  authService = inject(AuthService);
+  themeService = inject(ThemeService);
+  private router = inject(Router);
+
   readonly appVersion = version;
 
   private breakpointObserver = inject(BreakpointObserver);
@@ -73,11 +77,7 @@ export class App implements OnInit {
 
   private pendingNotificationShown = false;
 
-  constructor(
-    public authService: AuthService,
-    public themeService: ThemeService,
-    private router: Router,
-  ) {
+  constructor() {
     effect(() => {
       const isEditor = this.authService.isEditor();
       const isAdmin = this.authService.isAdmin();

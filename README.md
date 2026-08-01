@@ -81,7 +81,7 @@ graph TD
 
 | Layer | Technology |
 | ----- | ---------- |
-| Frontend | Angular 21 (zoneless), TypeScript 5.9, MapLibre GL 5.x |
+| Frontend | Angular 22 (zoneless), TypeScript 6.0, MapLibre GL 6.x |
 | Backend | Python 3.14, FastAPI, Pydantic |
 | Database | PostgreSQL with PostGIS (SRID 4326) |
 | Authentication | Keycloak, JWT RS256 |
@@ -208,7 +208,7 @@ curl http://localhost:8080/realms/stickermap/protocol/openid-connect/certs
 
 **No GPS data extracted** — use original camera photos; many platforms strip EXIF on upload.
 
-**Map not loading** — check browser console for errors; verify MapLibre GL is loading and tile requests are succeeding in the network tab.
+**Map not loading** — check browser console for errors; verify MapLibre GL is loading and tile requests are succeeding in the network tab. A blank map with a `404` for `maplibre-gl-worker.mjs` means the MapLibre v6 web worker is not being served — see the MapLibre section in [CLAUDE.md](CLAUDE.md).
 
 **Enable verbose backend logging:**
 

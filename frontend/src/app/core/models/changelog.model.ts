@@ -11,6 +11,32 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.22.0',
+    date: '2026-08-01',
+    sections: [
+      {
+        type: 'Changed',
+        items: [
+          '**Angular 21.2.17 → 22.1.0** — <code>@angular/{core,common,compiler,forms,router,platform-browser}</code>, <code>@angular/{cdk,material}</code> 21.2.14 → 22.1.0, and the <code>@angular/{build,cli,compiler-cli}</code> toolchain. Three things about v22 affected this codebase:',
+          '**TypeScript 5.9.3 → 6.0.3** — Angular 22 requires <code>&gt;=6.0 &lt;6.1</code>; 5.9 is not supported. The build also now requires Node <code>^22.22.3 || ^24.15.0 || &gt;=26</code> — <code>frontend/Dockerfile</code> already builds on <code>node:26-slim</code>, so no image change was needed.',
+          '**Angular 22 toolchain resolves <code>@babel/core</code> 8.0.1** alongside 7.29.7. This closes out the Babel 8 incompatibility recorded in 1.21.3 and worked around in 1.21.4: <code>@angular/build@21.2.x</code> crashed on <code>@babel/core ≥7.29.1</code>\'s strict <code>NumericLiteral</code> AST validation, which forced a pinned override. <code>overrides:</code> in <code>pnpm-workspace.yaml</code> stays empty — no pin is needed on v22.',
+          '**MapLibre GL JS 5.24.0 → 6.1.0**, with <code>@maplibre/ngx-maplibre-gl</code> 21.0.2 → 22.1.0 (v22 peers <code>maplibre-gl &gt;= 6.0.0</code>; the ngx major tracks the Angular major). Three breaking changes needed handling:',
+          '**<code>@ngx-translate/core</code> and <code>@ngx-translate/http-loader</code> 17.0.0 → 18.0.0** — required by the Angular 22 peer range. No call-site changes: <code>provideTranslateService</code>, <code>provideTranslateHttpLoader</code>, <code>TranslatePipe</code>, and <code>TranslateService</code> are unchanged, as are the <code>frontend/public/i18n/{nl,en}.json</code> files and the <code>stickermap-lang</code> storage key.',
+          '**<code>angular-server-side-configuration</code> 21.0.4 → 22.0.2**, with <code>ARG NGSSC_VERSION</code> in <code>frontend/Dockerfile</code> bumped to match so the binary and the build-time library stay on the same major. The runtime env-injection contract is unchanged — the same variables are still substituted into <code>index.html</code> at container start.',
+          'Sticker endpoint responses are now typed instead of <code>any</code>. The backend returns raw psycopg rows, which serialise to JSON *arrays*, so they are modelled as labelled tuples — <code>StickerRow</code>, <code>StickerDetailRow</code>, <code>StickerRotateRow</code> — in <code>core/models/sticker.model.ts</code>, alongside <code>StickerPointGeoJson</code> for the parsed <code>ST_AsGeoJSON(location)</code> string and <code>MessageResponse</code>/<code>UpdateStickerResponse</code>/<code>SubmitReportResponse</code> for the mutating endpoints. Column order is now documented and index access is type-checked; when a column is added to a SQL <code>SELECT</code>, the matching tuple type has to be updated or the build fails instead of drifting silently.',
+          'Metadata fields the backend blanks out for unauthenticated callers (<code>poster</code>, <code>uploader</code>, <code>post_date</code>, <code>upload_date</code>, <code>uploaded_by</code>) are now typed <code>string | null</code> on <code>ParsedSticker</code> and <code>ProcessedSticker</code>, matching what <code>get_all_stickers</code> actually returns. <code>isEpochSentinel()</code> accepts <code>string | null | undefined</code>, and the duplicated date-conversion helpers in <code>edit-sticker-dialog.component.ts</code> were dropped in favour of the shared <code>shared/utils/date-utils.ts</code> versions. No behavioural change — the runtime values were already null.',
+        ],
+      },
+      {
+        type: 'Removed',
+        items: [
+          '**<code>@angular/animations</code>** dropped from <code>frontend/package.json</code>. Nothing under <code>src/</code> imports it, and it is no longer a peer dependency of <code>@angular/material</code> 22 — Material\'s animations work without it, and the app has never called <code>provideAnimations</code>/<code>provideAnimationsAsync</code>.',
+          '**Support for WebGL1-only browsers.** MapLibre GL v6 removed the WebGL1 renderer, so the map now requires WebGL2 — on a browser without it, the map fails to initialise while the rest of the app keeps working. WebGL2 has been baseline in every major browser since Safari 15 (2021), so no currently supported browser is affected.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.21.5',
     date: '2026-07-21',
     sections: [
