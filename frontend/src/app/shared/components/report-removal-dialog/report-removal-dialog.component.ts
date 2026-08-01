@@ -9,7 +9,7 @@ import { StickerService } from '../../../core/services/sticker.service';
 
 export interface ReportRemovalDialogData {
   stickerId: number;
-  poster: string;
+  poster: string | null;
 }
 
 export interface ReportRemovalDialogResult {
@@ -18,7 +18,6 @@ export interface ReportRemovalDialogResult {
 
 @Component({
   selector: 'app-report-removal-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, TranslatePipe],
   templateUrl: './report-removal-dialog.component.html',
   styleUrl: './report-removal-dialog.component.scss',

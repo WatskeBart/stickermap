@@ -15,6 +15,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { StickerService } from '../../core/services/sticker.service';
 import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
+import { formatDateForBackend, formatDateForInput, isEpochSentinel } from '../../shared/utils/date-utils';
 import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
 export interface EditDialogData {
@@ -30,7 +31,6 @@ export interface EditDialogResult {
 
 @Component({
   selector: 'app-edit-sticker-dialog',
-  standalone: true,
   imports: [
     FormsModule,
     MatDialogModule,
@@ -73,26 +73,6 @@ export class EditStickerDialogComponent implements OnInit {
   categoryId = signal<number | null>(null);
   isPrivate = signal(false);
 
-  private convertToInputFormat(backendDate: string): string {
-    if (!backendDate) return '';
-    const d = new Date(backendDate.replace(' ', 'T') + 'Z');
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-
-  private convertToBackendFormat(inputDate: string): string {
-    if (!inputDate) return '';
-    const d = new Date(inputDate);
-    const pad = (n: number) => String(n).padStart(2, '0');
-    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())} ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
-  }
-
-  private isEpochSentinel(dateStr: string): boolean {
-    if (!dateStr) return false;
-    const ms = Date.parse(dateStr.trim().replace(' ', 'T') + 'Z');
-    return !isNaN(ms) && Math.abs(ms) <= 14 * 3600 * 1000;
-  }
-
   onDateUnknownChange(checked: boolean): void {
     if (checked) {
       this.previousPostDate.set(this.postDate());
@@ -106,13 +86,15 @@ export class EditStickerDialogComponent implements OnInit {
   ngOnInit(): void {
     const s = this.data.sticker;
     this.imageUrl.set(s.imageUrl);
-    this.poster.set(s.poster);
-    const unknown = this.isEpochSentinel(s.post_date);
+    // The edit dialog is only reachable for stickers the user may edit, so the
+    // metadata the backend blanks out for non-viewers is always populated here.
+    this.poster.set(s.poster ?? '');
+    const unknown = isEpochSentinel(s.post_date);
     this.dateUnknown.set(unknown);
-    this.postDate.set(unknown ? '1970-01-01T00:00' : this.convertToInputFormat(s.post_date));
+    this.postDate.set(unknown ? '1970-01-01T00:00' : formatDateForInput(s.post_date ?? ''));
     this.lat.set(s.lat);
     this.lon.set(s.lon);
-    this.uploader.set(s.uploader);
+    this.uploader.set(s.uploader ?? '');
     this.categoryId.set(s.category_id);
     this.isPrivate.set(s.private ?? false);
 
@@ -129,7 +111,7 @@ export class EditStickerDialogComponent implements OnInit {
     const updates: UpdateStickerRequest = {};
 
     if (this.poster() !== s.poster) updates.poster = this.poster();
-    const newPostDate = this.dateUnknown() ? '1970-01-01 00:00:00' : this.convertToBackendFormat(this.postDate());
+    const newPostDate = this.dateUnknown() ? '1970-01-01 00:00:00' : formatDateForBackend(this.postDate());
     if (newPostDate !== s.post_date) updates.post_date = newPostDate;
     if (this.lat() !== s.lat || this.lon() !== s.lon) {
       updates.location = { lat: this.lat(), lon: this.lon() };

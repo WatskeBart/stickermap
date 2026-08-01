@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,23 +9,20 @@ import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-add-sticker-view',
-  standalone: true,
   imports: [MapComponent, StickerFormComponent, MatToolbarModule, MatButtonModule, TranslatePipe],
   templateUrl: './add-sticker-view.component.html',
   styleUrl: './add-sticker-view.component.scss'
 })
 export class AddStickerViewComponent {
+  private router = inject(Router);
+  authService = inject(AuthService);
+
   readonly mapComponent = viewChild.required(MapComponent);
   readonly formComponent = viewChild.required(StickerFormComponent);
 
   locationSelectionMode = signal(false);
   previewOnlyMode = signal(false);
   lastKnownLocation = signal<{ lat: number; lon: number } | null>(null);
-
-  constructor(
-    private router: Router,
-    public authService: AuthService
-  ) {}
 
   onLocationSelectionRequested(): void {
     this.previewOnlyMode.set(false);

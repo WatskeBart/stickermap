@@ -31,7 +31,6 @@ import type { Category } from '../../../core/models/category.model';
  */
 @Component({
   selector: 'app-category-selector',
-  standalone: true,
   imports: [
     FormsModule,
     MatFormFieldModule,

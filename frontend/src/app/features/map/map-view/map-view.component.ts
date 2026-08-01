@@ -7,19 +7,18 @@ import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-map-view',
-  standalone: true,
   imports: [MapComponent],
   templateUrl: './map-view.component.html',
   styleUrl: './map-view.component.scss'
 })
 export class MapViewComponent {
+  private router = inject(Router);
+  authService = inject(AuthService);
+
   private readonly mapChild = viewChild(MapComponent);
   private readonly destroyRef = inject(DestroyRef);
 
-  constructor(
-    private router: Router,
-    public authService: AuthService
-  ) {
+  constructor() {
     this.router.events
       .pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),

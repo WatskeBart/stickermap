@@ -1,7 +1,13 @@
 # StickerMap Frontend
 
-Angular 21 (standalone, zoneless, signals) single-page app. For build/run commands and
+Angular 22 (standalone, zoneless, signals) single-page app. For build/run commands and
 the full architecture overview, see [`CLAUDE.md`](../CLAUDE.md) at the repository root.
+
+> **MapLibre GL v6 note** — the map's web worker (`maplibre-gl-worker.mjs` and its sibling
+> `maplibre-gl-shared.mjs`) is copied to the build output by `angular.json` `assets` and
+> pointed at by `provideMaplibreWorker()` in [`src/app/app.config.ts`](src/app/app.config.ts).
+> Both files must stay siblings in the same directory, or the map renders blank.
+> See the MapLibre section in [`CLAUDE.md`](../CLAUDE.md) before touching either.
 
 ## Internationalization (i18n)
 

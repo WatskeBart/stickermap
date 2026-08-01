@@ -7,7 +7,7 @@ import { StickerService } from '../../../core/services/sticker.service';
 
 export interface DeleteDialogData {
   stickerId: number;
-  poster: string;
+  poster: string | null;
 }
 
 export interface DeleteDialogResult {
@@ -16,7 +16,6 @@ export interface DeleteDialogResult {
 
 @Component({
   selector: 'app-delete-sticker-dialog',
-  standalone: true,
   imports: [MatDialogModule, MatButtonModule, TranslatePipe],
   templateUrl: './delete-sticker-dialog.component.html',
 })
