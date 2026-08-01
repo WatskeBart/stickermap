@@ -9,12 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Angular 21.2.17 → 22.1.0** — `@angular/{core,common,compiler,forms,router,platform-browser}`, `@angular/{cdk,material}` 21.2.14 → 22.1.0, and the `@angular/{build,cli,compiler-cli}` toolchain. Three things about v22 affected this codebase:
+  - **`OnPush` is now the default change-detection strategy** for components that do not declare one — v22 flipped the default from eager. No component in this repo sets `changeDetection`, so all 17 moved to `OnPush`. The app is already zoneless and fully signal-driven, so signal writes still drive re-render; the v22 `change-detection-eager` migration (which annotates components that relied on eager checking) was deliberately not applied. Any state a template reads must now be a signal or an `input()`/`output()`/`toSignal()` bridge.
+  - Constructor-parameter DI replaced with `inject()` in 8 files (`app.ts`, `sticker.service.ts`, `map.ts`, `map-view`, `edit-sticker-modal`, `add-sticker-view`, `sticker-form`, `disclaimer-dialog`) via the `@angular/core:inject-migration` schematic.
+  - `standalone: true` removed from all 17 components — redundant since v19, when standalone became the default. The option still exists in the v22 decorator API, so this is cleanup rather than a required change.
+- **TypeScript 5.9.3 → 6.0.3** — Angular 22 requires `>=6.0 <6.1`; 5.9 is not supported. The build also now requires Node `^22.22.3 || ^24.15.0 || >=26` — `frontend/Dockerfile` already builds on `node:26-slim`, so no image change was needed.
+- **Angular 22 toolchain resolves `@babel/core` 8.0.1** alongside 7.29.7. This closes out the Babel 8 incompatibility recorded in 1.21.3 and worked around in 1.21.4: `@angular/build@21.2.x` crashed on `@babel/core ≥7.29.1`'s strict `NumericLiteral` AST validation, which forced a pinned override. `overrides:` in `pnpm-workspace.yaml` stays empty — no pin is needed on v22.
 - **MapLibre GL JS 5.24.0 → 6.1.0**, with `@maplibre/ngx-maplibre-gl` 21.0.2 → 22.1.0 (v22 peers `maplibre-gl >= 6.0.0`; the ngx major tracks the Angular major). Three breaking changes needed handling:
   - v6 is **ESM-only and dropped the default export**, so `map.ts` now uses `import * as maplibregl from 'maplibre-gl'`. `maplibre-gl` was removed from `allowedCommonJsDependencies` in `angular.json`.
   - v6 loads its **web worker from a separate file at runtime**, resolved from `import.meta.url` — which after esbuild points at a hashed chunk, so the request 404s and no tiles render. `angular.json` now copies `maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs` (the worker imports the latter as a sibling, so they must share a directory) to the output root, and `app.config.ts` provides `provideMaplibreWorker('maplibre-gl-worker.mjs')` from `@maplibre/ngx-maplibre-gl/config`. The path is relative so it resolves against `document.baseURI` and survives a `--base-href` sub-path deployment.
   - ngx-maplibre-gl 22 changed the **camera inputs from single-element arrays to plain numbers**, so `map.html` binds `[zoom]="iv.zoom"` instead of `[zoom]="[iv.zoom]"`.
 
-  MapLibre v6 also **requires WebGL2** (WebGL1 support was removed). `RasterTileSource.setTiles()` is unchanged, so the tile-layer toggle needed no work.
+  `RasterTileSource.setTiles()` is unchanged, so the tile-layer toggle needed no work. See **Removed** below for the WebGL2 requirement v6 introduces.
+
+- **`@ngx-translate/core` and `@ngx-translate/http-loader` 17.0.0 → 18.0.0** — required by the Angular 22 peer range. No call-site changes: `provideTranslateService`, `provideTranslateHttpLoader`, `TranslatePipe`, and `TranslateService` are unchanged, as are the `frontend/public/i18n/{nl,en}.json` files and the `stickermap-lang` storage key.
+- **`angular-server-side-configuration` 21.0.4 → 22.0.2**, with `ARG NGSSC_VERSION` in `frontend/Dockerfile` bumped to match so the binary and the build-time library stay on the same major. The runtime env-injection contract is unchanged — the same variables are still substituted into `index.html` at container start.
+- Sticker endpoint responses are now typed instead of `any`. The backend returns raw psycopg rows, which serialise to JSON *arrays*, so they are modelled as labelled tuples — `StickerRow`, `StickerDetailRow`, `StickerRotateRow` — in `core/models/sticker.model.ts`, alongside `StickerPointGeoJson` for the parsed `ST_AsGeoJSON(location)` string and `MessageResponse`/`UpdateStickerResponse`/`SubmitReportResponse` for the mutating endpoints. Column order is now documented and index access is type-checked; when a column is added to a SQL `SELECT`, the matching tuple type has to be updated or the build fails instead of drifting silently.
+- Metadata fields the backend blanks out for unauthenticated callers (`poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by`) are now typed `string | null` on `ParsedSticker` and `ProcessedSticker`, matching what `get_all_stickers` actually returns. `isEpochSentinel()` accepts `string | null | undefined`, and the duplicated date-conversion helpers in `edit-sticker-dialog.component.ts` were dropped in favour of the shared `shared/utils/date-utils.ts` versions. No behavioural change — the runtime values were already null.
+
+### Removed
+
+- **`@angular/animations`** dropped from `frontend/package.json`. Nothing under `src/` imports it, and it is no longer a peer dependency of `@angular/material` 22 — Material's animations work without it, and the app has never called `provideAnimations`/`provideAnimationsAsync`.
+- **Support for WebGL1-only browsers.** MapLibre GL v6 removed the WebGL1 renderer, so the map now requires WebGL2 — on a browser without it, the map fails to initialise while the rest of the app keeps working. WebGL2 has been baseline in every major browser since Safari 15 (2021), so no currently supported browser is affected.
 
 ## [1.21.5] - 2026-07-21
 
