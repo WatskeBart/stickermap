@@ -281,7 +281,7 @@
     <div class="card">
       <div class="card-icon">📍</div>
       <h3>Interactive Map</h3>
-      <p>Browse all sticker locations on a MapLibre GL powered world map with smooth zoom and pan.</p>
+      <p>Browse all sticker locations on a MapLibre GL 6 world map, with a toggle between street, satellite, and terrain tile layers.</p>
     </div>
     <div class="card">
       <div class="card-icon">📷</div>
@@ -291,22 +291,27 @@
     <div class="card">
       <div class="card-icon">🔐</div>
       <h3>Role-based Access</h3>
-      <p>Keycloak-backed authentication with four hierarchical roles: viewer, uploader, editor, and admin.</p>
+      <p>Keycloak-backed authentication with four composite client roles — sm-viewer, sm-uploader, sm-editor, sm-admin — each inheriting the one below it.</p>
     </div>
     <div class="card">
       <div class="card-icon">☸️</div>
       <h3>Kubernetes Ready</h3>
-      <p>Air-gap friendly Helm chart with CNPG database support and embedded Keycloak — no external dependencies.</p>
+      <p>Air-gap friendly Helm v4 chart with no chart dependencies — every template is inlined. Bring your own PostgreSQL/PostGIS and Keycloak.</p>
     </div>
     <div class="card">
       <div class="card-icon">🗂️</div>
       <h3>Category Management</h3>
-      <p>Organise stickers into custom categories with admin tooling to manage, merge, and moderate.</p>
+      <p>Organise stickers into custom categories, each with its own uploaded icon, created and maintained by admins.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🧹</div>
+      <h3>Moderation &amp; Admin Tools</h3>
+      <p>Removal reports with a review queue, archive/unarchive, GeoJSON and CSV export, and background maintenance jobs for thumbnails, image compression, EXIF stripping, and orphan cleanup.</p>
     </div>
     <div class="card">
       <div class="card-icon">🌐</div>
       <h3>Multi-language</h3>
-      <p>Runtime i18n with English and Dutch support — switch languages without reloading the app.</p>
+      <p>Runtime i18n with Dutch (default) and English — switch languages without reloading the app.</p>
     </div>
     <div class="card">
       <div class="card-icon">🛡️</div>
@@ -379,7 +384,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr><td>Frontend</td><td>Angular 21 (zoneless), TypeScript 5.9, MapLibre GL 5.24</td></tr>
+      <tr><td>Frontend</td><td>Angular 22 (zoneless), TypeScript 6.0, MapLibre GL 6.x</td></tr>
       <tr><td>Backend</td><td>Python 3.14, FastAPI, Pydantic</td></tr>
       <tr><td>Database</td><td>PostgreSQL with PostGIS (SRID 4326)</td></tr>
       <tr><td>Authentication</td><td>Keycloak, JWT RS256</td></tr>
@@ -387,6 +392,10 @@
       <tr><td>Kubernetes</td><td>Helm v4</td></tr>
     </tbody>
   </table>
+  <p style="margin-top: 1.25rem; font-size: 0.875rem; color: var(--muted);">
+    Since 1.22.0 the map requires a browser with WebGL2 — MapLibre GL v6 removed the WebGL1 renderer.
+    WebGL2 has been available in every major browser since 2021.
+  </p>
 </section>
 
 <!-- ── Footer ── -->
