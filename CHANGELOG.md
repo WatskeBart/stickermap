@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.22.0] - 2026-08-01
+
 ### Changed
 
 - **Angular 21.2.17 → 22.1.0** — `@angular/{core,common,compiler,forms,router,platform-browser}`, `@angular/{cdk,material}` 21.2.14 → 22.1.0, and the `@angular/{build,cli,compiler-cli}` toolchain. Three things about v22 affected this codebase:
@@ -501,7 +503,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.21.5...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.22.0...HEAD
+[1.22.0]: https://github.com/WatskeBart/stickermap/compare/1.21.5...1.22.0
 [1.21.5]: https://github.com/WatskeBart/stickermap/compare/1.21.4...1.21.5
 [1.21.4]: https://github.com/WatskeBart/stickermap/compare/1.21.3...1.21.4
 [1.21.3]: https://github.com/WatskeBart/stickermap/compare/1.21.2...1.21.3

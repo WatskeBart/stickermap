@@ -1,6 +1,6 @@
 [project]
 name = "stickermap-migrations"
-version = "1.21.5"
+version = "1.22.0"
 description = "Database migrations for StickerMap"
 requires-python = ">=3.11"
 dependencies = [
