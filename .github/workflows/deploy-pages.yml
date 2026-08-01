@@ -1,0 +1,61 @@
+# .github/workflows/deploy-pages.yml
+#
+# Publishes the contents of the gh-pages branch (the Helm repository index and
+# the github.io landing page) to GitHub Pages.
+#
+# This is the single implementation of the deploy. It lives on the default
+# branch for two reasons:
+#   - workflow_dispatch only renders a "Run workflow" button in the Actions
+#     tab when the workflow file is on the default branch.
+#   - workflow_call lets the gh-pages stub reuse these steps, so the branch
+#     only carries a thin caller and there is no logic to keep in sync.
+#
+# The push-to-gh-pages trigger lives in the stub rather than here, because
+# GitHub resolves push-event workflows from the branch that was pushed.
+#
+# Triggers:
+#   - workflow_dispatch → manual run from the Actions tab
+#   - workflow_call     → invoked by deploy-pages.yml on the gh-pages branch
+
+name: Deploy gh-pages content
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Shared with publish-helm-pages.yml so a manual run and a chart release can
+# never deploy concurrently. Deliberately not repeated in the gh-pages stub:
+# a caller and callee sharing one group would wait on each other forever.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Publish gh-pages to GitHub Pages
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v6
+        with:
+          # Pinned so a manual run started from the wrong branch in the UI
+          # still deploys gh-pages, instead of publishing that branch's tree.
+          ref: gh-pages
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: .
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
