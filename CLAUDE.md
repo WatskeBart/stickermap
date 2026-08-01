@@ -122,11 +122,25 @@ src/app/
   **Sticker endpoints return positional tuples, not objects.** The backend returns raw psycopg rows, which serialise to JSON *arrays* — so `get_all_stickers` yields `[[1, "{...geojson}", "poster", ...], ...]` and callers index by position (`s[2]` is the poster). These are typed as labelled tuples in `core/models/sticker.model.ts` (`StickerRow`, `StickerDetailRow`, `StickerRotateRow`); when a column is added to the SQL `SELECT`, add it to the matching tuple type or index access silently drifts.
 
   **Metadata is null for non-viewers.** `get_all_stickers` blanks out `poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by` and `updated_at` for unauthenticated callers, so those fields are `string | null` on `ParsedSticker`/`ProcessedSticker`. Guard them before calling string methods.
-- **`features/map/map.ts`** — Main map component (MapLibre GL). Uses a window bridge pattern for popup actions: `window.__editSticker`, `window.__deleteSticker`, `window.__openFullImage` (Leaflet-style callbacks from HTML popup content).
+- **`features/map/map.ts`** — Main map component (MapLibre GL). Markers and popups are rendered **declaratively** via `ngx-maplibre-gl`'s `<mgl-marker>` / `<mgl-popup>` in `map.html`, and popup actions are ordinary Angular `(click)` bindings — there is no `window.*` callback bridge. `maplibregl` is imported only for types plus the `RasterTileSource.setTiles()` call behind the tile-layer toggle.
 - **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()` which registers the `APP_INITIALIZER` that calls `checkAuth()` and handles post-login redirects.
 - **`core/guards/auth.guard.ts`** — Functional `CanActivateFn` that checks `OidcSecurityService.isAuthenticated$`, stores the target URL in localStorage, and triggers `authorize()` if unauthenticated.
 
 Frontend environment variables are injected at container start via `angular-server-side-configuration` (ngssc), which replaces tokens in `index.html` at runtime — not at build time.
+
+**MapLibre GL v6 — the worker must be served as a real file:**
+
+The map uses **MapLibre GL JS 6.x** via **`@maplibre/ngx-maplibre-gl` 22.x** (the ngx major tracks the Angular major; v22 peers `maplibre-gl >= 6.0.0`). Three things about v6 are easy to get wrong:
+
+- **ESM-only, no default export.** `import maplibregl from 'maplibre-gl'` no longer works. Use `import * as maplibregl from 'maplibre-gl'` (what `map.ts` does) or named imports. `maplibre-gl` must **not** be listed in `allowedCommonJsDependencies` in `angular.json`.
+- **The web worker is a separate runtime fetch that bundlers cannot rewrite.** v6 resolves it from `import.meta.url`, which after esbuild points at a hashed chunk — so without an explicit URL it requests a file that does not exist, **the worker 404s and no tiles render**. The `new Worker()` call fails asynchronously rather than throwing, so the failure surfaces as a missing basemap plus a 404 in the network tab, not as a thrown error. Two pieces make it work, and both are required:
+  1. `angular.json` `assets` copies **`maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs`** from `node_modules/maplibre-gl/dist` to the output root. The worker does `import … from "./maplibre-gl-shared.mjs"` at runtime, so the two files must stay **siblings in the same directory**.
+  2. `app.config.ts` provides `provideMaplibreWorker('maplibre-gl-worker.mjs')` from `@maplibre/ngx-maplibre-gl/config`. The path is resolved against `document.baseURI`, so a sub-path deployment (`--base-href`) keeps working. Keep it relative for that reason.
+
+  Because Caddy sets `X-Content-Type-Options: nosniff`, the `.mjs` files must also be served as `text/javascript` or the browser blocks the module worker. `caddy:alpine` does this correctly out of the box — but it is the thing to check first if the map works in `pnpm start` and breaks in a container.
+- **Camera inputs are plain numbers, not single-element arrays.** ngx-maplibre-gl 22 changed `[zoom]`, `[bearing]`, `[pitch]` and `[roll]` from `[9]` to `9`, and made them two-way capable (`[(zoom)]`). Templates using the old array form fail the build under v22's strict template checking.
+
+MapLibre v6 also **requires WebGL2** (WebGL1 support was removed), and if a CSP is ever added it needs `worker-src 'self'` and `img-src data: blob: 'self'` — the dedicated CSP bundle from v5 no longer exists.
 
 **CSS theming — light/dark mode:**
 

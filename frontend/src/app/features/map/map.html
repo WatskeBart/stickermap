@@ -2,7 +2,7 @@
   @if (initialViewport(); as iv) {
   <mgl-map
     [mapStyle]="mapStyle"
-    [zoom]="[iv.zoom]"
+    [zoom]="iv.zoom"
     [center]="iv.center"
     [maxTileCacheSize]="150"
     (mapLoad)="onMapLoad($event)"

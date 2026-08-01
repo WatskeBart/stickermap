@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **MapLibre GL JS 5.24.0 → 6.1.0**, with `@maplibre/ngx-maplibre-gl` 21.0.2 → 22.1.0 (v22 peers `maplibre-gl >= 6.0.0`; the ngx major tracks the Angular major). Three breaking changes needed handling:
+  - v6 is **ESM-only and dropped the default export**, so `map.ts` now uses `import * as maplibregl from 'maplibre-gl'`. `maplibre-gl` was removed from `allowedCommonJsDependencies` in `angular.json`.
+  - v6 loads its **web worker from a separate file at runtime**, resolved from `import.meta.url` — which after esbuild points at a hashed chunk, so the request 404s and no tiles render. `angular.json` now copies `maplibre-gl-worker.mjs` and `maplibre-gl-shared.mjs` (the worker imports the latter as a sibling, so they must share a directory) to the output root, and `app.config.ts` provides `provideMaplibreWorker('maplibre-gl-worker.mjs')` from `@maplibre/ngx-maplibre-gl/config`. The path is relative so it resolves against `document.baseURI` and survives a `--base-href` sub-path deployment.
+  - ngx-maplibre-gl 22 changed the **camera inputs from single-element arrays to plain numbers**, so `map.html` binds `[zoom]="iv.zoom"` instead of `[zoom]="[iv.zoom]"`.
+
+  MapLibre v6 also **requires WebGL2** (WebGL1 support was removed). `RasterTileSource.setTiles()` is unchanged, so the tile-layer toggle needed no work.
+
 ## [1.21.5] - 2026-07-21
 
 ### Security

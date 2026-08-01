@@ -18,7 +18,7 @@ import {
 } from '../../core/config/tile-layers.config';
 import { AuthService } from '../../core/services/auth.service';
 import { StickerService } from '../../core/services/sticker.service';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import {
   MapComponent as MglMapComponent,
   MarkerComponent as MglMarkerComponent,
