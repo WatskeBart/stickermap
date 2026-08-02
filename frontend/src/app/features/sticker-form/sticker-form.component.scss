@@ -226,6 +226,21 @@
   margin: 4px 0 12px;
 }
 
+.extra-info-field {
+  // Two hints share the subscript row; the sensitive-information warning must stay
+  // readable next to the character counter on a narrow viewport.
+  margin-bottom: 20px;
+
+  textarea {
+    resize: vertical;
+  }
+
+  // Colour lives in styles.scss — it has to beat the global !important hint rule.
+  .sensitive-hint {
+    max-width: 70%;
+  }
+}
+
 .form-actions {
   display: flex;
   gap: 10px;

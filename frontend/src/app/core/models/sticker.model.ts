@@ -26,6 +26,7 @@ export interface StickerData {
   thumbnail?: string | null;
   category_id?: number | null;
   private?: boolean;
+  extra_info?: string | null;
 }
 
 export interface CreateStickersRequest {
@@ -39,7 +40,10 @@ export interface UpdateStickerRequest {
   uploader?: string;
   category_id?: number | null;
   private?: boolean;
+  extra_info?: string;
 }
+
+export const EXTRA_INFO_MAX_LENGTH = 256;
 
 /** Shape of the `ST_AsGeoJSON(location)` string once parsed. */
 export interface StickerPointGeoJson {
@@ -71,6 +75,7 @@ export type StickerRow = [
   category_name: string | null,
   category_icon_filename: string | null,
   isPrivate: boolean,
+  extra_info: string | null,
 ];
 
 /** Row shape of `GET /get_sticker/{id}` — no removal count or archived flag. */
@@ -88,6 +93,7 @@ export type StickerDetailRow = [
   category_name: string | null,
   category_icon_filename: string | null,
   isPrivate: boolean,
+  extra_info: string | null,
 ];
 
 /** Row returned by `PATCH /stickers/{id}/rotate`. */
@@ -137,6 +143,7 @@ export interface ParsedSticker {
   uploader: string | null;
   post_date: string | null;
   upload_date: string | null;
+  extra_info: string | null;
   image: string;
   uploaded_by: string | null;
   imageUrl: string;

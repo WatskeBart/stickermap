@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.23.0] - 2026-08-02
+
+### Added
+
+- **Optional `extra_info` note on stickers (max 256 characters)** — free text describing why or how a sticker was posted ("posted during the X festival", "second attempt, the first one got peeled off"). Migration `0009_add_extra_info` adds a nullable `VARCHAR(256)` column, so the length guarantee holds at the storage layer even if a caller bypasses Pydantic. Settable from the upload form and from both edit dialogs (overview table and map popup), under the same rules as `poster`: `sm-uploader` on own stickers, `sm-editor`/`sm-admin` on any sticker. Shown in the map popup, the overview table (truncated, full text in a tooltip) and the CSV export — and in the GeoJSON export as well, since both formats come from the same editor-only endpoint.
+  - **Readable by viewers only.** `get_all_stickers` blanks `extra_info` to `null` for unauthenticated/non-viewer callers exactly like `poster`/`uploader`/`post_date`, so a note never reaches an anonymous client. The column was appended last in the `SELECT` (index 15 on `StickerRow`, 13 on `StickerDetailRow`), and the non-viewer branch that rebuilds each row positionally was extended with a matching `None`.
+  - **Plain text, never markup.** The popup and the table cell render the note with `{{ }}` interpolation only. The disclaimer list next to it uses `[innerHTML]` for translated markup; copying that pattern for user-supplied text would be an XSS hole, so HTML typed into the field shows up as literal characters.
+  - **Clear semantics on `PATCH`.** `UpdateStickerRequest` is applied with `model_dump(exclude_unset=True)`, so an omitted field means "leave unchanged" while an empty string — or an explicit `null` — clears the note to `NULL`. Input is trimmed, `\r\n` normalised, and runs of blank lines collapsed to one; the 256-character limit is checked *before* trimming, so a whitespace-padded over-long payload is still a 422 rather than being silently accepted.
+- **Disclaimer rule 7 — "Do not share sensitive information."** New `visibility_off` entry in the first-time upload disclaimer, in both `en` and `nl`, covering the first field where users can type arbitrary text. The `stickermap_disclaimer_accepted` localStorage flag is deliberately *not* invalidated, so existing users will not see it; to compensate, both extra-info inputs carry an inline `mat-hint` warning against personal data at the point of entry, alongside a live `123 / 256` character counter.
+
 ## [1.22.1] - 2026-08-01
 
 ### Security
@@ -511,7 +521,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.22.1...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.23.0...HEAD
+[1.23.0]: https://github.com/WatskeBart/stickermap/compare/1.22.1...1.23.0
 [1.22.1]: https://github.com/WatskeBart/stickermap/compare/1.22.0...1.22.1
 [1.22.0]: https://github.com/WatskeBart/stickermap/compare/1.21.5...1.22.0
 [1.21.5]: https://github.com/WatskeBart/stickermap/compare/1.21.4...1.21.5

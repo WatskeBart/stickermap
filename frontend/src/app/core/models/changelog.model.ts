@@ -11,6 +11,19 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.23.0',
+    date: '2026-08-02',
+    sections: [
+      {
+        type: 'Added',
+        items: [
+          '**Optional <code>extra_info</code> note on stickers (max 256 characters)** — free text describing why or how a sticker was posted ("posted during the X festival", "second attempt, the first one got peeled off"). Migration <code>0009_add_extra_info</code> adds a nullable <code>VARCHAR(256)</code> column, so the length guarantee holds at the storage layer even if a caller bypasses Pydantic. Settable from the upload form and from both edit dialogs (overview table and map popup), under the same rules as <code>poster</code>: <code>sm-uploader</code> on own stickers, <code>sm-editor</code>/<code>sm-admin</code> on any sticker. Shown in the map popup, the overview table (truncated, full text in a tooltip) and the CSV export — and in the GeoJSON export as well, since both formats come from the same editor-only endpoint.',
+          '**Disclaimer rule 7 — "Do not share sensitive information."** New <code>visibility_off</code> entry in the first-time upload disclaimer, in both <code>en</code> and <code>nl</code>, covering the first field where users can type arbitrary text. The <code>stickermap_disclaimer_accepted</code> localStorage flag is deliberately *not* invalidated, so existing users will not see it; to compensate, both extra-info inputs carry an inline <code>mat-hint</code> warning against personal data at the point of entry, alongside a live <code>123 / 256</code> character counter.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.22.1',
     date: '2026-08-01',
     sections: [

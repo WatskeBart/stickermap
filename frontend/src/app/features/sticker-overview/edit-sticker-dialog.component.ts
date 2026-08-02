@@ -14,7 +14,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { StickerService } from '../../core/services/sticker.service';
-import type { ParsedSticker, UpdateStickerRequest } from '../../core/models/sticker.model';
+import { EXTRA_INFO_MAX_LENGTH, type ParsedSticker, type UpdateStickerRequest } from '../../core/models/sticker.model';
 import { formatDateForBackend, formatDateForInput, isEpochSentinel } from '../../shared/utils/date-utils';
 import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
@@ -72,6 +72,9 @@ export class EditStickerDialogComponent implements OnInit {
   uploader = signal('');
   categoryId = signal<number | null>(null);
   isPrivate = signal(false);
+  extraInfo = signal('');
+
+  readonly extraInfoMaxLength = EXTRA_INFO_MAX_LENGTH;
 
   onDateUnknownChange(checked: boolean): void {
     if (checked) {
@@ -97,6 +100,7 @@ export class EditStickerDialogComponent implements OnInit {
     this.uploader.set(s.uploader ?? '');
     this.categoryId.set(s.category_id);
     this.isPrivate.set(s.private ?? false);
+    this.extraInfo.set(s.extra_info ?? '');
 
     if (this.data.isAdmin) {
       this.stickerService.getUploaders().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -124,6 +128,11 @@ export class EditStickerDialogComponent implements OnInit {
     }
     if (this.isPrivate() !== s.private) {
       updates.private = this.isPrivate();
+    }
+    // An empty string clears the note server-side; `null` means "no note" here.
+    const newExtraInfo = this.extraInfo().trim();
+    if (newExtraInfo !== (s.extra_info ?? '')) {
+      updates.extra_info = newExtraInfo;
     }
 
     if (Object.keys(updates).length === 0) {
