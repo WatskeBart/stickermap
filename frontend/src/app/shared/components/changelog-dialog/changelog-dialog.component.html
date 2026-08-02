@@ -12,23 +12,15 @@
           <span class="release-date">{{ latestRelease.date }}</span>
         }
       </div>
-      @for (section of latestRelease.sections; track section.type) {
-        <div class="section">
-          <div class="section-title">
-            <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
-            <span>{{ section.type }}</span>
-          </div>
-          <ul class="change-list">
-            @for (item of section.items; track item) {
-              <li [innerHTML]="item"></li>
-            }
-          </ul>
-        </div>
-      }
+      <ul class="change-list">
+        @for (item of latestRelease.items; track item) {
+          <li [innerHTML]="item"></li>
+        }
+      </ul>
     </div>
   }
 
-  @if (unreleasedEntry && unreleasedEntry.sections.length > 0) {
+  @if (unreleasedEntry && unreleasedEntry.items.length > 0) {
     <mat-expansion-panel class="unreleased-panel" [expanded]="false">
       <mat-expansion-panel-header>
         <mat-panel-title>
@@ -36,19 +28,11 @@
           {{ 'changelog.unreleased' | translate }}
         </mat-panel-title>
       </mat-expansion-panel-header>
-      @for (section of unreleasedEntry.sections; track section.type) {
-        <div class="section">
-          <div class="section-title">
-            <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
-            <span>{{ section.type }}</span>
-          </div>
-          <ul class="change-list">
-            @for (item of section.items; track item) {
-              <li [innerHTML]="item"></li>
-            }
-          </ul>
-        </div>
-      }
+      <ul class="change-list">
+        @for (item of unreleasedEntry.items; track item) {
+          <li [innerHTML]="item"></li>
+        }
+      </ul>
     </mat-expansion-panel>
   }
 
@@ -68,19 +52,11 @@
               <span class="release-date">{{ release.date }}</span>
             }
           </div>
-          @for (section of release.sections; track section.type) {
-            <div class="section">
-              <div class="section-title">
-                <mat-icon>{{ sectionIconMap[section.type] || 'info' }}</mat-icon>
-                <span>{{ section.type }}</span>
-              </div>
-              <ul class="change-list">
-                @for (item of section.items; track item) {
-                  <li [innerHTML]="item"></li>
-                }
-              </ul>
-            </div>
-          }
+          <ul class="change-list">
+            @for (item of release.items; track item) {
+              <li [innerHTML]="item"></li>
+            }
+          </ul>
         </div>
       }
     </mat-expansion-panel>

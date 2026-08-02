@@ -1,0 +1,91 @@
+# .github/workflows/release.yml
+#
+# Creates a DRAFT GitHub Release from CHANGELOG.md when a semver tag is pushed.
+#
+# The body comes from general/scripts/bump-version.py --release-notes: the
+# release's `### Highlights` section first, then the technical sections inside a
+# collapsed <details> block. Review and publish the draft manually.
+#
+# Triggers:
+#   - push of semver tag  → draft release named after the tag (e.g. 1.0.0)
+
+name: Draft GitHub Release
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to build a draft release for (e.g. 1.23.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    name: Draft release from CHANGELOG
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Determine tag
+        id: tag
+        run: echo "value=${{ github.event.inputs.tag || github.ref_name }}" >> "${GITHUB_OUTPUT}"
+
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.tag.outputs.value }}
+
+      - name: Build release notes
+        id: notes
+        env:
+          TAG: ${{ steps.tag.outputs.value }}
+        run: |
+          # Pre-release tags (1.2.3-rc1) have no CHANGELOG section — fall back to
+          # GitHub's commit-derived notes and flag them as pre-releases.
+          if python3 general/scripts/bump-version.py "${TAG}" --release-notes > release-notes.md; then
+            echo "generated=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "No CHANGELOG entry for ${TAG} — falling back to generated notes."
+            echo "generated=true" >> "${GITHUB_OUTPUT}"
+          fi
+          if [[ "${TAG}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "prerelease=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "prerelease=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Create or update draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.value }}
+          GENERATED: ${{ steps.notes.outputs.generated }}
+          PRERELEASE: ${{ steps.notes.outputs.prerelease }}
+        run: |
+          args=(--draft --title "${TAG}")
+          if [[ "${PRERELEASE}" == "true" ]]; then
+            args+=(--prerelease)
+          fi
+          if [[ "${GENERATED}" == "true" ]]; then
+            args+=(--generate-notes)
+          else
+            args+=(--notes-file release-notes.md)
+          fi
+
+          # Re-running for the same tag replaces an existing draft, but never
+          # touches a release that has already been published.
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            if [[ "$(gh release view "${TAG}" --json isDraft --jq .isDraft)" == "true" ]]; then
+              gh release delete "${TAG}" --yes
+            else
+              echo "Release ${TAG} is already published — leaving it untouched."
+              exit 0
+            fi
+          fi
+          gh release create "${TAG}" "${args[@]}"
+
+          echo "Draft release created for ${TAG}. Review and publish it manually:"
+          echo "  ${{ github.server_url }}/${{ github.repository }}/releases"

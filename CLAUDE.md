@@ -213,6 +213,42 @@ Single flat chart — **requires Helm v4** (`apiVersion: v2`). No sub-charts or 
 
 See `helm/README.md` for mandatory values, installation examples, and OCI packaging.
 
+### Changelog & Releases
+
+`CHANGELOG.md` is the single source for three audiences. Every release block starts with a **`### Highlights`** section written for people using the app, followed by the usual `Added`/`Changed`/`Fixed`/`Security` sections holding the technical record.
+
+```text
+CHANGELOG.md
+├── ### Highlights   → changelog.model.ts → in-app "what's new" dialog (end users)
+│                    → top of the GitHub release body
+└── ### Added/…      → collapsed <details> in the GitHub release body
+                     → the full technical history, read on GitHub
+```
+
+**Writing a `Highlights` entry** — this text is shown to sticker spotters, not developers:
+
+- Lead with what the user can now do, using the name that appears on screen ("Add a note to your stickers", not "Optional `extra_info` column").
+- No identifiers, file paths, function names, migration numbers, or dependency version ranges.
+- One to three sentences per bullet, and **no nested bullets** — `generate_changelog_model()` only picks up top-level `- ` items, so sub-bullets are silently dropped from the dialog.
+- Dependency-only releases collapse to a single line: "Security updates to third-party libraries. Nothing changes in how the app works."
+- Deployment-only changes still get a bullet, prefixed **"For self-hosters:"**, so no release renders empty.
+- `**bold**` and `` `code` `` are converted to `<strong>`/`<code>` because the dialog binds items with `[innerHTML]`. Other markdown (links, italics, nested lists) is **not** converted and will render as literal characters.
+
+**Never edit `frontend/src/app/core/models/changelog.model.ts` by hand** — it is generated. Run `uv run general/scripts/bump-version.py <version>` to regenerate it after changing `CHANGELOG.md`; re-running with the current version is a safe no-op that only refreshes the model.
+
+The script warns (but does not fail) when the release being cut has no `Highlights` section. Treat that warning as a blocker — without it, both the dialog and the release notes are empty for that version.
+
+**Release flow:**
+
+1. Write the entry under `## [Unreleased]` — highlights *and* technical sections.
+2. `uv run general/scripts/bump-version.py <version>` — bumps all version files, dates the release, regenerates the model.
+3. Push a semver tag. `build-images.yml` and `build-helm.yml` publish artifacts; `release.yml` creates a **draft** GitHub Release from the changelog.
+4. Review the draft on GitHub and publish it manually.
+
+`bump-version.py <version> --release-notes` prints that release body to stdout and changes no files — useful for checking how an entry will read before tagging.
+
+The dialog items are plain English regardless of the selected language; `@ngx-translate` covers the dialog chrome (title, buttons) but not the changelog content itself.
+
 ## Testing
 
 There are no automated test suites in this repository (no `pytest`, no `vitest`, no GitHub Actions test job). Verify changes manually:
