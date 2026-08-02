@@ -221,6 +221,22 @@ mgl-map {
   color: var(--sm-text-primary);
 }
 
+.popup-extra-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.popup-extra-info-text {
+  // Free text up to 256 chars: wrap hard rather than stretch the popup, keep
+  // author newlines, and cap the height so a long note stays scrollable.
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 6.5em;
+  overflow-y: auto;
+  color: var(--sm-text-secondary);
+}
+
 .sticker-popup-anon {
   color: var(--sm-text-muted);
   font-style: italic;

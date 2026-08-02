@@ -50,6 +50,7 @@ interface ProcessedSticker {
   uploader: string | null;
   post_date: string | null;
   upload_date: string | null;
+  extra_info: string | null;
   image: string;
   uploaded_by: string | null;
   imageUrl: string;
@@ -353,6 +354,7 @@ export class MapComponent implements OnInit {
               uploader: s[3],
               post_date: s[4],
               upload_date: s[5],
+              extra_info: s[15] ?? null,
               image,
               uploaded_by: uploadedBy,
               imageUrl: `/uploads/${image}`,

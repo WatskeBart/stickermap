@@ -138,7 +138,7 @@ export class StickerOverviewComponent implements OnInit {
       if (handset) {
         base.splice(2, 0, 'poster');
       } else {
-        base.splice(2, 0, 'poster', 'uploader');
+        base.splice(2, 0, 'poster', 'uploader', 'extra_info');
       }
     }
     if (this.canModerate() && !handset) {
@@ -219,6 +219,7 @@ export class StickerOverviewComponent implements OnInit {
             uploader: s[3],
             post_date: s[4],
             upload_date: s[5],
+            extra_info: s[15] ?? null,
             image: s[6],
             uploaded_by: uploadedBy,
             imageUrl: lastChanged ? `/uploads/${s[6]}?v=${new Date(lastChanged).getTime()}` : `/uploads/${s[6]}`,

@@ -132,7 +132,8 @@ GET   /api/v1/get_sticker/{id}      Single sticker (used in edit flows)
 GET   /api/v1/uploaders             Distinct uploader names (edit dropdown)
 POST  /api/v1/upload                Validate, resize, generate thumbnail, extract EXIF GPS
 POST  /api/v1/create_sticker        Create one or more stickers (uploaded_by from JWT)
-PATCH /api/v1/sticker/{id}          Update poster/post_date/location/category/private
+PATCH /api/v1/sticker/{id}          Update poster/post_date/location/category/private/extra_info
+                                    extra_info: "" (or null) clears it, omitting it keeps it
                                     Uploaders: own stickers only
                                     Editors:   any sticker
                                     Admins:    additionally may change `uploader`

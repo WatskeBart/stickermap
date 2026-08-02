@@ -96,6 +96,21 @@
 
           <app-category-selector [(categoryId)]="editCategoryId" />
 
+          <mat-form-field appearance="outline" class="full-width extra-info-field">
+            <mat-label>{{ 'editSticker.extraInfo' | translate }}</mat-label>
+            <textarea
+              matInput
+              rows="3"
+              [ngModel]="editExtraInfo()"
+              (ngModelChange)="editExtraInfo.set($event)"
+              name="editExtraInfo"
+              [placeholder]="'editSticker.extraInfoPlaceholder' | translate"
+              [maxlength]="extraInfoMaxLength"
+            ></textarea>
+            <mat-hint class="sensitive-hint">{{ 'editSticker.extraInfoSensitiveHint' | translate }}</mat-hint>
+            <mat-hint align="end">{{ editExtraInfo().length }} / {{ extraInfoMaxLength }}</mat-hint>
+          </mat-form-field>
+
           <div class="modal-private-toggle">
             <mat-checkbox
               [ngModel]="editIsPrivate()"

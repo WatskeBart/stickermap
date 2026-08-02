@@ -109,11 +109,12 @@ def create_sticker(
             thumbnail = sticker.thumbnail
             category_id = sticker.category_id
             private = sticker.private or False
+            extra_info = sticker.extra_info
             cursor.execute(t"""
-                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, thumbnail, uploaded_by, category_id, private)
+                INSERT INTO stickers (location, poster, uploader, post_date, upload_date, image, thumbnail, uploaded_by, category_id, private, extra_info)
                 VALUES (
                     ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326),
-                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {thumbnail}, {uploaded_by}, {category_id}, {private}
+                    {poster}, {uploader}, {post_date}, {upload_date}, {image}, {thumbnail}, {uploaded_by}, {category_id}, {private}, {extra_info}
                 )
                 RETURNING *;
                 """)
@@ -153,7 +154,8 @@ def get_all_stickers(
                 s.category_id,
                 c.name,
                 c.icon_filename,
-                s.private
+                s.private,
+                s.extra_info
             FROM stickers s
             LEFT JOIN categories c ON c.id = s.category_id
             {privacy_filter}
@@ -161,7 +163,7 @@ def get_all_stickers(
         rows = cursor.fetchall()
         if not is_viewer:
             rows = [
-                (r[0], r[1], None, None, None, None, r[6], None, None, 0, r[10], r[11], r[12], r[13], r[14])
+                (r[0], r[1], None, None, None, None, r[6], None, None, 0, r[10], r[11], r[12], r[13], r[14], None)
                 for r in rows
             ]
         return rows
@@ -180,7 +182,7 @@ def get_sticker(id: int, conn=Depends(get_db), current_user: dict = Depends(requ
             t"""
             SELECT s.id, ST_AsGeoJSON(s.location), s.poster, s.uploader, s.post_date,
                 s.upload_date, s.image, s.uploaded_by, s.updated_at,
-                s.category_id, c.name, c.icon_filename, s.private
+                s.category_id, c.name, c.icon_filename, s.private, s.extra_info
             FROM stickers s
             LEFT JOIN categories c ON c.id = s.category_id
             WHERE s.id = {id}
@@ -216,10 +218,10 @@ def update_sticker(
     current_user: dict = Depends(require_role(ROLE_UPLOADER)),
 ):
     """
-    Update a sticker. Uploaders can update their own sticker's poster, post_date, location.
-    Editors can update any sticker's poster, post_date, location.
+    Update a sticker. Uploaders can update their own sticker's poster, post_date, location, extra_info.
+    Editors can update any sticker's poster, post_date, location, extra_info.
     Admins can additionally update uploader or remove sticker.
-    Image filenames are immutable.
+    Image filenames are immutable. Send extra_info as "" (or null) to clear the note.
     """
     user_roles = get_user_roles(current_user)
     user_id = get_user_identity(current_user)
@@ -290,6 +292,11 @@ def update_sticker(
         if "private" in update_data:
             set_clauses.append("private = %s")
             params.append(update_data["private"])
+
+        if "extra_info" in update_data:
+            # Normalised to None by the model, so an empty string clears the note.
+            set_clauses.append("extra_info = %s")
+            params.append(update_data["extra_info"])
 
         set_clauses.append("updated_at = NOW()")
         params.append(sticker_id)
@@ -396,7 +403,8 @@ def export_stickers(
                 s.uploaded_by,
                 s.archived,
                 s.category_id,
-                c.name
+                c.name,
+                s.extra_info
             FROM stickers s
             LEFT JOIN categories c ON c.id = s.category_id
             ORDER BY s.id
@@ -408,11 +416,11 @@ def export_stickers(
     if fmt == "csv":
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow(["id", "poster", "uploader", "post_date", "upload_date", "latitude", "longitude", "image", "archived", "category"])
+        writer.writerow(["id", "poster", "uploader", "post_date", "upload_date", "latitude", "longitude", "image", "archived", "category", "extra_info"])
         for r in rows:
             geom = json.loads(r[1])
             lon, lat = geom["coordinates"][0], geom["coordinates"][1]
-            writer.writerow([r[0], r[2], r[3], str(r[4]) if r[4] else None, str(r[5]) if r[5] else None, lat, lon, r[6], r[8], r[10]])
+            writer.writerow([r[0], r[2], r[3], str(r[4]) if r[4] else None, str(r[5]) if r[5] else None, lat, lon, r[6], r[8], r[10], r[11]])
         return Response(
             content=output.getvalue(),
             media_type="text/csv",
@@ -436,6 +444,7 @@ def export_stickers(
                 "archived": r[8],
                 "category_id": r[9],
                 "category_name": r[10],
+                "extra_info": r[11],
             },
         })
     return Response(

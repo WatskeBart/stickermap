@@ -98,6 +98,20 @@
   padding: 4px 0 8px;
 }
 
+.extra-info-field {
+  // Extra bottom room: the subscript row carries both the warning and the counter.
+  margin-bottom: 12px;
+
+  textarea {
+    resize: vertical;
+  }
+
+  // Colour lives in styles.scss — it has to beat the global !important hint rule.
+  .sensitive-hint {
+    max-width: 70%;
+  }
+}
+
 .date-field {
   display: flex;
   flex-direction: column;

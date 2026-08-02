@@ -180,6 +180,24 @@
       />
     }
 
+    <!-- Extra info -->
+    @if (uploadedFilename()) {
+      <mat-form-field appearance="outline" class="full-width extra-info-field">
+        <mat-label>{{ 'stickerForm.extraInfoLabel' | translate }}</mat-label>
+        <textarea
+          matInput
+          rows="3"
+          [ngModel]="extraInfo()"
+          (ngModelChange)="extraInfo.set($event)"
+          name="extraInfo"
+          [placeholder]="'stickerForm.extraInfoPlaceholder' | translate"
+          [maxlength]="extraInfoMaxLength"
+        ></textarea>
+        <mat-hint class="sensitive-hint">{{ 'stickerForm.extraInfoSensitiveHint' | translate }}</mat-hint>
+        <mat-hint align="end">{{ extraInfo().length }} / {{ extraInfoMaxLength }}</mat-hint>
+      </mat-form-field>
+    }
+
     <!-- Private toggle -->
     @if (uploadedFilename()) {
       <div class="private-toggle">

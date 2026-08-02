@@ -14,7 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../core/services/sticker.service';
 import { AuthService } from '../../core/services/auth.service';
-import type { GPSInfo, StickerData } from '../../core/models/sticker.model';
+import { EXTRA_INFO_MAX_LENGTH, type GPSInfo, type StickerData } from '../../core/models/sticker.model';
 import { CategorySelectorComponent } from '../../shared/components/category-selector/category-selector.component';
 
 @Component({
@@ -68,6 +68,9 @@ export class StickerFormComponent implements OnInit {
   postDate = signal('');
   categoryId = signal<number | null>(null);
   isPrivate = signal(false);
+  extraInfo = signal('');
+
+  readonly extraInfoMaxLength = EXTRA_INFO_MAX_LENGTH;
 
   // Auto-fill indicators
   isLocationAutoFilled = signal(false);
@@ -364,6 +367,7 @@ export class StickerFormComponent implements OnInit {
       thumbnail: this.uploadedThumbnail(),
       category_id: this.categoryId(),
       private: this.isPrivate(),
+      extra_info: this.extraInfo().trim() || null,
     };
 
     this.stickerService.createSticker(stickerData).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
@@ -402,6 +406,7 @@ export class StickerFormComponent implements OnInit {
     this.postDate.set('');
     this.categoryId.set(null);
     this.isPrivate.set(false);
+    this.extraInfo.set('');
     this.isSelectingLocation.set(false);
     this.isLocationAutoFilled.set(false);
     this.isDateAutoFilled.set(false);
