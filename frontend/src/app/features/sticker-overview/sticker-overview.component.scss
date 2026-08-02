@@ -163,6 +163,22 @@
   color: var(--sm-text-muted);
 }
 
+.extra-info-cell {
+  // 256 chars never fits a cell — clamp to one line and show the rest in the tooltip.
+  display: block;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: var(--sm-text-secondary);
+  cursor: help;
+}
+
+.extra-info-empty {
+  color: var(--sm-text-muted);
+}
+
 .action-buttons {
   display: flex;
   gap: 4px;

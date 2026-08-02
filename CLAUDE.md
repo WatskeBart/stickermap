@@ -121,7 +121,7 @@ src/app/
 
   **Sticker endpoints return positional tuples, not objects.** The backend returns raw psycopg rows, which serialise to JSON *arrays* — so `get_all_stickers` yields `[[1, "{...geojson}", "poster", ...], ...]` and callers index by position (`s[2]` is the poster). These are typed as labelled tuples in `core/models/sticker.model.ts` (`StickerRow`, `StickerDetailRow`, `StickerRotateRow`); when a column is added to the SQL `SELECT`, add it to the matching tuple type or index access silently drifts.
 
-  **Metadata is null for non-viewers.** `get_all_stickers` blanks out `poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by` and `updated_at` for unauthenticated callers, so those fields are `string | null` on `ParsedSticker`/`ProcessedSticker`. Guard them before calling string methods.
+  **Metadata is null for non-viewers.** `get_all_stickers` blanks out `poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by`, `updated_at` and `extra_info` for unauthenticated callers, so those fields are `string | null` on `ParsedSticker`/`ProcessedSticker`. Guard them before calling string methods.
 - **`features/map/map.ts`** — Main map component (MapLibre GL). Markers and popups are rendered **declaratively** via `ngx-maplibre-gl`'s `<mgl-marker>` / `<mgl-popup>` in `map.html`, and popup actions are ordinary Angular `(click)` bindings — there is no `window.*` callback bridge. `maplibregl` is imported only for types plus the `RasterTileSource.setTiles()` call behind the tile-layer toggle.
 - **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()` which registers the `APP_INITIALIZER` that calls `checkAuth()` and handles post-login redirects.
 - **`core/guards/auth.guard.ts`** — Functional `CanActivateFn` that checks `OidcSecurityService.isAuthenticated$`, stores the target URL in localStorage, and triggers `authorize()` if unauthenticated.
@@ -200,7 +200,7 @@ Group structure in the realm export: a `stickermap` parent group with sub-groups
 
 ### Database
 
-PostGIS with SRID 4326. Sticker locations stored as `geometry(Point, 4326)`. Key columns: `id`, `location` (PostGIS point), `poster`, `uploader`, `post_date`, `upload_date`, `image` (filename), `uploaded_by` (Keycloak `preferred_username`).
+PostGIS with SRID 4326. Sticker locations stored as `geometry(Point, 4326)`. Key columns: `id`, `location` (PostGIS point), `poster`, `uploader`, `post_date`, `upload_date`, `image` (filename), `uploaded_by` (Keycloak `preferred_username`), `extra_info` (`VARCHAR(256)`, optional free-text note).
 
 ### Helm Chart (`helm/stickermap/`)
 

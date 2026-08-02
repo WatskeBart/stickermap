@@ -164,6 +164,21 @@ $stickermap-dark-theme: mat.m2-define-dark-theme(
   color: var(--sm-text-muted) !important;
 }
 
+// The "do not share sensitive information" hint under the extra-info inputs has to
+// beat the !important above; it is a warning, not a neutral hint.
+.mat-mdc-form-field-hint.sensitive-hint {
+  color: var(--sm-accent-text) !important;
+}
+
+// Tooltip carrying a full 256-character extra-info note (rendered in the CDK
+// overlay, so it cannot be styled from the component that opens it).
+.extra-info-tooltip .mdc-tooltip__surface {
+  max-width: 320px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
 // --- Global base styles ---
 html,
 body {

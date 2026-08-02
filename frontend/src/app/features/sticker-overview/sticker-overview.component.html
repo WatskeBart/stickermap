@@ -133,6 +133,21 @@
           <td mat-cell *matCellDef="let row">{{ row.uploader }}</td>
         </ng-container>
 
+        <!-- Extra info column -->
+        <ng-container matColumnDef="extra_info">
+          <th mat-header-cell *matHeaderCellDef>{{ 'overview.colExtraInfo' | translate }}</th>
+          <td mat-cell *matCellDef="let row">
+            @if (row.extra_info) {
+              <!-- User-supplied text: interpolation + matTooltip only, never [innerHTML]. -->
+              <span class="extra-info-cell" [matTooltip]="row.extra_info" matTooltipClass="extra-info-tooltip">
+                {{ row.extra_info }}
+              </span>
+            } @else {
+              <span class="extra-info-empty">—</span>
+            }
+          </td>
+        </ng-container>
+
         <!-- Post date column -->
         <ng-container matColumnDef="post_date">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>{{ 'overview.colPostDate' | translate }}</th>

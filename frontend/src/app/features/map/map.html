@@ -81,6 +81,13 @@
                     {{ sticker.category_name }}
                   </p>
                 }
+                @if (sticker.extra_info) {
+                  <!-- User-supplied text: interpolation only, never [innerHTML]. -->
+                  <p class="popup-extra-info">
+                    <strong>{{ 'map.extraInfoLabel' | translate }}</strong>
+                    <span class="popup-extra-info-text">{{ sticker.extra_info }}</span>
+                  </p>
+                }
               </div>
               @if (sticker.private) {
                 <div class="sticker-popup-private-badge">

@@ -12,7 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { StickerService } from '../../../core/services/sticker.service';
-import type { StickerPointGeoJson, UpdateStickerRequest } from '../../../core/models/sticker.model';
+import { EXTRA_INFO_MAX_LENGTH, type StickerPointGeoJson, type UpdateStickerRequest } from '../../../core/models/sticker.model';
 import { CategorySelectorComponent } from '../../../shared/components/category-selector/category-selector.component';
 import { isEpochSentinel, formatDateForInput, formatDateForBackend } from '../../../shared/utils/date-utils';
 
@@ -60,7 +60,10 @@ export class EditStickerModalComponent {
   } | null>(null);
   editCategoryId = signal<number | null>(null);
   editIsPrivate = signal(false);
+  editExtraInfo = signal('');
   editSaving = signal(false);
+
+  readonly extraInfoMaxLength = EXTRA_INFO_MAX_LENGTH;
   selectingLocation = signal(false);
   editImageUrl = signal('');
   editRotating = signal<'cw' | 'ccw' | null>(null);
@@ -105,6 +108,7 @@ export class EditStickerModalComponent {
         this.editRotating.set(null);
         const categoryId: number | null = sticker[9] ?? null;
         const isPrivate: boolean = sticker[12] ?? false;
+        const extraInfo: string | null = sticker[13] ?? null;
         this.editingSticker.set({
           id: sticker[0],
           poster: sticker[2],
@@ -116,6 +120,7 @@ export class EditStickerModalComponent {
           location: { lat: geom.coordinates[1], lon: geom.coordinates[0] },
           category_id: categoryId,
           private: isPrivate,
+          extra_info: extraInfo,
         });
         this.editForm.set({
           poster: sticker[2],
@@ -129,6 +134,7 @@ export class EditStickerModalComponent {
         this.editPostDateInput.set(unknown ? '1970-01-01T00:00' : formatDateForInput(sticker[4]));
         this.editCategoryId.set(categoryId);
         this.editIsPrivate.set(isPrivate);
+        this.editExtraInfo.set(extraInfo ?? '');
       },
       error: (err: any) => console.error('Failed to fetch sticker:', err),
     });
@@ -139,6 +145,7 @@ export class EditStickerModalComponent {
     this.editForm.set(null);
     this.editCategoryId.set(null);
     this.editIsPrivate.set(false);
+    this.editExtraInfo.set('');
     this.editSaving.set(false);
     this.selectingLocation.set(false);
     this.editRotating.set(null);
@@ -173,6 +180,9 @@ export class EditStickerModalComponent {
     }
     if (this.editCategoryId() !== sticker.category_id) updates.category_id = this.editCategoryId();
     if (this.editIsPrivate() !== sticker.private) updates.private = this.editIsPrivate();
+    // An empty string clears the note server-side; `null` means "no note" here.
+    const newExtraInfo = this.editExtraInfo().trim();
+    if (newExtraInfo !== (sticker.extra_info ?? '')) updates.extra_info = newExtraInfo;
 
     if (Object.keys(updates).length === 0) {
       if (this.editHasRotated()) {
