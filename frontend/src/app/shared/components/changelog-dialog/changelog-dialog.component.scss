@@ -50,39 +50,29 @@ mat-dialog-content {
   color: var(--sm-text-muted);
 }
 
-.section {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.section-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #e17000;
-
-  mat-icon {
-    flex-shrink: 0;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
-}
-
 .change-list {
   margin: 0;
   padding-left: 24px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 
   li {
     font-size: 14px;
     line-height: 1.5;
     color: var(--sm-text-primary);
+
+    strong {
+      font-weight: 600;
+      color: var(--sm-heading-color);
+    }
+
+    code {
+      font-size: 13px;
+      padding: 1px 4px;
+      border-radius: 3px;
+      background: var(--sm-surface-alt);
+    }
   }
 }
 

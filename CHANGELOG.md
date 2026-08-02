@@ -5,9 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+Every release opens with a **`### Highlights`** section written for people using the app —
+plain language, no identifiers, no file paths, a handful of bullets at most. It is the only
+section shown in the in-app "what's new" dialog and the only one that leads the GitHub
+release notes. The `Added`/`Changed`/`Fixed`/`Security` sections below it are the technical
+record and stay as detailed as they need to be. Deployment-only changes still get a
+highlight, prefixed **"For self-hosters:"**, so no release appears empty to a reader.
+
 ## [Unreleased]
 
 ## [1.23.0] - 2026-08-02
+
+### Highlights
+
+- **Add a note to your stickers.** An optional field for the story behind a sticker — "posted during the X festival", "second attempt, the first one got peeled off". Up to 256 characters. Fill it in when you upload, or add it later by editing the sticker from the map or the sticker overview. Notes also show up in CSV and GeoJSON exports.
+- **Notes are for signed-in users only.** Visitors who are not logged in never see them, the same way poster names and dates are already hidden.
+- **A new disclaimer rule about sensitive information**, plus a reminder and a live character counter on the note fields themselves.
 
 ### Added
 
@@ -19,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.22.1] - 2026-08-01
 
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
 ### Security
 
 - Resolved both open Dependabot alerts in the frontend toolchain (no application code changes):
@@ -26,6 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **`@hono/node-server`** 1.19.14 → 2.0.12 (medium — GHSA-frvp-7c67-39w9: path traversal in `serve-static` on Windows via an encoded backslash `%5C`, reachable only through `@angular/cli`'s opt-in `ng mcp` server, never the build). This needed the first `pnpm-workspace.yaml` override since the 1.21.5 cleanup, because no version floor raise can reach the fix: `@angular/cli@22.1.2` — the latest stable — pins `@modelcontextprotocol/sdk` to *exactly* 1.29.0, which declares `@hono/node-server: ^1.19.9`, and no 1.x release is patched (the fix landed in 2.0.5). That is precisely the exception 1.21.5 carved out for overrides: a parent package's own manifest still excludes the fixed version after a lockfile refresh. The override targets `@modelcontextprotocol/sdk` (→ 1.30.0) rather than `@hono/node-server` directly — 1.30.0 widens its own range to `^1.19.9 || ^2.0.5`, so hono resolves to a patched 2.x with every declared semver range in the tree still satisfied, instead of forcing a major version past a `^1` constraint. 1.30.0 is what `@angular/cli@22.2.0-next.0` already pins, so this only pre-adopts upstream; remove the override once CLI 22.2.0 ships stable. `@hono/node-server` 2.x raises its `engines` floor to Node `>=20`, which is already satisfied by the project's `^22.22.3 || ^24.15.0 || >=26` requirement.
 
 ## [1.22.0] - 2026-08-01
+
+### Highlights
+
+- **A newer map engine.** The map now runs on MapLibre 6, with faster rendering.
+- **Updated to Angular 22** under the hood. Nothing changes on screen.
+- **The map no longer works in very old browsers.** It now needs WebGL2, which every major browser has supported since 2021. If yours is older, the rest of StickerMap still works — only the map will fail to load.
 
 ### Changed
 
@@ -54,6 +77,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.21.5] - 2026-07-21
 
+### Highlights
+
+- Security updates to the image-processing and build libraries. Nothing changes in how the app works.
+
 ### Security
 
 - Resolved open Dependabot alerts via version floor raises (no application code changes):
@@ -66,6 +93,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.21.4] - 2026-06-24
 
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
 ### Security
 
 - Resolved open Dependabot alerts via version floor raises (no application code changes):
@@ -74,6 +105,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.21.3] - 2026-06-17
 
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
 ### Security
 
 - Resolved Dependabot alerts via version floor raises in backend dependencies (no application code changes):
@@ -81,6 +116,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Frontend** — Dependabot alert #83 (`@babel/core` ≤7.29.0, low severity, arbitrary file read via sourceMappingURL comment) cannot be resolved on Angular 21: `@babel/core ≥7.29.1` introduced strict `NumericLiteral` AST validation that breaks `@angular/build@21.2.x`'s Angular compiler plugin when processing Angular Material's fesm2022 output. The alert will be dismissed; it is addressed by upgrading to Angular 22.
 
 ## [1.21.2] - 2026-06-16
+
+### Highlights
+
+- **Fixes the 1.21.1 release never shipping.** A supply-chain check blocked the frontend image from publishing, so 1.21.2 is the first build that actually contains the 1.21.1 changes.
 
 ### Fixed
 
@@ -92,6 +131,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.21.1] - 2026-06-16
 
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
 ### Security
 
 - Resolved all open Dependabot alerts via dependency upgrades (no application code changes):
@@ -100,11 +143,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.21.0] - 2026-05-30
 
+### Highlights
+
+- **For self-hosters:** plain HTTP traffic is now redirected to HTTPS automatically in the Helm chart. Nothing changes in the app itself.
+
 ### Added
 
 - Traefik HTTP→HTTPS redirect middleware for the Helm chart — a `Middleware` CRD resource (`traefik.io/v1alpha1`) is created when `ingress.httpRedirect: true` (the new default). The middleware is automatically wired into the `Ingress` annotations so all plain-HTTP traffic is permanently redirected to HTTPS. Disable by setting `ingress.httpRedirect: false`. Requires Traefik CRDs to be installed in the cluster.
 
 ## [1.20.0] - 2026-05-29
+
+### Highlights
+
+- **StickerMap now speaks Dutch and English.** Switch language from the sidebar at any time — no reload needed, and your choice is remembered. Every screen is translated.
 
 ### Added
 
@@ -112,6 +163,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Language switcher in the sidenav — the user can toggle between Dutch (default) and English at runtime without a page reload. Adding a new language requires only a JSON translation file and a one-line entry in `LanguageService`; the sidenav dropdown renders it automatically. See `frontend/README.md` for the step-by-step guide.
 
 ## [1.19.0] - 2026-05-26
+
+### Highlights
+
+- Internal cleanup and documentation updates. Nothing changes on screen.
 
 ### Changed
 
@@ -128,6 +183,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migration history table removed from `database_migrations/README.md` to avoid further drift — `uv run alembic history --verbose` is now the source of truth.
 
 ## [1.18.0] - 2026-05-22
+
+### Highlights
+
+- **"Date unknown" for stickers.** When you don't know when a sticker was posted, tick the box on the upload or edit form and it shows as "Unknown" instead of a made-up date.
+- **Moving a sticker now shows where it was.** The old location stays visible as a blue marker while you pick the new one.
+- **You are signed out when you close your browser again.** Sessions no longer persist across browser restarts, reversing the change made in 1.13.0.
+- More sensible default zoom levels, a tidier sidebar menu, and fixes to the manual coordinate field and some small layout glitches in the upload and edit forms.
 
 ### Added
 
@@ -152,6 +214,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.17.2] - 2026-05-17
 
+### Highlights
+
+- **For self-hosters:** Helm chart image naming and tag fixes. Nothing changes in the app.
+
 ### Added
 
 - Added latest (image) tag to helm values.
@@ -162,11 +228,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.17.1] - 2026-05-17
 
+### Highlights
+
+- **For self-hosters:** the Helm chart renders without errors when optional values are left unset. Nothing changes in the app.
+
 ### Fixed
 
 - Set default values for helm chart to prevent template render errors.
 
 ## [1.17.0] - 2026-05-16
+
+### Highlights
+
+- **Switch between street, satellite, and terrain maps.** A new control in the bottom-left corner of the map; your choice is remembered for next time.
+- **The category filter no longer covers the map controls on a phone.**
+- **For self-hosters:** breaking Helm chart changes — the chart no longer ships a database or Keycloak, and the tile server URL is now three separate variables. Read the details below before upgrading.
 
 ### Added
 
@@ -195,6 +271,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.16.0] - 2026-05-16
 
+### Highlights
+
+- **A maintenance page for admins.** See how many stickers are missing photos, thumbnails, or location data, and run cleanup jobs: generate missing thumbnails, shrink oversized photos, strip camera data from stored images, and delete files no longer linked to any sticker.
+- **The map loads faster** — map tiles and sticker data are now fetched only when needed.
+- **The sticker overview remembers your page size** and can now be sorted by category.
+
 ### Added
 
 - Admin maintenance page (`/admin`) accessible only to `sm-admin` users, with a sidenav link
@@ -214,6 +296,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.15.0] - 2026-05-16
 
+### Highlights
+
+- **Mark a sticker as private** so it stays hidden from visitors who are not signed in. Private stickers carry a lock icon on the map and in the overview.
+- **Export the sticker list** as CSV or GeoJSON (editors and admins).
+- **Click a photo in a map popup to open it full size**, even when you are not signed in.
+
 ### Added
 
 - GeoJSON and CSV export endpoint for editors and admins (fixes #60)
@@ -230,11 +318,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.14.0] - 2026-05-14
 
+### Highlights
+
+- **Stickers now have categories.** Pick one when uploading or editing, and sort the overview by it. Moderators manage the list of categories from a dedicated page.
+
 ### Added
 
 - Sticker categories with moderator-controlled taxonomy: category selector on upload and edit, category column in the sticker overview, and a dedicated category management page guarded by a moderator role (fixes #41)
 
 ## [1.13.0] - 2026-05-14
+
+### Highlights
+
+- **You stay signed in between browser sessions.** (Reversed again in 1.18.0.)
 
 ### Changed
 
@@ -244,6 +340,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bumped dependencies across backend, frontend, and infra
 
 ## [1.12.0] - 2026-05-10
+
+### Highlights
+
+- **Archive stickers instead of deleting them** (editors and admins).
+- **Sticker details in map popups are now shown only to signed-in users.**
 
 ### Added
 
@@ -256,6 +357,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent duplicate changelog entries when running bump_version.py with an existing version
 
 ## [1.11.0] - 2026-05-09
+
+### Highlights
+
+- **Report a sticker that is no longer there.** If you find that a sticker has been removed, you can now report it so the map stays accurate.
+- **No more sideways scrolling** in the sticker overview on a phone.
 
 ### Added
 
@@ -276,6 +382,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.1] - 2026-05-06
 
+### Highlights
+
+- **Sidebar tooltips now appear whether the menu is expanded or collapsed.**
+
 ### Fixed
 
 - Always show sidenav tooltips regardless of expanded state
@@ -287,6 +397,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.10.0] - 2026-05-05
 
+### Highlights
+
+- **Rotate sticker photos.** Photos that come out sideways can be turned the right way up, and new uploads are rotated automatically based on how the camera was held.
+- **A proper mobile layout** across the whole app.
+
 ### Added
 
 - Image rotation support: manual rotate action and automatic EXIF-based orientation on upload (fixes #85)
@@ -296,6 +411,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored frontend UI for mobile responsiveness (fixes #87)
 
 ## [1.9.0] - 2026-05-02
+
+### Highlights
+
+- **A faster app when several people use it at once.** Nothing changes on screen.
 
 ### Added
 
@@ -313,6 +432,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.0] - 2026-04-19
 
+### Highlights
+
+- **See what's new after an update.** A dialog with the latest changes appears on your first visit after a new version ships.
+- **Share a map view.** The map position and zoom are now part of the address bar, so you can bookmark a spot or send someone a link that opens exactly where you were.
+
 ### Added
 
 - Release notes dialog shown on first visit after an update (fixes #66)
@@ -322,6 +446,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Map viewport state (center coordinates and zoom) is now encoded in URL query parameters, enabling shareable and bookmarkable map views (fixes #59)
 
 ## [1.7.0] - 2026-04-18
+
+### Highlights
+
+- **New accounts can view the map straight away** — every new user now gets viewer access automatically.
+- **For self-hosters:** roles moved from realm scope to client scope in Keycloak, with a new group structure. Existing installs need to be updated.
 
 ### Changed
 
@@ -333,6 +462,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.2] - 2026-04-18
 
+### Highlights
+
+- **A more reliable sign-in**, rebuilt on a standards-compliant OpenID Connect library.
+- **For self-hosters:** photo size and quality limits are now configurable.
+
 ### Added
 
 - Image processing configuration options (max dimensions, quality) configurable via environment variables
@@ -342,6 +476,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Migrated frontend authentication from `keycloak-angular` to `angular-auth-oidc-client` for standards-compliant OIDC support
 
 ## [1.6.1] - 2026-04-14
+
+### Highlights
+
+- **Signing in on a phone works again.**
+- **For self-hosters:** the Helm chart is now a single flat chart and requires Helm v4.
 
 ### Changed
 
@@ -358,6 +497,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.0] - 2026-04-10
 
+### Highlights
+
+- **Your camera data stays private.** Everything except the location is now stripped from uploaded photos — camera model, serial number, timestamps.
+- **Uploads are smaller and faster.** Photos are resized and compressed on the server before being stored.
+- **Sticker details in map popups now depend on whether you are signed in.**
+
 ### Added
 
 - Server-side image optimization: uploaded images are resized and compressed before storage (fixes #57)
@@ -370,6 +515,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.5.0] - 2026-04-08
 
+### Highlights
+
+- **A short disclaimer before your first upload**, covering what is and is not OK to post.
+
 ### Added
 
 - Upload disclaimer dialog shown before file upload (fixes #42)
@@ -379,6 +528,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frontend restructured into `core/`, `features/`, and `shared/` layers for cleaner separation of concerns
 
 ## [1.4.0] - 2026-04-07
+
+### Highlights
+
+- **A sticker's date is now read from the photo even when it has no location data.**
+- **Empty files and photos without location no longer break the upload** — you get a clear error instead.
+- **An F-35 cursor that banks as you move the mouse** across the map.
 
 ### Added
 
@@ -398,11 +553,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.5] - 2026-04-01
 
+### Highlights
+
+- **The login screen now always appears** instead of trying to sign you in silently first.
+
 ### Changed
 
 - Keycloak `onLoad` set to `login-required` to always show the login form instead of attempting silent authentication
 
 ## [1.3.4] - 2026-04-01
+
+### Highlights
+
+- **Uploader statistics show real names** instead of usernames.
 
 ### Fixed
 
@@ -410,11 +573,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.3] - 2026-03-31
 
+### Highlights
+
+- **Signing in works on mobile browsers again.**
+
 ### Fixed
 
 - Removed silent SSO check (`silent-check-sso.html`) and disabled `checkLoginIframe` to fix authentication failures in mobile browsers caused by iframe restrictions
 
 ## [1.3.2] - 2026-03-22
+
+### Highlights
+
+- Internal changes to how sign-in tokens are handled. Nothing changes on screen.
 
 ### Changed
 
@@ -426,6 +597,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Backend tests updated to pass authenticated user context in API test fixtures
 
 ## [1.3.1] - 2026-03-22
+
+### Highlights
+
+- **Dark mode now covers the screens it previously missed.**
+- **Who uploaded a sticker is only shown to signed-in users.**
 
 ### Added
 
@@ -445,6 +621,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.3.0] - 2026-03-18
 
+### Highlights
+
+- **For self-hosters:** container image improvements and a renamed `FQDN` → `PUBLIC_URL` environment variable. Nothing changes in the app.
+
 ### Added
 
 - OCI image labels (`title`, `version`, `source`, `authors`) to all Dockerfiles
@@ -461,6 +641,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `bump-version.sh` now also patches the `ARG IMAGE_VERSION` in all Dockerfiles
 
 ## [1.2.0] - 2026-03-15
+
+### Highlights
+
+- **A sticker overview page** with a sortable, filterable table, inline editing, and bulk delete.
+- **Dark mode**, with a toggle that remembers your choice.
+- **Statistics on the landing page** — how many stickers there are in total and per uploader.
+- **The map remembers where you were.** The address bar updates as you pan and zoom, so bookmarks and shared links reopen the same view.
 
 ### Added
 
@@ -480,6 +667,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - App routing updated to include the sticker overview route
 
 ## [1.1.0] - 2026-03-14
+
+### Highlights
+
+- **A refreshed interface** built on Angular Material.
 
 ### Added
 
@@ -511,6 +702,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `uv.lock`
 
 ## [1.0.0] - 2026-03-08
+
+### Highlights
+
+- **The first release of StickerMap.** Pin stickers on an interactive map, upload a photo and have its location filled in automatically, and sign in to add and manage your own.
+
+### Added
 
 - Initial release of StickerMap — an interactive map for pinning and sharing stickers
 - FastAPI backend with PostGIS for geospatial sticker storage

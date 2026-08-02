@@ -21,14 +21,6 @@ export class ChangelogDialogComponent {
   );
   readonly unreleasedEntry: ChangelogRelease | undefined = CHANGELOG_DATA.find((r) => r.version === 'Unreleased');
 
-  readonly sectionIconMap: Record<string, string> = {
-    Added: 'add_circle',
-    Changed: 'change_circle',
-    Fixed: 'bug_report',
-    Dependencies: 'package_2',
-    Docs: 'description',
-  };
-
   close(): void {
     this.dialogRef.close();
   }
