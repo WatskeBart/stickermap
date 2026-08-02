@@ -14,6 +14,29 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.24.0] - 2026-08-02
+
+### Highlights
+
+- **The "what's new" dialog is now a short summary in plain language.** Each release opens with a handful of bullets about what changed for you, instead of the full technical list grouped under Added, Changed and Fixed. The complete technical record is still on GitHub for anyone who wants to read it.
+- **Older releases were rewritten the same way**, so the history in the dialog reads consistently all the way back to the first release.
+
+### Added
+
+- **Draft GitHub Release workflow (`.github/workflows/release.yml`)** — a semver tag push (`[0-9]+.[0-9]+.[0-9]+*`) creates a *draft* release whose body is generated from `CHANGELOG.md`; a `workflow_dispatch` input rebuilds the draft for an existing tag. The body is the release's `### Highlights` block first, the technical sections inside a collapsed `<details>Technical details</details>`, then the compare URL. Nothing is published automatically — the draft is reviewed and published by hand.
+  - **Pre-release tags fall back to generated notes.** A tag that is not plain `X.Y.Z` (e.g. `1.23.0-rc1`) has no changelog section, so the workflow uses `gh release create --generate-notes` and marks the release as a pre-release instead of failing.
+  - **Re-running is safe.** For the same tag the workflow deletes and recreates an existing *draft*, but exits without touching a release that has already been published, so a manual dispatch can never clobber published notes.
+- **`--release-notes` flag on `general/scripts/bump-version.py`** — prints the GitHub release body for a version to stdout and changes no files, so an entry can be proofread before the tag is pushed. It is also what the workflow calls, so local output and CI output cannot drift.
+- **Warning when the release being cut has no `### Highlights` section.** The script still exits 0, but the in-app dialog and the GitHub release body would both be empty for that version, so the warning is a blocker in practice.
+- **`### Highlights` backfilled for all 40 past releases** (1.0.0 through 1.23.0), plus a preamble at the top of this file describing which section feeds which audience.
+
+### Changed
+
+- **`changelog.model.ts` is generated from `### Highlights` only.** `ChangelogRelease` now carries a flat `items: string[]`; the `ChangelogSection` interface and the per-section grouping are gone, and the generated file dropped from 811 to 319 lines. Only top-level `- ` bullets are collected, so a nested sub-bullet under Highlights is silently dropped from the dialog — highlights have to stay flat.
+- **Bold markup in a changelog item is converted to `<strong>`** by `_process_item()`, alongside the existing backtick-to-`<code>` conversion, because the dialog binds each item with `[innerHTML]` and would otherwise render literal asterisks. Nothing else is converted — links, italics and nested lists still come through as raw characters.
+- **Changelog dialog markup simplified** — one `<ul>` per release instead of an icon-headed block per section, with `sectionIconMap` removed from the component. List items gained `<strong>` (heading colour) and `<code>` (alt surface) styling to replace what the section headers used to convey.
+- **Release flow documented** in `CLAUDE.md` and the `/bump-version` command: write the entry under `## [Unreleased]` (highlights *and* technical sections) → `uv run general/scripts/bump-version.py <version>` → push the tag → review and publish the draft on GitHub.
+
 ## [1.23.0] - 2026-08-02
 
 ### Highlights
@@ -718,7 +741,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.23.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.0...HEAD
+[1.24.0]: https://github.com/WatskeBart/stickermap/compare/1.23.0...1.24.0
 [1.23.0]: https://github.com/WatskeBart/stickermap/compare/1.22.1...1.23.0
 [1.22.1]: https://github.com/WatskeBart/stickermap/compare/1.22.0...1.22.1
 [1.22.0]: https://github.com/WatskeBart/stickermap/compare/1.21.5...1.22.0

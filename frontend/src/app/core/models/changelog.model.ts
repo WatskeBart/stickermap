@@ -9,6 +9,14 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.24.0',
+    date: '2026-08-02',
+    items: [
+      '<strong>The "what\'s new" dialog is now a short summary in plain language.</strong> Each release opens with a handful of bullets about what changed for you, instead of the full technical list grouped under Added, Changed and Fixed. The complete technical record is still on GitHub for anyone who wants to read it.',
+      '<strong>Older releases were rewritten the same way</strong>, so the history in the dialog reads consistently all the way back to the first release.',
+    ],
+  },
+  {
     version: '1.23.0',
     date: '2026-08-02',
     items: [
