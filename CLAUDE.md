@@ -45,6 +45,39 @@ After `compose up`, the app is available at `https://localhost:8282`. Keycloak a
 
 The repository contains no automated tests — verify changes by running the dev stack and exercising the affected flows in a browser.
 
+## Git & Commits
+
+**Never commit without explicit permission from the project owner.** This covers everything that writes to history or leaves the machine:
+
+- `git commit`
+- `git push`
+- creating or pushing tags (including the release tag in the flow below)
+- opening pull requests
+
+Permission is per action, not standing — approval for one commit does not authorise the next one. Read-only git (`status`, `diff`, `log`, `show`) and creating a local branch need no approval. Stage the work, show what changed, and wait to be asked before committing.
+
+**Commit messages follow [Conventional Commits v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/), without scopes.**
+
+```text
+<type>: <description>
+
+[optional body]
+
+[optional footer]
+```
+
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
+- **No parenthesised scope** — write `fix: guard null poster in map popup`, not `fix(frontend): …`. This matches the existing history.
+- Description in the imperative mood, lower case, no trailing period.
+- Breaking changes: append `!` after the type (`feat!: …`) and/or add a `BREAKING CHANGE:` footer.
+
+```text
+✅ feat: add Highlights-based changelog pipeline
+✅ chore: release v1.24.0 with changelog dialog redesign
+❌ fix(frontend): guard null poster        ← no scopes in this repo
+❌ Fixed the map popup crash.              ← no type, past tense, trailing period
+```
+
 ## Architecture
 
 ### Overview
