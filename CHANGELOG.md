@@ -14,6 +14,24 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.24.1] - 2026-08-15
+
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
+### Security
+
+- Resolved all nine open Dependabot alerts — one in the backend, eight in the frontend toolchain (no application code changes). Every fix was reached by a version floor raise or a plain lockfile refresh; no new `pnpm-workspace.yaml` override was needed.
+  - **`cryptography`** 49.0.0 → 50.0.0 (high — GHSA-g6cj-pr64-35w5 / CVE-2026-69247: PKCS#7 `EnvelopedData` decryption exposes a Bleichenbacher oracle through distinguishable errors and timing). The only direct backend dependency in this batch, so the floor in `pyproject.toml` moved from `>=48.0.1` to `>=50.0.0`. The vulnerable code path is not one the backend reaches — `cryptography` is pulled in solely for PyJWT's `RSAAlgorithm.from_jwk()`, which converts Keycloak JWKS keys for RS256 *signature verification* in `auth.py`, and no PKCS#7 decryption happens anywhere in the app. Patched regardless, since it is a direct dependency and a major version bump: the JWKS → RSA → `jwt.decode()` round-trip was re-verified against 50.0.0.
+  - **`hono`** 4.12.31 → 4.13.2, clearing three advisories at once (GHSA-f23p-vx2j-j53r, medium — `memo()` retains SSR output across requests, leaking data between users; GHSA-54fx-42gc-7vw4, medium — algorithmic-complexity DoS in the language middleware; GHSA-79qm-7rj5-m7r9, low — the proxy helper does not strip response headers named in `Connection`). All three are unreachable here: hono arrives through `@angular/cli` → `@modelcontextprotocol/sdk` → `@hono/node-server`, i.e. the opt-in `ng mcp` server, and this app is a client-side SPA with no SSR. Note that the `@modelcontextprotocol/sdk` override added in 1.22.1 is still required and still pinned at 1.30.0 — `@angular/cli` 22.2.0 has not shipped stable (22.1.4 is current), so the floor raise that would retire it is not yet possible.
+  - **`ip-address`** 10.2.0 → 10.5.0, clearing three advisories (GHSA-mwp4-54f8-5fhr, high — `Address4` decodes leading-zero octets as decimal where resolvers read them as octal; GHSA-4xrf-jv44-h6hh, medium — a CIDR suffix suppresses special-use classification; GHSA-22jq-vg5j-6vgg, medium — IPv4-mapped/NAT64 IPv6 addresses are misclassified). All three are SSRF / trust-boundary bypasses in code that never runs here: the package is reached via `@modelcontextprotocol/sdk` → `express-rate-limit`, again only under `ng mcp`. The declared `^10.2.0` range already permitted the fixes.
+  - **`fast-uri`** 3.1.4 → 3.1.5 (high — GHSA-7p8r-x3mc-p8w7 / CVE-2026-18446: host confusion via a backslash authority introducer). Transitive through `ajv`, which the Angular devkit uses to validate build configuration schemas at build time; `ajv`'s `^3.0.1` range already allowed the patched release.
+  - **`postcss`** 8.5.20 → 8.5.26 (medium — GHSA-fxqj-rqcc-2cmp / CVE-2026-69153: an incomplete fix for GHSA-6g55-p6wh-862q, where an attacker-controlled `sourceMappingURL` reads arbitrary `.map` files when `from` is unset). Build-time only, via `@angular/build`, `vite`, `beasties` and `postcss-safe-parser`, and it processes only this project's own stylesheets.
+- All eight npm packages are `devDependencies` of the Angular build toolchain — `pnpm why --prod` reports no production path for any of them, and none appear in the compiled browser bundle, so no shipped artifact was affected. `pnpm audit` is clean for both the production and full trees.
+- Ran `pnpm dedupe` afterwards. Re-resolving `postcss` had left the `browserslist` chain (`browserslist`, `caniuse-lite`, `electron-to-chromium`, `node-releases`, `baseline-browser-mapping`, `update-browserslist-db`) at two versions each, because the Babel 7 branch reached through `istanbul-lib-instrument` floated to a newer patch while the Babel 8 branch stayed put. The dedupe collapses each back to a single version and keeps the lockfile diff balanced; no advisory depended on it.
+- Relocking also corrected stale project-version drift in both Python lockfiles, which `bump-version.py` does not refresh: `backend/uv.lock` still recorded `stickermap` at 1.23.0 and `database_migrations/uv.lock` still recorded `stickermap-migrations` at 1.12.0. Both now match their `pyproject.toml` at 1.24.1; no dependency versions moved as a result.
+
 ## [1.24.0] - 2026-08-02
 
 ### Highlights
@@ -741,7 +759,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.0...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.1...HEAD
+[1.24.1]: https://github.com/WatskeBart/stickermap/compare/1.24.0...1.24.1
 [1.24.0]: https://github.com/WatskeBart/stickermap/compare/1.23.0...1.24.0
 [1.23.0]: https://github.com/WatskeBart/stickermap/compare/1.22.1...1.23.0
 [1.22.1]: https://github.com/WatskeBart/stickermap/compare/1.22.0...1.22.1
