@@ -9,6 +9,13 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.24.1',
+    date: '2026-08-15',
+    items: [
+      'Security updates to third-party libraries. Nothing changes in how the app works.',
+    ],
+  },
+  {
     version: '1.24.0',
     date: '2026-08-02',
     items: [
