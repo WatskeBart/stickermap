@@ -14,6 +14,20 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.24.2] - 2026-09-08
+
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
+### Security
+
+- Resolved all four open Dependabot alerts, all for **`fast-uri`** in the frontend build toolchain (high severity): GHSA-jqff-g426-hqxp / CVE-2026-76172 (host confusion via percent-encoded scheme normalization), GHSA-f65p-4m7j-42xc / CVE-2026-75975 (SSRF via malformed IPv6 normalization), GHSA-fph4-wmhf-6fwf / CVE-2026-75899 (SSRF via repeated hostname percent-decoding), and GHSA-5jgf-p345-68v8 / CVE-2026-75931 (host confusion via skipped IDN canonicalization on scheme-relative references). `fast-uri` 3.1.5 → 3.1.7 via `pnpm update fast-uri`, a plain lockfile refresh — no `pnpm-workspace.yaml` override was needed, since `ajv`'s own `^3.0.1` dependency range already permitted the patched release.
+  - Reached transitively through `ajv` → `@angular-devkit/core` → `@angular/build`/`@angular/cli` (the Angular devkit uses `ajv`'s URI-format validator for build configuration schemas at build time), and again through `@modelcontextprotocol/sdk` → `ajv-formats` → `@angular-devkit/core`, i.e. the opt-in `ng mcp` server. It is a `devDependency` of the Angular build toolchain — `pnpm why --prod` shows no production path and the package does not appear in the compiled browser bundle, so no shipped artifact was affected. `pnpm audit --prod` is clean.
+- Ran `pnpm dedupe` afterwards, which collapsed a duplicate `browserslist` chain (`browserslist`, `caniuse-lite`, `electron-to-chromium`, `node-releases`, `baseline-browser-mapping`, `update-browserslist-db`) left at two resolved versions by the `fast-uri` bump — the same pattern as 1.24.1. No advisory depended on it.
+- `pnpm audit` (full tree) still reports two moderate `qs` findings (GHSA-x5fp-wj9c-mxmx, GHSA-4mjr-xmp4-gh2g) reached only through `@angular/cli` → `@modelcontextprotocol/sdk` → `express`/`express-rate-limit`, the same opt-in `ng mcp` path as the `@hono/node-server`/`ip-address` findings noted in 1.22.1/1.24.1. Neither is an open Dependabot alert for this repo — GHSA-x5fp-wj9c-mxmx is auto-dismissed by Dependabot, and GHSA-4mjr-xmp4-gh2g has never been raised — so left unaddressed here.
+- Relocking also corrected the same stale project-version drift `bump-version.py` leaves behind in both Python lockfiles, as in 1.24.1: `backend/uv.lock` and `database_migrations/uv.lock` still recorded 1.24.1 after the script ran. Both now match their `pyproject.toml` at 1.24.2; no dependency versions moved.
+
 ## [1.24.1] - 2026-08-15
 
 ### Highlights
@@ -759,7 +773,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.1...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.2...HEAD
+[1.24.2]: https://github.com/WatskeBart/stickermap/compare/1.24.1...1.24.2
 [1.24.1]: https://github.com/WatskeBart/stickermap/compare/1.24.0...1.24.1
 [1.24.0]: https://github.com/WatskeBart/stickermap/compare/1.23.0...1.24.0
 [1.23.0]: https://github.com/WatskeBart/stickermap/compare/1.22.1...1.23.0
