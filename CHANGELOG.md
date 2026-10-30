@@ -14,6 +14,34 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.24.3] - 2026-10-30
+
+### Highlights
+
+- Security updates to third-party libraries. Nothing changes in how the app works.
+
+### Security
+
+- Resolved all 94 open Dependabot alerts (10 critical, 41 high, 40 medium, 3 low) — 61 in the backend, 1 in the migrations tooling and 32 in the frontend. Every fix is a version floor raise or a plain lockfile refresh; no `pnpm-workspace.yaml` override was added, and the one that existed was removed (see below). No application code changed.
+  - **`pillow`** 12.3.0 → 13.0.0 (41 alerts, 5 critical — heap buffer overflows in the FlashPix, JPEG and TIFF codecs, stale native image storage after mode transitions in multi-frame loaders, and a long tail of decoder DoS and memory-disclosure issues; one more is an argument injection in the Ghostscript call). Direct dependency, so the floor in `pyproject.toml` moved from `>=12.3.0` to `>=13.0.0`; this is a major version bump. These are the alerts that matter most in this batch: `Image.open()` runs on uploaded bytes in `FileValidator`, `CategoryIconValidator` and `ImageProcessor` without a `formats=` restriction, and the MIME check looks only at the client-supplied `Content-Type`, so a file can be decoded by a codec other than the one its declared type implies. The proof-image upload on the report endpoint needs only `sm-viewer`, which every new account receives by default, so the decoders are reachable by any signed-in user. The backend image installs from `pyproject.toml` rather than `uv.lock`, which makes this floor what protects the built image. Every Pillow call the backend makes was re-exercised on 13.0.0: `Image.open`/`verify()`, `ImageOps.exif_transpose`, `thumbnail(Image.LANCZOS)`, `rotate`, and `save` as JPEG, WebP and PNG, plus GIF/WebP/PNG/animated-GIF uploads, the square-icon check, and GPS/EXIF extraction.
+  - **`PyJWT`** 2.13.0 → 2.15.1 (15 alerts, 1 critical — GHSA-ffc3-869f-jxw9 / CVE-2026-102268, an HS/asymmetric key-confusion guard bypass). Direct dependency; floor `>=2.13.0` → `>=2.15.0`. Most of the advisories concern `PyJWKClient`, HMAC keys and HS/asymmetric key confusion, none of which `core/auth.py` uses — it fetches the Keycloak JWKS itself, converts the key with `RSAAlgorithm.from_jwk()` and calls `jwt.decode(..., algorithms=["RS256"])`. The exception is GHSA-8wjv-2p76-3863 (medium, 2.13.0 only: an uncaught `RecursionError` in `jwt.decode()` on a deeply nested token header), which a request carrying a crafted `Authorization: Bearer` token could reach on any route that resolves the current user. Patched regardless, since it is the authentication path. The JWKS → RSA → `decode_token()` round-trip was re-verified on 2.15.1, along with expired, wrong-audience, wrong-issuer, unknown-`kid`, tampered-payload, HS256 key-confusion and `alg=none` tokens, all of which are still rejected with a 401.
+  - **`urllib3`** 2.7.0 → 2.8.0 (3 alerts, 2 high) and **`anyio`** 4.13.0 → 4.14.2 (2 alerts, 1 critical — TLS host-name encoding in `TLSStream`). Both are transitive (`urllib3` through `requests` and `sentry-sdk`, `anyio` through `starlette`, `httpx` and `watchfiles`), so they are floored through `constraint-dependencies` in `backend/pyproject.toml`, next to the existing `starlette` and `pygments` entries. The backend uses `requests` only for the Keycloak JWKS fetch.
+  - **`Mako`** 1.3.12 → 1.4.3 (medium — path traversal via a drive-letter URI in `TemplateLookup`, Windows only). Transitive through `alembic`, so the existing `constraint-dependencies` floor in `database_migrations/pyproject.toml` moved from `>=1.3.12` to `>=1.4.2`. The migrations only ever render Alembic's own revision template, never a caller-supplied URI; a throwaway `alembic revision` was generated against 1.4.3 to confirm that template still renders.
+  - **`@angular/router`** (3 high) and **`@angular/common`** (1 medium) 22.1.0 → 22.2.3. All four advisories are server-side-rendering denial-of-service or cache issues; the app is a client-side SPA and depends on neither `@angular/ssr` nor `@angular/platform-server`, so none was reachable. The Angular packages declare exact-version peer dependencies on each other, so patching two meant moving all of them: every `@angular/*` floor in `package.json` went from `^22.1.0`/`^22.1.2` to `^22.2.1` (`@angular/cdk` and `@angular/material` resolve to 22.2.5, `@angular/cli` and `@angular/build` to 22.2.5).
+  - **`maplibre-gl`** 6.1.0 → 6.16.0 (critical — GHSA-jrc7-96c5-q579 / CVE-2026-85061: the attribution sanitizer skips adjacent attributes, allowing zero-click XSS from an untrusted attribution string). Direct dependency; floor `^6.1.0` → `^6.4.1`. This is the only alerted package that ships in the browser bundle and is not an SSR issue. The app passes only a static attribution (`© StickerMap`) and never one derived from user or third-party input, so it was not exploitable here.
+  - **`@modelcontextprotocol/sdk`** (4 alerts), **`hono`** (4), **`ip-address`** (3) and **`proxy-addr`** (1 critical) are gone from the dependency tree entirely: `@angular/cli` 22.2 replaced the SDK with `@modelcontextprotocol/server`, which removes the Express/Hono stack that the opt-in `ng mcp` server dragged in. Nothing else depended on them.
+  - **`vite`** (5 alerts, incl. three `launch-editor` findings) 8.1.5 → 8.3.5 and **`piscina`** (1 critical) 5.2.0 → 5.3.2 now resolve patched through `@angular/build` 22.2.5, whose own pins moved. **`fast-uri`** (4) 3.1.7 → 3.1.9, **`source-map-js`** (1 high) 1.2.1 → 1.2.2, **`zod`** (1 high) 4.4.3 → 4.6.6/4.6.7 and **`brace-expansion`** (3) 2.1.4 → 2.1.7 were stale lockfile entries whose declared ranges already allowed the fix, so `pnpm update` was enough. `zod` is reached through `@angular/forms` (the app never imports it) and `brace-expansion` through `angular-server-side-configuration` → `glob`, a container start-up tool that does not ship to the browser; `vite`, `piscina`, `fast-uri` and `source-map-js` are build-time only.
+- `pnpm audit` is clean for both the production and full trees. All 94 alert ranges were additionally checked against the three lockfiles (`backend/uv.lock`, `database_migrations/uv.lock`, `frontend/pnpm-lock.yaml`): the same check run against the previous lockfiles matches all 94, and against the new ones matches none.
+- Ran `pnpm dedupe` afterwards, which also moved the `baseline-browser-mapping` devDependency from 2.11.21 to 2.11.34 within its existing range.
+
+### Changed
+
+- **The `@modelcontextprotocol/sdk` override is removed from `frontend/pnpm-workspace.yaml`**, leaving the file with no overrides. It was added in 1.22.1 to reach a patched `@hono/node-server` and was documented as removable once `@angular/cli` 22.2.0 shipped stable; that release dropped the SDK altogether.
+- **Frontend toolchain moved to Angular 22.2** (from 22.1) and Vite 8.3 (from 8.1), as a consequence of the Angular floor raise above. `pnpm build` succeeds without warnings.
+- **`maplibre-gl` 6.16 ships a self-contained worker.** In 6.4.1 the web worker was an 18 KB `maplibre-gl-worker.mjs` that imported a 482 KB `maplibre-gl-shared.mjs`; in 6.16.0 the worker is a single 519 KB file and `maplibre-gl-shared.mjs` is an empty file that nothing imports. The `angular.json` asset entries and `provideMaplibreWorker('maplibre-gl-worker.mjs')` are unchanged and still correct for either layout.
+- **`pnpm install` now prints an unmet-peer warning for `@emnapi/core` and `@emnapi/runtime`**, new with `@angular/build` 22.2.5. Its optional `@oxc-parser/binding-wasm32-wasi` fallback pins a pre-release `@emnapi` that `@napi-rs/wasm-runtime` does not list as a valid peer. It is an upstream packaging mismatch in a wasm fallback used only on platforms without a native binding, is not a security finding, and is deliberately not overridden.
+- Relocking also refreshed the project version recorded in both Python lockfiles, which `bump-version.py` does not touch (see 1.24.2); no further dependency versions moved as a result.
+
 ## [1.24.2] - 2026-09-08
 
 ### Highlights
@@ -773,7 +801,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.2...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.3...HEAD
+[1.24.3]: https://github.com/WatskeBart/stickermap/compare/1.24.2...1.24.3
 [1.24.2]: https://github.com/WatskeBart/stickermap/compare/1.24.1...1.24.2
 [1.24.1]: https://github.com/WatskeBart/stickermap/compare/1.24.0...1.24.1
 [1.24.0]: https://github.com/WatskeBart/stickermap/compare/1.23.0...1.24.0
