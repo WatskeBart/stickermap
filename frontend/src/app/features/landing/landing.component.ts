@@ -38,7 +38,8 @@ export class LandingComponent {
 
   // Distance leaderboard: viewer-only like its endpoint, refetched whenever the period changes.
   readonly currentYear = new Date().getFullYear();
-  readonly currentHalf = new Date().getMonth() < 6 ? 1 : 2;
+  readonly halfYearLabelKey =
+    new Date().getMonth() < 6 ? 'landing.leaderboard.firstHalf' : 'landing.leaderboard.secondHalf';
   readonly leaderboardPeriod = signal<LeaderboardPeriod>('all');
   readonly leaderboard = toSignal(
     toObservable(this.leaderboardPeriod).pipe(

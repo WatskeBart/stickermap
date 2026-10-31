@@ -8,8 +8,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   getAvailableTileLayers,
@@ -40,13 +40,50 @@ import {
 } from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
 import { CategoryService } from '../../core/services/category.service';
 import type { Category } from '../../core/models/category.model';
-import type { DistanceLeaderboard, StickerPointGeoJson } from '../../core/models/sticker.model';
+import type { HqLocation, StickerPointGeoJson } from '../../core/models/sticker.model';
 import { isEpochSentinel } from '../../shared/utils/date-utils';
 import { formatDistance } from '../../shared/utils/distance-utils';
 import { buildF35Cursor } from '../../shared/utils/f35-cursor';
 import { EditStickerModalComponent } from './edit-sticker-modal/edit-sticker-modal.component';
+import { DistanceLabelComponent } from './distance-label/distance-label.component';
 
-const HQ_LINE_STORAGE_KEY = 'stickermap-hq-line';
+/** Off, a line to the farthest shown sticker, lines to every shown sticker, or measuring between two stickers. */
+type DistanceMode = 'off' | 'farthest' | 'all' | 'measure';
+type LngLatTuple = [lng: number, lat: number];
+
+const DISTANCE_MODE_STORAGE_KEY = 'stickermap-distance-mode';
+/** Above this many lines from HQ the per-sticker distance tags crowd the map; popups still show the distance. */
+const MAX_DISTANCE_TAGS = 25;
+
+/**
+ * Great-circle distance in metres on a sphere: the same model the leaderboard uses on the backend
+ * (ST_Distance with use_spheroid = false), so the map and the home page show identical numbers.
+ */
+function distanceMeters(a: { lat: number; lon: number }, b: { lat: number; lon: number }): number {
+  return new maplibregl.LngLat(a.lon, a.lat).distanceTo(new maplibregl.LngLat(b.lon, b.lat));
+}
+
+/** End point of a line from `from`, shifted by 360° so the line takes the short way round the antimeridian. */
+function shortWayRound(from: LngLatTuple, to: LngLatTuple): LngLatTuple {
+  const lonDelta = to[0] - from[0];
+  return [lonDelta > 180 ? to[0] - 360 : lonDelta < -180 ? to[0] + 360 : to[0], to[1]];
+}
+
+/** MapLibre draws a segment straight in Web Mercator, so a label belongs at the Mercator midpoint. */
+function mercatorMidpoint(a: LngLatTuple, b: LngLatTuple): LngLatTuple {
+  const ma = maplibregl.MercatorCoordinate.fromLngLat(a);
+  const mb = maplibregl.MercatorCoordinate.fromLngLat(b);
+  const mid = new maplibregl.MercatorCoordinate((ma.x + mb.x) / 2, (ma.y + mb.y) / 2).toLngLat();
+  return [mid.lng, mid.lat];
+}
+
+function lineFeature(from: LngLatTuple, to: LngLatTuple) {
+  return {
+    type: 'Feature' as const,
+    properties: {},
+    geometry: { type: 'LineString' as const, coordinates: [from, to] },
+  };
+}
 
 interface ProcessedSticker {
   id: number;
@@ -87,9 +124,10 @@ interface ProcessedSticker {
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
+    MatButtonModule,
     MatButtonToggleModule,
-    MatSlideToggleModule,
     EditStickerModalComponent,
+    DistanceLabelComponent,
     TranslatePipe,
   ],
   templateUrl: './map.html',
@@ -149,39 +187,89 @@ export class MapComponent implements OnInit {
   categories = signal<Category[]>([]);
   selectedCategoryFilter = signal<number | 'all'>('all');
 
-  // HQ line: dashed line from HQ to the all-time farthest sticker, labelled with its distance.
-  // Viewer-only like the leaderboard endpoint; the toggle state is remembered per browser.
-  showHqLine = signal(localStorage.getItem(HQ_LINE_STORAGE_KEY) === 'true');
-  private distanceLeaderboard = signal<DistanceLeaderboard | null>(null);
-  hqLine = computed(() => {
-    const board = this.distanceLeaderboard();
-    const leader = board?.entries[0];
-    if (!this.showHqLine() || !board || !leader) return null;
+  // Poster filter (viewers only: poster names are blank for anonymous callers). '' means all posters,
+  // which cannot clash with a name because blank posters are left out of the list.
+  selectedPosterFilter = signal('');
+  posters = computed(() =>
+    [...new Set(this.stickers().map((s) => s.poster?.trim() ?? ''))]
+      .filter((poster) => poster !== '')
+      .sort((a, b) => a.localeCompare(b)),
+  );
 
-    const hq: [number, number] = [board.hq.lon, board.hq.lat];
-    // Go the short way round rather than across the whole map when crossing the antimeridian
-    const lonDelta = leader.lon - board.hq.lon;
-    const endLon = lonDelta > 180 ? leader.lon - 360 : lonDelta < -180 ? leader.lon + 360 : leader.lon;
-    const end: [number, number] = [endLon, leader.lat];
+  // Distances. HQ comes from the backend (viewers only); every distance is computed in the browser.
+  // The HQ modes draw to the stickers the filters leave visible, so a poster filter shows only theirs.
+  hq = signal<HqLocation | null>(null);
+  distanceMode = signal<DistanceMode>(this.resolveInitialDistanceMode());
+  measureStickerIds = signal<number[]>([]);
 
-    // MapLibre draws the segment straight in Web Mercator, so the label sits at the Mercator midpoint
-    const a = maplibregl.MercatorCoordinate.fromLngLat(hq);
-    const b = maplibregl.MercatorCoordinate.fromLngLat(end);
-    const mid = new maplibregl.MercatorCoordinate((a.x + b.x) / 2, (a.y + b.y) / 2).toLngLat();
+  readonly farthestLinePaint = { 'line-color': '#e17000', 'line-width': 3, 'line-dasharray': [2, 2] };
+  readonly allLinesPaint = { 'line-color': '#e17000', 'line-width': 2, 'line-opacity': 0.6, 'line-dasharray': [2, 2] };
+  readonly measureLinePaint = { 'line-color': '#e17000', 'line-width': 3 };
+
+  hqLines = computed(() => {
+    const mode = this.distanceMode();
+    const hq = this.hq();
+    if ((mode !== 'farthest' && mode !== 'all') || !hq) return null;
+
+    const lang = this.languageService.current();
+    const from: LngLatTuple = [hq.lon, hq.lat];
+    let targets = this.visibleStickers().map((sticker) => ({ sticker, meters: distanceMeters(hq, sticker) }));
+    if (mode === 'farthest' && targets.length > 0) {
+      targets = [targets.reduce((farthest, t) => (t.meters > farthest.meters ? t : farthest))];
+    }
+    const ends = targets.map(({ sticker }) => shortWayRound(from, [sticker.lon, sticker.lat]));
 
     return {
-      hq,
-      geojson: {
-        type: 'Feature' as const,
-        properties: {},
-        geometry: { type: 'LineString' as const, coordinates: [hq, end] },
-      },
-      labelLngLat: [mid.lng, mid.lat] as [number, number],
-      distance: formatDistance(leader.distance_m, this.languageService.current()),
-      poster: leader.poster,
-      stickerId: leader.sticker_id,
+      hq: from,
+      ends,
+      paint: mode === 'farthest' ? this.farthestLinePaint : this.allLinesPaint,
+      geojson: { type: 'FeatureCollection' as const, features: ends.map((end) => lineFeature(from, end)) },
+      // Farthest: one label halfway along the line, with the poster's name
+      record:
+        mode === 'farthest' && targets.length > 0
+          ? {
+              stickerId: targets[0].sticker.id,
+              poster: targets[0].sticker.poster,
+              distance: formatDistance(targets[0].meters, lang),
+              lngLat: mercatorMidpoint(from, ends[0]),
+            }
+          : null,
+      // Every sticker: a distance tag under each one, as long as they still fit
+      tags:
+        mode === 'all' && targets.length <= MAX_DISTANCE_TAGS
+          ? targets.map(({ sticker, meters }) => ({
+              stickerId: sticker.id,
+              lngLat: [sticker.lon, sticker.lat] as LngLatTuple,
+              distance: formatDistance(meters, lang),
+            }))
+          : [],
     };
   });
+
+  measureLine = computed(() => {
+    if (this.distanceMode() !== 'measure') return null;
+    const [a, b] = this.measureStickerIds().map((id) => this.stickers().find((s) => s.id === id));
+    if (!a || !b) return null;
+    const from: LngLatTuple = [a.lon, a.lat];
+    const to = shortWayRound(from, [b.lon, b.lat]);
+    return {
+      geojson: lineFeature(from, to),
+      lngLat: mercatorMidpoint(from, to),
+      distance: formatDistance(distanceMeters(a, b), this.languageService.current()),
+    };
+  });
+
+  openPopupDistance = computed(() => {
+    const sticker = this.openPopupSticker();
+    const hq = this.hq();
+    return sticker && hq ? formatDistance(distanceMeters(hq, sticker), this.languageService.current()) : null;
+  });
+
+  private resolveInitialDistanceMode(): DistanceMode {
+    // Measuring is never stored, so a reload does not leave marker clicks picking stickers
+    const stored = localStorage.getItem(DISTANCE_MODE_STORAGE_KEY);
+    return stored === 'farthest' || stored === 'all' ? stored : 'off';
+  }
 
   // Available tile layers (driven by configured env vars)
   readonly availableTileLayers: TileLayerOption[] = getAvailableTileLayers();
@@ -261,7 +349,7 @@ export class MapComponent implements OnInit {
             this.activeSelectionMarker.set({ lat: startLoc.lat, lon: startLoc.lon, color: 'blue' });
             this.mapInstance!.jumpTo({ center: [startLoc.lon, startLoc.lat], zoom: 7 });
           } else {
-            this.mapInstance!.jumpTo({ center: [0.000000, 0.000000], zoom: 7 });
+            this.mapInstance!.jumpTo(this.fallbackViewport());
           }
         }, 0);
       } else {
@@ -291,45 +379,57 @@ export class MapComponent implements OnInit {
         this.initialViewport.set({ center: [lng, lat], zoom });
       }
     }
+    if (this.isViewer()) {
+      this.loadHq();
+    } else if (this.distanceMode() !== 'off') {
+      // An HQ mode stored during an earlier signed-in visit; anonymous visitors can only measure
+      this.distanceMode.set('off');
+    }
     this.loadStickers();
     this.loadCategories();
-    if (this.isViewer() && this.showHqLine()) {
-      this.loadDistanceLeaderboard();
-    }
   }
 
-  setHqLine(show: boolean): void {
-    this.showHqLine.set(show);
-    localStorage.setItem(HQ_LINE_STORAGE_KEY, String(show));
-    if (show) {
-      this.loadDistanceLeaderboard(true);
-    }
+  setCategoryFilter(category: number | 'all'): void {
+    this.selectedCategoryFilter.set(category);
+    this.fitToVisibleStickers();
   }
 
-  private loadDistanceLeaderboard(fitToLine = false): void {
+  setPosterFilter(poster: string): void {
+    this.selectedPosterFilter.set(poster);
+    this.fitToVisibleStickers();
+  }
+
+  setDistanceMode(mode: DistanceMode): void {
+    this.distanceMode.set(mode);
+    this.measureStickerIds.set([]);
+    if (mode === 'measure') {
+      // While measuring, marker clicks pick stickers instead of opening popups
+      this.openPopupStickerId.set(null);
+      return;
+    }
+    localStorage.setItem(DISTANCE_MODE_STORAGE_KEY, mode);
+    const lines = this.hqLines();
+    if (lines) this.fitToCoordinates([lines.hq, ...lines.ends], { padding: 80 });
+  }
+
+  clearMeasurement(): void {
+    this.measureStickerIds.set([]);
+  }
+
+  private loadHq(): void {
     this.stickerService
-      .getDistanceLeaderboard()
+      .getHq()
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (board) => {
-          this.distanceLeaderboard.set(board);
-          if (fitToLine) this.fitToHqLine();
-        },
+        next: (hq) => this.hq.set(hq),
         error: () => {},
       });
   }
 
-  private fitToHqLine(): void {
-    const hqLine = this.hqLine();
-    if (!this.mapInstance || !hqLine) return;
-    const [[lon1, lat1], [lon2, lat2]] = hqLine.geojson.geometry.coordinates;
-    this.mapInstance.fitBounds(
-      [
-        [Math.min(lon1, lon2), Math.min(lat1, lat2)],
-        [Math.max(lon1, lon2), Math.max(lat1, lat2)],
-      ],
-      { padding: 80, maxZoom: 15 },
-    );
+  /** Where the map starts without stickers or a known location: HQ for viewers, otherwise the whole world. */
+  private fallbackViewport(): { center: [number, number]; zoom: number } {
+    const hq = this.hq();
+    return hq ? { center: [hq.lon, hq.lat], zoom: 7 } : { center: [0, 0], zoom: 2 };
   }
 
   private loadCategories(): void {
@@ -343,10 +443,13 @@ export class MapComponent implements OnInit {
   }
 
   visibleStickers = computed<ProcessedSticker[]>(() => {
-    const all = this.stickers();
-    const filter = this.selectedCategoryFilter();
-    if (filter === 'all') return all;
-    return all.filter((s) => s.category_id === filter);
+    const category = this.selectedCategoryFilter();
+    const poster = this.selectedPosterFilter();
+    return this.stickers().filter(
+      (s) =>
+        (category === 'all' || s.category_id === category) &&
+        (poster === '' || s.poster?.trim() === poster),
+    );
   });
 
   onMapLoad(map: maplibregl.Map): void {
@@ -380,10 +483,7 @@ export class MapComponent implements OnInit {
     } else if (viewport) {
       this.mapInstance.jumpTo({ center: [viewport.lng, viewport.lat], zoom: viewport.zoom });
     } else if (this.focusStickerId() === null) {
-      const s = this.stickers();
-      if (s.length > 0) {
-        this.fitBoundsToStickers(s, { animate: false });
-      }
+      this.fitToVisibleStickers({ animate: false });
     }
 
     map.on('moveend', () => {
@@ -468,14 +568,14 @@ export class MapComponent implements OnInit {
               this.initialViewport.set(
                 processed.length > 0
                   ? this.boundsToViewport(processed)
-                  : { center: [0.000000, 0.000000], zoom: 7 },
+                  : this.fallbackViewport(),
               );
             }
           } else {
             this.initialViewport.set(
               processed.length > 0
                 ? this.boundsToViewport(processed)
-                : { center: [0.000000, 0.000000], zoom: 7 },
+                : this.fallbackViewport(),
             );
           }
         } else if (focusId !== null) {
@@ -488,7 +588,7 @@ export class MapComponent implements OnInit {
       error: (error) => {
         console.error('Stickers laden is mislukt:', error);
         if (this.initialViewport() === null) {
-          this.initialViewport.set({ center: [0.000000, 0.000000], zoom: 7 });
+          this.initialViewport.set(this.fallbackViewport());
         }
         this.isLoading.set(false);
       },
@@ -512,15 +612,30 @@ export class MapComponent implements OnInit {
     stickers: ProcessedSticker[],
     options: maplibregl.FitBoundsOptions = {},
   ): void {
-    if (!this.mapInstance || stickers.length === 0) return;
+    this.fitToCoordinates(stickers.map((s): LngLatTuple => [s.lon, s.lat]), options);
+  }
 
-    if (stickers.length === 1) {
-      this.mapInstance.jumpTo({ center: [stickers[0].lon, stickers[0].lat], zoom: 13 });
+  /**
+   * Zoom to the stickers the filters leave visible, keeping HQ in view while HQ lines are drawn.
+   * The first view uses it too, so setting both filters back to "all" returns to that view.
+   */
+  private fitToVisibleStickers(options: maplibregl.FitBoundsOptions = {}): void {
+    const points = this.visibleStickers().map((s): LngLatTuple => [s.lon, s.lat]);
+    if (points.length === 0) return;
+    const lines = this.hqLines();
+    this.fitToCoordinates(lines ? [lines.hq, ...points] : points, options);
+  }
+
+  private fitToCoordinates(coords: LngLatTuple[], options: maplibregl.FitBoundsOptions = {}): void {
+    if (!this.mapInstance || coords.length === 0) return;
+
+    if (coords.length === 1) {
+      this.mapInstance.jumpTo({ center: coords[0], zoom: 13 });
       return;
     }
 
-    const lons = stickers.map((s) => s.lon);
-    const lats = stickers.map((s) => s.lat);
+    const lons = coords.map(([lon]) => lon);
+    const lats = coords.map(([, lat]) => lat);
     this.mapInstance.fitBounds(
       [
         [Math.min(...lons), Math.min(...lats)],
@@ -547,6 +662,13 @@ export class MapComponent implements OnInit {
 
   onMarkerClick(stickerId: number, event: Event): void {
     event.stopPropagation();
+    if (this.distanceMode() === 'measure') {
+      // First pick, second pick; a third pick starts a new measurement
+      this.measureStickerIds.update((ids) =>
+        ids.length === 1 && ids[0] !== stickerId ? [ids[0], stickerId] : [stickerId],
+      );
+      return;
+    }
     this.openPopupStickerId.set(stickerId);
   }
 

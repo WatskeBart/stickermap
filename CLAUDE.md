@@ -113,7 +113,7 @@ Frontend (Angular 22 SPA, Caddy) ──HTTP──▶ Backend (FastAPI :5555)
   - `reports.py` — removal reports and their review.
   - `categories.py` — categories and their icons.
   - `admin.py` — `/admin/*`: health counters, file audit and background maintenance jobs.
-  - `leaderboard.py` — `/leaderboard/distance`, the "Farthest from HQ" leaderboard (see below).
+  - `leaderboard.py` — `/hq` and `/leaderboard/distance`, the "Farthest from HQ" leaderboard (see below).
 
   `backend/README.md` lists every endpoint with its required role; the Swagger UI is the authoritative reference.
 - **`core/auth.py`** — JWT validation via Keycloak JWKS endpoint using **PyJWT** (`import jwt`) with `RSAAlgorithm.from_jwk()` to convert JWKS keys. `require_role(ROLE_X)` is a FastAPI dependency factory. `get_user_identity()` returns `preferred_username` for ownership tracking. Public keys are cached with a 1-hour TTL.
@@ -145,6 +145,7 @@ src/app/
 │   ├── category-management/    ← category moderation (editor/admin)
 │   ├── landing/                ← home page: navigation, stats, "Farthest from HQ" leaderboard
 │   ├── map/                    ← MapComponent (MapLibre GL)
+│   │   ├── distance-label/     ← distance pill for distance lines and per-sticker tags
 │   │   ├── edit-sticker-modal/ ← in-map edit modal
 │   │   └── map-view/           ← route page wrapper for the map
 │   ├── sticker-form/           ← sticker upload form component
@@ -189,7 +190,7 @@ Component styles are the `.scss` files named in `styleUrl`. The `.css` files nex
 
   **Metadata is null for non-viewers.** `get_all_stickers` blanks out `poster`, `uploader`, `post_date`, `upload_date`, `uploaded_by`, `updated_at` and `extra_info` for unauthenticated callers, so those fields are `string | null` on `ParsedSticker`/`ProcessedSticker`. Guard them before calling string methods.
 - **`core/services/language.service.ts`** — Current language (`nl` default, `en`) as a signal, persisted in localStorage (`stickermap-lang`). Use `current()` when formatting numbers for display (e.g. `formatDistance()`).
-- **`features/map/map.ts`** — Main map component (MapLibre GL). Markers and popups are rendered **declaratively** via `ngx-maplibre-gl`'s `<mgl-marker>` / `<mgl-popup>` in `map.html`, and popup actions are ordinary Angular `(click)` bindings — there is no `window.*` callback bridge. The optional HQ line is an `<mgl-geojson-source>` + `<mgl-layer>` pair plus two HTML markers. `maplibregl` is imported for types, the `RasterTileSource.setTiles()` call behind the tile-layer toggle, and `MercatorCoordinate` to place the HQ-line distance label. The same component also serves as the location picker on the add-sticker page (`locationSelectionMode`), which hides the stickers and overlay controls.
+- **`features/map/map.ts`** — Main map component (MapLibre GL). Markers and popups are rendered **declaratively** via `ngx-maplibre-gl`'s `<mgl-marker>` / `<mgl-popup>` in `map.html`, and popup actions are ordinary Angular `(click)` bindings — there is no `window.*` callback bridge. Distance lines are `<mgl-geojson-source>` + `<mgl-layer>` pairs with HTML-marker labels (see "Distances" below). `maplibregl` is imported for types, the `RasterTileSource.setTiles()` call behind the tile-layer toggle, `MercatorCoordinate` to place labels halfway along a line, and `LngLat.distanceTo()` for distances. The same component also serves as the location picker on the add-sticker page (`locationSelectionMode`), which hides the stickers and overlay controls.
 - **`core/config/oidc.config.ts`** — OIDC client configuration (authority, client ID, scopes, secure routes via `ngssc` environment injection). Also exports `provideOidcConfig()`, which registers a `provideAppInitializer` that calls `checkAuth()` and handles post-login redirects.
 - **`core/config/tile-layers.config.ts`** — Street/satellite/terrain tile URLs from `TILESERVER_URL_*`; the map's layer toggle only lists configured layers and hides itself when there is just one.
 - **`core/guards/auth.guard.ts`** — Functional `CanActivateFn` that checks `OidcSecurityService.isAuthenticated$`, stores the target URL in sessionStorage (`redirect_url`), and triggers `authorize()` if unauthenticated.
@@ -210,7 +211,7 @@ The map uses **MapLibre GL JS 6.x** via **`@maplibre/ngx-maplibre-gl` 22.x** (th
 
 MapLibre v6 also **requires WebGL2** (WebGL1 support was removed), and if a CSP is ever added it needs `worker-src 'self'` and `img-src data: blob: 'self'` — the dedicated CSP bundle from v5 no longer exists.
 
-**Text on the map:** the base style is raster-only and has no `glyphs` URL, so symbol layers cannot render text. Put labels in an HTML `<mgl-marker>` instead (as the HQ-line distance label does); adding a glyph server would also break air-gapped deployments that self-host their tiles.
+**Text on the map:** the base style is raster-only and has no `glyphs` URL, so symbol layers cannot render text. Put labels in an HTML `<mgl-marker>` instead (as the `distance-label` component does); adding a glyph server would also break air-gapped deployments that self-host their tiles.
 
 **CSS theming — light/dark mode:**
 
@@ -284,12 +285,14 @@ PostGIS with SRID 4326. Sticker locations are stored as **`geography(Point, 4326
 
 Migrations live in `database_migrations/` (Alembic, its own uv project and container image). Revisions are numbered `0001` … `0009`, mostly written as raw SQL via `op.execute`, and must implement `downgrade()`.
 
-### Distance leaderboard ("Farthest from HQ")
+### Distances and the "Farthest from HQ" leaderboard
 
-- **HQ** is configured on the backend with `HQ_LAT` / `HQ_LON` (default `0.000000` / `0.000000`, the map's start position; Helm `backend.env.hqLat` / `hqLon`). The frontend never hard-codes it: every leaderboard response includes `hq`.
+- **HQ** is configured on the backend with `HQ_LAT` / `HQ_LON` (Helm `backend.env.hqLat` / `hqLon`). The default, `52.155174` / `5.387206`, is the Onze Lieve Vrouwetoren in Amersfoort, the origin of the Dutch national grid. **Never commit a deployment's real HQ coordinates** — not as a default, in docs, in the changelog or in test data; deployments set them through the env vars. The frontend never hard-codes a location: the map gets HQ from **`GET /api/v1/hq`** (`sm-viewer`) and uses it as its fallback start (no stickers, or the add-sticker picker without a known location), with a world view for anonymous visitors.
 - **`GET /api/v1/leaderboard/distance?period=all|year|half`** (`sm-viewer`) returns the top 10 posters by their farthest sticker (`DISTINCT ON (poster)`), as a JSON object with `distance_m`. `year` and `half` filter on `post_date` from 1 January / 1 July (UTC) of the current year, so unknown-date stickers only count for `all`. Archived stickers and stickers without a poster are excluded; private ones count.
-- **Frontend:** the landing page shows the board with a period toggle, and rows open `/map?id=<sticker>`. The map has a viewer-only "Farthest from HQ" slide toggle (off by default, remembered in localStorage as `stickermap-hq-line`). It draws an HQ marker, a dashed line to the all-time number one and a distance label at the line's Web Mercator midpoint. Format distances with `formatDistance()` from `shared/utils/distance-utils.ts`.
-- `poster` is free text and matched exactly, so name variants rank separately — the same as "Most active poster" in `/stats`.
+- **One distance model everywhere:** the leaderboard uses `ST_Distance(…, false)` (great circle on a sphere) and the map computes distances in the browser with MapLibre's `LngLat.distanceTo()` (sphere, R = 6,371,008.8 m); the two agree to under a metre. Change both or neither — the spheroid differs by up to ~0.5%, which shows up as different numbers on the home page and the map.
+- **Map:** a "Distance" menu, below the category and poster filters in the top-right card: off, farthest from HQ, from HQ to every sticker shown, or between two stickers. The HQ options are viewer-only and draw to the stickers the category and poster filters leave visible; measuring works for everyone and makes marker clicks pick stickers instead of opening popups. The last line mode is remembered in localStorage (`stickermap-distance-mode`); measuring is never stored. Per-sticker distance tags appear only while at most `MAX_DISTANCE_TAGS` (25) stickers are shown, and the popup shows "Distance from HQ" for viewers. Labels go halfway along a line at the Web Mercator midpoint, and lines that would cross the antimeridian take the short way round.
+- **Home page:** the leaderboard card with a period toggle; rows open `/map?id=<sticker>`. Format distances with `formatDistance()` from `shared/utils/distance-utils.ts`.
+- `poster` is free text: the leaderboard matches it exactly, so name variants rank separately (the same as "Most active poster" in `/stats`); the map's poster filter trims whitespace.
 
 ### Helm Chart (`helm/stickermap/`)
 
@@ -348,6 +351,8 @@ There are no automated test suites in this repository (no `pytest`, no `vitest`,
 - **Migrations** — `uv run alembic upgrade head` then `uv run alembic downgrade -1` to confirm both directions work against a real PostGIS DB.
 
 Type checking and `pnpm build` / `uv run ruff check .` verify code correctness, not feature correctness — manual testing is required for behavioural changes.
+
+**Build budgets** (`angular.json`, e.g. 7 kB per component stylesheet): keep `pnpm build` free of warnings, but raising a budget a little is fine when a feature needs it. Don't restructure code just to stay under a budget.
 
 ## Claude Code helpers
 

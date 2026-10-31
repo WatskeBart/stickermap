@@ -96,7 +96,7 @@
               <mat-button-toggle value="all">{{ 'landing.leaderboard.allTime' | translate }}</mat-button-toggle>
               <mat-button-toggle value="year">{{ currentYear }}</mat-button-toggle>
               <mat-button-toggle value="half">
-                {{ 'landing.leaderboard.half' | translate: { half: currentHalf, year: currentYear } }}
+                {{ halfYearLabelKey | translate: { year: currentYear } }}
               </mat-button-toggle>
             </mat-button-toggle-group>
             @if (leaderboard() === undefined) {

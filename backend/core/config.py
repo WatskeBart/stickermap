@@ -19,9 +19,10 @@ class Config:
     IMAGE_MAX_SIZE = int(os.getenv("IMAGE_MAX_SIZE", "1920"))
     THUMBNAIL_SIZE = int(os.getenv("THUMBNAIL_SIZE", "400"))
 
-    # HQ: the point the distance leaderboard measures from (defaults to the map's start position)
-    HQ_LAT = float(os.getenv("HQ_LAT", "0.000000"))
-    HQ_LON = float(os.getenv("HQ_LON", "0.000000"))
+    # HQ: the point distances are measured from, and where the map starts when nothing else is known.
+    # Defaults to the Onze Lieve Vrouwetoren in Amersfoort, the origin of the Dutch national grid (RD).
+    HQ_LAT = float(os.getenv("HQ_LAT", "52.155174"))
+    HQ_LON = float(os.getenv("HQ_LON", "5.387206"))
 
     # Keycloak Configuration
     KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "")

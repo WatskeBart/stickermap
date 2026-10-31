@@ -134,6 +134,12 @@ export interface StickerStats {
   archived_stickers: number;
 }
 
+/** HQ (`GET /hq`, configured with HQ_LAT/HQ_LON): where distances are measured from. */
+export interface HqLocation {
+  lat: number;
+  lon: number;
+}
+
 export type LeaderboardPeriod = 'all' | 'year' | 'half';
 
 export interface DistanceLeaderboardEntry {
@@ -147,7 +153,7 @@ export interface DistanceLeaderboardEntry {
 
 /** `GET /leaderboard/distance`: top 10 posters by their farthest sticker from HQ, farthest first. */
 export interface DistanceLeaderboard {
-  hq: { lat: number; lon: number };
+  hq: HqLocation;
   period: LeaderboardPeriod;
   /** First day of the period (`YYYY-MM-DD`), null for all time. */
   since: string | null;

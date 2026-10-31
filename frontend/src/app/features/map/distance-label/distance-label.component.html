@@ -1,0 +1,8 @@
+@if (icon(); as icon) {
+  <mat-icon class="distance-label-icon">{{ icon }}</mat-icon>
+}
+<span class="distance-label-value">{{ distance() }}</span>
+@if (poster(); as poster) {
+  <!-- Poster is user-supplied text: interpolation only, never [innerHTML]. -->
+  <span class="distance-label-poster">{{ poster }}</span>
+}

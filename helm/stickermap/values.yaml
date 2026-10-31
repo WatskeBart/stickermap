@@ -53,9 +53,11 @@ backend:
     imageQuality: "85"
     imageMaxSize: "1920"
     thumbnailSize: "400"
-    # HQ: the point the "Farthest from HQ" leaderboard and map line measure from (decimal degrees).
-    hqLat: "0.000000"
-    hqLon: "0.000000"
+    # HQ: the point map distances and the "Farthest from HQ" leaderboard measure from, and where the
+    # map starts when nothing else is known (decimal degrees). The default is the origin of the Dutch
+    # national grid in Amersfoort; set your own HQ.
+    hqLat: "52.155174"
+    hqLon: "5.387206"
 
 # ------------------------------------------------------------------------------
 # Frontend

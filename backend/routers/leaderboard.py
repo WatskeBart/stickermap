@@ -20,6 +20,12 @@ def _period_start(period: str) -> datetime | None:
     return None
 
 
+@router.get("/hq")
+def get_hq(current_user: dict = Depends(require_role(ROLE_VIEWER))):
+    """HQ (HQ_LAT/HQ_LON): where the map measures distances from and starts when nothing else is known."""
+    return {"lat": Config.HQ_LAT, "lon": Config.HQ_LON}
+
+
 @router.get("/leaderboard/distance")
 def get_distance_leaderboard(
     period: Literal["all", "year", "half"] = "all",
@@ -30,6 +36,8 @@ def get_distance_leaderboard(
     Top 10 posters ranked by their farthest sticker from HQ (HQ_LAT/HQ_LON), one entry per poster.
     `year` and `half` only count stickers whose post_date falls in the current year or half-year,
     so stickers with an unknown date only count for `all`. Archived stickers never count.
+    Distances are great-circle metres on a sphere (use_spheroid = false), the same model the map
+    uses in the browser (MapLibre's LngLat.distanceTo), so both show identical numbers.
     """
     hq_lat, hq_lon = Config.HQ_LAT, Config.HQ_LON
     since = _period_start(period)
@@ -42,7 +50,7 @@ def get_distance_leaderboard(
                     s.id,
                     s.poster,
                     s.location,
-                    ST_Distance(s.location, ST_SetSRID(ST_MakePoint({hq_lon}, {hq_lat}), 4326)::geography) AS distance_m
+                    ST_Distance(s.location, ST_SetSRID(ST_MakePoint({hq_lon}, {hq_lat}), 4326)::geography, false) AS distance_m
                 FROM stickers s
                 WHERE s.archived = FALSE
                   AND s.location IS NOT NULL
