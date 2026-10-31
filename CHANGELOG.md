@@ -14,6 +14,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.25.0] - 2026-10-31
+
 ### Highlights
 
 - **See who stuck a sticker farthest from HQ.** A new scoreboard on the home page ranks everyone by their farthest sticker and shows the distance. Switch between all time, this year and this half-year, so one far-flung sticker from long ago doesn't decide every round. Select a name to jump to that sticker on the map.
@@ -835,7 +837,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.3...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.25.0...HEAD
+[1.25.0]: https://github.com/WatskeBart/stickermap/compare/1.24.3...1.25.0
 [1.24.3]: https://github.com/WatskeBart/stickermap/compare/1.24.2...1.24.3
 [1.24.2]: https://github.com/WatskeBart/stickermap/compare/1.24.1...1.24.2
 [1.24.1]: https://github.com/WatskeBart/stickermap/compare/1.24.0...1.24.1
