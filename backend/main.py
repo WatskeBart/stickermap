@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 
 from core.config import Config
 from core.logger import get_logger, setup_logging
-from routers import admin, categories, reports, stickers
+from routers import admin, categories, leaderboard, reports, stickers
 
 load_dotenv()
 
@@ -17,6 +17,7 @@ logger = get_logger(__name__)
 
 Config.validate_db()
 Config.validate_keycloak()
+Config.validate_hq()
 
 url_prefix = "/api/v1"
 
@@ -40,6 +41,7 @@ app.include_router(stickers.router, prefix=url_prefix)
 app.include_router(reports.router, prefix=url_prefix)
 app.include_router(categories.router, prefix=url_prefix)
 app.include_router(admin.router, prefix=url_prefix)
+app.include_router(leaderboard.router, prefix=url_prefix)
 
 upload_dir = os.getenv("UPLOAD_DIR", "uploads")
 Path(upload_dir).mkdir(parents=True, exist_ok=True)

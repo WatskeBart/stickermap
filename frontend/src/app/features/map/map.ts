@@ -9,6 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import {
   getAvailableTileLayers,
@@ -17,9 +18,12 @@ import {
   type TileLayerType,
 } from '../../core/config/tile-layers.config';
 import { AuthService } from '../../core/services/auth.service';
+import { LanguageService } from '../../core/services/language.service';
 import { StickerService } from '../../core/services/sticker.service';
 import * as maplibregl from 'maplibre-gl';
 import {
+  GeoJSONSourceComponent as MglGeoJSONSourceComponent,
+  LayerComponent as MglLayerComponent,
   MapComponent as MglMapComponent,
   MarkerComponent as MglMarkerComponent,
   PopupComponent as MglPopupComponent,
@@ -36,10 +40,13 @@ import {
 } from '../../shared/components/report-removal-dialog/report-removal-dialog.component';
 import { CategoryService } from '../../core/services/category.service';
 import type { Category } from '../../core/models/category.model';
-import type { StickerPointGeoJson } from '../../core/models/sticker.model';
+import type { DistanceLeaderboard, StickerPointGeoJson } from '../../core/models/sticker.model';
 import { isEpochSentinel } from '../../shared/utils/date-utils';
+import { formatDistance } from '../../shared/utils/distance-utils';
 import { buildF35Cursor } from '../../shared/utils/f35-cursor';
 import { EditStickerModalComponent } from './edit-sticker-modal/edit-sticker-modal.component';
+
+const HQ_LINE_STORAGE_KEY = 'stickermap-hq-line';
 
 interface ProcessedSticker {
   id: number;
@@ -74,11 +81,14 @@ interface ProcessedSticker {
     MglMapComponent,
     MglMarkerComponent,
     MglPopupComponent,
+    MglGeoJSONSourceComponent,
+    MglLayerComponent,
     MatProgressSpinnerModule,
     MatFormFieldModule,
     MatSelectModule,
     MatIconModule,
     MatButtonToggleModule,
+    MatSlideToggleModule,
     EditStickerModalComponent,
     TranslatePipe,
   ],
@@ -105,6 +115,7 @@ export class MapComponent implements OnInit {
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
   private translate = inject(TranslateService);
+  private languageService = inject(LanguageService);
 
   // Loading state
   isLoading = signal(false);
@@ -137,6 +148,40 @@ export class MapComponent implements OnInit {
   // Category filter
   categories = signal<Category[]>([]);
   selectedCategoryFilter = signal<number | 'all'>('all');
+
+  // HQ line: dashed line from HQ to the all-time farthest sticker, labelled with its distance.
+  // Viewer-only like the leaderboard endpoint; the toggle state is remembered per browser.
+  showHqLine = signal(localStorage.getItem(HQ_LINE_STORAGE_KEY) === 'true');
+  private distanceLeaderboard = signal<DistanceLeaderboard | null>(null);
+  hqLine = computed(() => {
+    const board = this.distanceLeaderboard();
+    const leader = board?.entries[0];
+    if (!this.showHqLine() || !board || !leader) return null;
+
+    const hq: [number, number] = [board.hq.lon, board.hq.lat];
+    // Go the short way round rather than across the whole map when crossing the antimeridian
+    const lonDelta = leader.lon - board.hq.lon;
+    const endLon = lonDelta > 180 ? leader.lon - 360 : lonDelta < -180 ? leader.lon + 360 : leader.lon;
+    const end: [number, number] = [endLon, leader.lat];
+
+    // MapLibre draws the segment straight in Web Mercator, so the label sits at the Mercator midpoint
+    const a = maplibregl.MercatorCoordinate.fromLngLat(hq);
+    const b = maplibregl.MercatorCoordinate.fromLngLat(end);
+    const mid = new maplibregl.MercatorCoordinate((a.x + b.x) / 2, (a.y + b.y) / 2).toLngLat();
+
+    return {
+      hq,
+      geojson: {
+        type: 'Feature' as const,
+        properties: {},
+        geometry: { type: 'LineString' as const, coordinates: [hq, end] },
+      },
+      labelLngLat: [mid.lng, mid.lat] as [number, number],
+      distance: formatDistance(leader.distance_m, this.languageService.current()),
+      poster: leader.poster,
+      stickerId: leader.sticker_id,
+    };
+  });
 
   // Available tile layers (driven by configured env vars)
   readonly availableTileLayers: TileLayerOption[] = getAvailableTileLayers();
@@ -216,7 +261,7 @@ export class MapComponent implements OnInit {
             this.activeSelectionMarker.set({ lat: startLoc.lat, lon: startLoc.lon, color: 'blue' });
             this.mapInstance!.jumpTo({ center: [startLoc.lon, startLoc.lat], zoom: 7 });
           } else {
-            this.mapInstance!.jumpTo({ center: [5.680191, 51.658250], zoom: 7 });
+            this.mapInstance!.jumpTo({ center: [0.000000, 0.000000], zoom: 7 });
           }
         }, 0);
       } else {
@@ -248,6 +293,43 @@ export class MapComponent implements OnInit {
     }
     this.loadStickers();
     this.loadCategories();
+    if (this.isViewer() && this.showHqLine()) {
+      this.loadDistanceLeaderboard();
+    }
+  }
+
+  setHqLine(show: boolean): void {
+    this.showHqLine.set(show);
+    localStorage.setItem(HQ_LINE_STORAGE_KEY, String(show));
+    if (show) {
+      this.loadDistanceLeaderboard(true);
+    }
+  }
+
+  private loadDistanceLeaderboard(fitToLine = false): void {
+    this.stickerService
+      .getDistanceLeaderboard()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (board) => {
+          this.distanceLeaderboard.set(board);
+          if (fitToLine) this.fitToHqLine();
+        },
+        error: () => {},
+      });
+  }
+
+  private fitToHqLine(): void {
+    const hqLine = this.hqLine();
+    if (!this.mapInstance || !hqLine) return;
+    const [[lon1, lat1], [lon2, lat2]] = hqLine.geojson.geometry.coordinates;
+    this.mapInstance.fitBounds(
+      [
+        [Math.min(lon1, lon2), Math.min(lat1, lat2)],
+        [Math.max(lon1, lon2), Math.max(lat1, lat2)],
+      ],
+      { padding: 80, maxZoom: 15 },
+    );
   }
 
   private loadCategories(): void {
@@ -386,14 +468,14 @@ export class MapComponent implements OnInit {
               this.initialViewport.set(
                 processed.length > 0
                   ? this.boundsToViewport(processed)
-                  : { center: [5.680191, 51.658250], zoom: 7 },
+                  : { center: [0.000000, 0.000000], zoom: 7 },
               );
             }
           } else {
             this.initialViewport.set(
               processed.length > 0
                 ? this.boundsToViewport(processed)
-                : { center: [5.680191, 51.658250], zoom: 7 },
+                : { center: [0.000000, 0.000000], zoom: 7 },
             );
           }
         } else if (focusId !== null) {
@@ -406,7 +488,7 @@ export class MapComponent implements OnInit {
       error: (error) => {
         console.error('Stickers laden is mislukt:', error);
         if (this.initialViewport() === null) {
-          this.initialViewport.set({ center: [5.680191, 51.658250], zoom: 7 });
+          this.initialViewport.set({ center: [0.000000, 0.000000], zoom: 7 });
         }
         this.isLoading.set(false);
       },

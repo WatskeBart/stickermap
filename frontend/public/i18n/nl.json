@@ -41,10 +41,19 @@
     "lastUpload": "Laatste upload",
     "archived": "Gearchiveerde stickers",
     "topPoster": "Meest actieve plakker",
-    "topUploader": "Meest actieve uploader"
+    "topUploader": "Meest actieve uploader",
+    "leaderboard": {
+      "title": "Verst van HQ",
+      "period": "Periode",
+      "allTime": "Altijd",
+      "half": "H{{half}} {{year}}",
+      "empty": "Nog geen stickers in deze periode.",
+      "hint": "Afstand in rechte lijn vanaf HQ. Per plakker telt alleen de verste sticker."
+    }
   },
   "map": {
     "mapType": "Kaarttype",
+    "hqLine": "Verst van HQ",
     "filterCategory": "Filter op categorie",
     "allCategories": "Alle categorieën",
     "loading": "Stickers worden geladen uit de database...",

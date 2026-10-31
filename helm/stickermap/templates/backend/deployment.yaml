@@ -95,6 +95,10 @@ spec:
               value: {{ .Values.backend.env.imageMaxSize | quote }}
             - name: THUMBNAIL_SIZE
               value: {{ .Values.backend.env.thumbnailSize | quote }}
+            - name: HQ_LAT
+              value: {{ .Values.backend.env.hqLat | quote }}
+            - name: HQ_LON
+              value: {{ .Values.backend.env.hqLon | quote }}
           volumeMounts:
             - name: uploads
               mountPath: /app/uploads

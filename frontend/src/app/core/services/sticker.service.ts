@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, RemovalReport, AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType, StickerRow, StickerDetailRow, StickerRotateRow, MessageResponse, UpdateStickerResponse, SubmitReportResponse } from '../models/sticker.model';
+import type { UploadResponse, StickerData, CreateStickersRequest, UpdateStickerRequest, StickerStats, DistanceLeaderboard, LeaderboardPeriod, RemovalReport, AdminStats, AdminAuditItem, AdminJob, MaintenanceJobType, StickerRow, StickerDetailRow, StickerRotateRow, MessageResponse, UpdateStickerResponse, SubmitReportResponse } from '../models/sticker.model';
 
 @Injectable({
   providedIn: 'root'
@@ -52,6 +52,10 @@ export class StickerService {
 
   getStats(): Observable<StickerStats> {
     return this.http.get<StickerStats>(`${this.apiUrl}/stats`);
+  }
+
+  getDistanceLeaderboard(period: LeaderboardPeriod = 'all'): Observable<DistanceLeaderboard> {
+    return this.http.get<DistanceLeaderboard>(`${this.apiUrl}/leaderboard/distance`, { params: { period } });
   }
 
   submitRemovalReport(stickerId: number, proofImage?: File): Observable<SubmitReportResponse> {

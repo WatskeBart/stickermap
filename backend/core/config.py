@@ -19,6 +19,10 @@ class Config:
     IMAGE_MAX_SIZE = int(os.getenv("IMAGE_MAX_SIZE", "1920"))
     THUMBNAIL_SIZE = int(os.getenv("THUMBNAIL_SIZE", "400"))
 
+    # HQ: the point the distance leaderboard measures from (defaults to the map's start position)
+    HQ_LAT = float(os.getenv("HQ_LAT", "0.000000"))
+    HQ_LON = float(os.getenv("HQ_LON", "0.000000"))
+
     # Keycloak Configuration
     KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "")
     # Internal URL for fetching JWKS (container-to-container)
@@ -55,3 +59,9 @@ class Config:
         missing = [key for key in required if not getattr(Config, key)]
         if missing:
             raise ValueError(f"Missing Keycloak config: {', '.join(missing)}")
+
+    @staticmethod
+    def validate_hq():
+        """Validate the HQ coordinates the distance leaderboard measures from"""
+        if not (-90 <= Config.HQ_LAT <= 90 and -180 <= Config.HQ_LON <= 180):
+            raise ValueError(f"HQ_LAT/HQ_LON out of range: {Config.HQ_LAT}, {Config.HQ_LON}")

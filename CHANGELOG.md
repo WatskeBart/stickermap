@@ -14,6 +14,26 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+### Highlights
+
+- **See who stuck a sticker farthest from HQ.** A new scoreboard on the home page ranks everyone by their farthest sticker and shows the distance. Switch between all time, this year and this half-year, so one far-flung sticker from long ago doesn't decide every round. Select a name to jump to that sticker on the map.
+- **See the record on the map.** Switch on **Farthest from HQ** at the bottom left of the map to draw a line from HQ to the farthest sticker, with the distance written on it. Switch it off again whenever you like; the map remembers your choice.
+- **Both are for signed-in users only**, the same way poster names are already hidden from visitors.
+- **For self-hosters:** HQ defaults to the map's starting position and can be moved with two new settings. Nothing else changes in how the app is deployed.
+
+### Added
+
+- **Distance leaderboard endpoint `GET /api/v1/leaderboard/distance`** (`sm-viewer`), in the new `backend/routers/leaderboard.py` (issue #140). Returns the top 10 posters by their farthest sticker from HQ, one entry per poster (`DISTINCT ON (s.poster)`), measured with `ST_Distance` on the `geography` location column, so distances are metres on the spheroid. `?period=all|year|half` (default `all`) limits by `post_date` to the current calendar year or half-year (UTC), which means stickers with an unknown date (the 1970 sentinel) only count for `all`. Archived stickers and stickers without a poster never count. Private stickers do count, since the endpoint is viewer-only and viewers already see them on the map. The response is a JSON object (`hq`, `period`, `since`, `entries[]` with `rank`, `sticker_id`, `poster`, `lat`, `lon`, `distance_m`) rather than a positional row. Posters are matched exactly, so `Jan` and `jan` rank separately, as they already do in "Most active poster".
+- **`HQ_LAT` / `HQ_LON` backend settings**, defaulting to `0.000000` / `0.000000`, the map's existing start position. `Config.validate_hq()` rejects out-of-range values at startup. Passed through `compose.yml`, both `.env.example` files and the Helm chart (`backend.env.hqLat` / `backend.env.hqLon`).
+- **"Farthest from HQ" card on the home page** for `sm-viewer`+, below the stats card: a period toggle (all time / current year / current half-year) and the top 10 with distances. Rows open the sticker through the existing `/map?id=` deep link.
+- **"Farthest from HQ" toggle on the map** for `sm-viewer`+, off by default and remembered in `localStorage` (`stickermap-hq-line`). When on, the map shows an HQ marker, a dashed brand-orange line to the all-time number one (`mgl-geojson-source` + `mgl-layer`), and a distance label at the line's Web Mercator midpoint. The label is an HTML marker rather than a symbol layer, so no glyph server is needed and it works on air-gapped tile setups; selecting it opens the sticker popup. Switching the toggle on fits the map to the line, and a line that would cross the antimeridian takes the short way round. The leaderboard is only fetched while the toggle is on.
+- `formatDistance()` in `frontend/src/app/shared/utils/distance-utils.ts`: metres below 1 km, one decimal below 10 km, whole kilometres above that, with the active language's number separators. Shared by the home page and the map.
+
+### Changed
+
+- **The map's bottom-left controls are stacked in one container** (`.map-controls-bottom-left`), with the new HQ-line toggle above the tile-layer toggle. The tile-layer toggle looks and behaves as before.
+- **`CLAUDE.md` brought up to date with the codebase**: the backend package layout (`core/`, `routers/`, `models/`, `dependencies.py`), the `geography` location column and the full schema, the complete frontend tree, `provideAppInitializer`, i18n, the external-only Helm chart, the frontend entrypoint that runs ngssc, and the self-contained MapLibre 6.16 worker.
+
 ## [1.24.3] - 2026-10-30
 
 ### Highlights

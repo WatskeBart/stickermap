@@ -134,6 +134,26 @@ export interface StickerStats {
   archived_stickers: number;
 }
 
+export type LeaderboardPeriod = 'all' | 'year' | 'half';
+
+export interface DistanceLeaderboardEntry {
+  rank: number;
+  sticker_id: number;
+  poster: string;
+  lat: number;
+  lon: number;
+  distance_m: number;
+}
+
+/** `GET /leaderboard/distance`: top 10 posters by their farthest sticker from HQ, farthest first. */
+export interface DistanceLeaderboard {
+  hq: { lat: number; lon: number };
+  period: LeaderboardPeriod;
+  /** First day of the period (`YYYY-MM-DD`), null for all time. */
+  since: string | null;
+  entries: DistanceLeaderboardEntry[];
+}
+
 export interface ParsedSticker {
   id: number;
   lat: number;

@@ -105,6 +105,13 @@ Copy `.env.example` and adjust as needed.
 | `IMAGE_MAX_SIZE` | Maximum pixels on the longest edge of the full-size image | `1920` |
 | `THUMBNAIL_SIZE` | Maximum pixels on the longest edge of the thumbnail | `400` |
 
+### Distance leaderboard
+
+| Variable | Description | Default |
+| -------- | ----------- | ------- |
+| `HQ_LAT` | Latitude of HQ, the point the distance leaderboard measures from (-90 to 90; startup fails when out of range) | `0.000000` |
+| `HQ_LON` | Longitude of HQ (-180 to 180) | `0.000000` |
+
 ### Note on `KEYCLOAK_URL` vs `KEYCLOAK_INTERNAL_URL`
 
 - **`KEYCLOAK_URL`**: The URL browsers use to authenticate. Must match the `iss` (issuer) claim in JWT tokens.
@@ -172,6 +179,16 @@ DELETE /api/v1/categories/{id}/icon       Remove icon
 
 ```text
 POST  /api/v1/stickers/{id}/reports       Submit a removal report with optional proof image
+```
+
+### Leaderboard — `sm-viewer`+
+
+```text
+GET   /api/v1/leaderboard/distance        Top 10 posters by their farthest sticker from HQ (HQ_LAT/HQ_LON),
+                                          one entry per poster, distance in metres.
+                                          ?period=all (default) | year | half: year and half count only
+                                          stickers whose post_date is in the current year / half-year.
+                                          Archived stickers never count.
 ```
 
 ### Removal reports — `sm-editor`+

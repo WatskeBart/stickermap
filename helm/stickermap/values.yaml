@@ -53,6 +53,9 @@ backend:
     imageQuality: "85"
     imageMaxSize: "1920"
     thumbnailSize: "400"
+    # HQ: the point the "Farthest from HQ" leaderboard and map line measure from (decimal degrees).
+    hqLat: "0.000000"
+    hqLon: "0.000000"
 
 # ------------------------------------------------------------------------------
 # Frontend
