@@ -94,6 +94,8 @@ services:
       IMAGE_QUALITY: ${IMAGE_QUALITY:-85}
       IMAGE_MAX_SIZE: ${IMAGE_MAX_SIZE:-1920}
       THUMBNAIL_SIZE: ${THUMBNAIL_SIZE:-400}
+      HQ_LAT: ${HQ_LAT:-52.155174}
+      HQ_LON: ${HQ_LON:-5.387206}
     ports:
       - "5555:5555"
     volumes:

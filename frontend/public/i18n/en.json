@@ -41,12 +41,32 @@
     "lastUpload": "Last upload",
     "archived": "Archived stickers",
     "topPoster": "Most active poster",
-    "topUploader": "Most active uploader"
+    "topUploader": "Most active uploader",
+    "leaderboard": {
+      "title": "Farthest from HQ",
+      "period": "Period",
+      "allTime": "All time",
+      "firstHalf": "Jan–Jun {{year}}",
+      "secondHalf": "Jul–Dec {{year}}",
+      "empty": "No stickers in this period yet.",
+      "hint": "Straight-line distance from HQ. Only each poster's farthest sticker counts."
+    }
   },
   "map": {
     "mapType": "Map type",
+    "distance": "Distance",
+    "distanceOff": "Off",
+    "distanceFarthest": "Farthest from HQ",
+    "distanceAll": "From HQ to every sticker shown",
+    "distanceMeasure": "Between two stickers",
+    "distanceFromHq": "Distance from HQ:",
+    "measurePickFirst": "Select two stickers on the map.",
+    "measurePickSecond": "Select a second sticker.",
+    "measureClear": "Clear",
     "filterCategory": "Filter by category",
     "allCategories": "All categories",
+    "filterPoster": "Filter by poster",
+    "allPosters": "All posters",
     "loading": "Loading stickers from the database...",
     "stickersLoaded": "{{count}} stickers loaded",
     "postedBy": "Posted by:",

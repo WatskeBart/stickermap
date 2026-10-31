@@ -19,6 +19,11 @@ class Config:
     IMAGE_MAX_SIZE = int(os.getenv("IMAGE_MAX_SIZE", "1920"))
     THUMBNAIL_SIZE = int(os.getenv("THUMBNAIL_SIZE", "400"))
 
+    # HQ: the point distances are measured from, and where the map starts when nothing else is known.
+    # Defaults to the Onze Lieve Vrouwetoren in Amersfoort, the origin of the Dutch national grid (RD).
+    HQ_LAT = float(os.getenv("HQ_LAT", "52.155174"))
+    HQ_LON = float(os.getenv("HQ_LON", "5.387206"))
+
     # Keycloak Configuration
     KEYCLOAK_URL = os.getenv("KEYCLOAK_URL", "")
     # Internal URL for fetching JWKS (container-to-container)
@@ -55,3 +60,9 @@ class Config:
         missing = [key for key in required if not getattr(Config, key)]
         if missing:
             raise ValueError(f"Missing Keycloak config: {', '.join(missing)}")
+
+    @staticmethod
+    def validate_hq():
+        """Validate the HQ coordinates the distance leaderboard measures from"""
+        if not (-90 <= Config.HQ_LAT <= 90 and -180 <= Config.HQ_LON <= 180):
+            raise ValueError(f"HQ_LAT/HQ_LON out of range: {Config.HQ_LAT}, {Config.HQ_LON}")

@@ -9,6 +9,19 @@ export interface ChangelogRelease {
 
 export const CHANGELOG_DATA: ChangelogRelease[] = [
   {
+    version: '1.25.0',
+    date: '2026-10-31',
+    items: [
+      '<strong>See who stuck a sticker farthest from HQ.</strong> A new scoreboard on the home page ranks everyone by their farthest sticker and shows the distance. Switch between all time, this year and this half-year, so one far-flung sticker from long ago doesn\'t decide every round. Select a name to jump to that sticker on the map.',
+      '<strong>Distances on the map.</strong> A new <strong>Distance</strong> menu at the top right of the map, under the filters, draws a line from HQ to the farthest sticker, or to every sticker on the map, with the distances written alongside. The map remembers your choice.',
+      '<strong>Measure between two stickers.</strong> Choose <strong>Between two stickers</strong> in the same menu, then select any two stickers to see how far apart they are.',
+      '<strong>Filter the map by poster</strong> to see just one person\'s stickers. The lines from HQ follow the filter, so you can see how far each of their stickers is from HQ. Opening a sticker now also shows its distance from HQ.',
+      '<strong>The map zooms with its filters.</strong> Choosing a category or a poster zooms to the stickers that are left, and choosing <strong>All categories</strong> or <strong>All posters</strong> zooms back out to show every sticker.',
+      '<strong>The scoreboard, HQ distances and the poster filter are for signed-in users only</strong>, the same way poster names are already hidden from visitors. Measuring between two stickers works for everyone.',
+      '<strong>For self-hosters:</strong> HQ defaults to the centre of the Netherlands (the Onze Lieve Vrouwetoren in Amersfoort) and can be moved with two new settings. The map also starts at HQ when a photo has no location, so set it to your own home base.',
+    ],
+  },
+  {
     version: '1.24.3',
     date: '2026-10-30',
     items: [

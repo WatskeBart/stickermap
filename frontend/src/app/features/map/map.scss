@@ -105,27 +105,68 @@ mgl-map {
   }
 }
 
-/* Category filter overlay (top-right) */
-.category-filter {
+/* HQ marker (distance labels and tags are the distance-label component) */
+.hq-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid white;
+  background: #e17000;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Stickers picked for a measurement */
+.marker-icon.measure-selected {
+  transform: scale(1.2);
+  transform-origin: bottom center;
+  filter: drop-shadow(0 0 4px #e17000);
+}
+
+/* Filter overlay (top-right): category, poster and the distance menu */
+.map-filters {
   position: absolute;
   top: 12px;
   right: 12px;
   z-index: 900;
   background: var(--sm-surface-color);
   border-radius: 8px;
-  padding: 14px 14px 0;
+  padding: 14px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  min-width: 220px;
+  // Fixed, so the measuring hint and its Clear button don't resize the card
+  width: 220px;
 }
 
-.category-filter-field {
+.map-filter-field {
   width: 100%;
   font-size: 12px;
 }
 
-/* Dark mode: keep the form field's neutral colors instead of switching to the
+.measure-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--sm-text-secondary);
+}
+
+.measure-result {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e17000;
+}
+
+/* Dark mode: keep the form fields' neutral colors instead of switching to the
    dark navy primary (#0d3662), which has poor contrast on the dark surface. */
-:host-context(.dark-theme) .category-filter {
+:host-context(.dark-theme) .map-filters {
   ::ng-deep .mdc-text-field--focused:not(.mdc-text-field--invalid) {
     .mdc-floating-label,
     .mdc-floating-label--float-above {
@@ -172,10 +213,20 @@ mgl-map {
 }
 
 @media (max-width: 600px) {
-  .category-filter {
+  .map-filters {
     left: 60px;
     right: 12px;
-    min-width: auto;
+    width: auto;
+  }
+
+  // Category and poster side by side, so the card doesn't cover half the map
+  .map-filter-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .map-filter-row .map-filter-field {
+    min-width: 0;
   }
 }
 

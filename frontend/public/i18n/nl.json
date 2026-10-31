@@ -41,12 +41,32 @@
     "lastUpload": "Laatste upload",
     "archived": "Gearchiveerde stickers",
     "topPoster": "Meest actieve plakker",
-    "topUploader": "Meest actieve uploader"
+    "topUploader": "Meest actieve uploader",
+    "leaderboard": {
+      "title": "Verst van HQ",
+      "period": "Periode",
+      "allTime": "Altijd",
+      "firstHalf": "jan–jun {{year}}",
+      "secondHalf": "jul–dec {{year}}",
+      "empty": "Nog geen stickers in deze periode.",
+      "hint": "Afstand in rechte lijn vanaf HQ. Per plakker telt alleen de verste sticker."
+    }
   },
   "map": {
     "mapType": "Kaarttype",
+    "distance": "Afstand",
+    "distanceOff": "Uit",
+    "distanceFarthest": "Verst van HQ",
+    "distanceAll": "Vanaf HQ naar elke getoonde sticker",
+    "distanceMeasure": "Tussen twee stickers",
+    "distanceFromHq": "Afstand tot HQ:",
+    "measurePickFirst": "Kies twee stickers op de kaart.",
+    "measurePickSecond": "Kies een tweede sticker.",
+    "measureClear": "Wissen",
     "filterCategory": "Filter op categorie",
     "allCategories": "Alle categorieën",
+    "filterPoster": "Filter op plakker",
+    "allPosters": "Alle plakkers",
     "loading": "Stickers worden geladen uit de database...",
     "stickersLoaded": "{{count}} stickers geladen",
     "postedBy": "Geplakt door:",
