@@ -80,6 +80,49 @@
           }
         </mat-card-content>
       </mat-card>
+
+      @if (authService.isViewer()) {
+        <mat-card class="action-card leaderboard-card">
+          <mat-card-content>
+            <div class="card-icon">🏆</div>
+            <h2 class="leaderboard-title">{{ 'landing.leaderboard.title' | translate }}</h2>
+            <mat-button-toggle-group
+              class="leaderboard-periods"
+              [value]="leaderboardPeriod()"
+              (change)="leaderboardPeriod.set($event.value)"
+              [attr.aria-label]="'landing.leaderboard.period' | translate"
+              hideSingleSelectionIndicator
+            >
+              <mat-button-toggle value="all">{{ 'landing.leaderboard.allTime' | translate }}</mat-button-toggle>
+              <mat-button-toggle value="year">{{ currentYear }}</mat-button-toggle>
+              <mat-button-toggle value="half">
+                {{ halfYearLabelKey | translate: { year: currentYear } }}
+              </mat-button-toggle>
+            </mat-button-toggle-group>
+            @if (leaderboard() === undefined) {
+              <mat-progress-spinner mode="indeterminate" diameter="40" />
+            } @else if (leaderboard()) {
+              @if (leaderboardEntries().length === 0) {
+                <p class="leaderboard-note">{{ 'landing.leaderboard.empty' | translate }}</p>
+              } @else {
+                <ol class="leaderboard-list">
+                  @for (entry of leaderboardEntries(); track entry.sticker_id) {
+                    <li>
+                      <!-- Poster is user-supplied text: interpolation only, never [innerHTML]. -->
+                      <button type="button" class="leaderboard-row" (click)="openStickerOnMap(entry.sticker_id)">
+                        <span class="leaderboard-rank">{{ entry.rank }}</span>
+                        <span class="leaderboard-poster">{{ entry.poster }}</span>
+                        <span class="leaderboard-distance">{{ entry.distance }}</span>
+                      </button>
+                    </li>
+                  }
+                </ol>
+              }
+              <p class="leaderboard-note">{{ 'landing.leaderboard.hint' | translate }}</p>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
     </div>
   </div>
 </div>

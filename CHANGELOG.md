@@ -14,6 +14,42 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 
 ## [Unreleased]
 
+## [1.25.0] - 2026-10-31
+
+### Highlights
+
+- **See who stuck a sticker farthest from HQ.** A new scoreboard on the home page ranks everyone by their farthest sticker and shows the distance. Switch between all time, this year and this half-year, so one far-flung sticker from long ago doesn't decide every round. Select a name to jump to that sticker on the map.
+- **Distances on the map.** A new **Distance** menu at the top right of the map, under the filters, draws a line from HQ to the farthest sticker, or to every sticker on the map, with the distances written alongside. The map remembers your choice.
+- **Measure between two stickers.** Choose **Between two stickers** in the same menu, then select any two stickers to see how far apart they are.
+- **Filter the map by poster** to see just one person's stickers. The lines from HQ follow the filter, so you can see how far each of their stickers is from HQ. Opening a sticker now also shows its distance from HQ.
+- **The map zooms with its filters.** Choosing a category or a poster zooms to the stickers that are left, and choosing **All categories** or **All posters** zooms back out to show every sticker.
+- **The scoreboard, HQ distances and the poster filter are for signed-in users only**, the same way poster names are already hidden from visitors. Measuring between two stickers works for everyone.
+- **For self-hosters:** HQ defaults to the centre of the Netherlands (the Onze Lieve Vrouwetoren in Amersfoort) and can be moved with two new settings. The map also starts at HQ when a photo has no location, so set it to your own home base.
+
+### Added
+
+- **Distance leaderboard endpoint `GET /api/v1/leaderboard/distance`** (`sm-viewer`), in the new `backend/routers/leaderboard.py` (issue #140). Returns the top 10 posters by their farthest sticker from HQ, one entry per poster (`DISTINCT ON (s.poster)`). `?period=all|year|half` (default `all`) limits by `post_date` to the current calendar year or half-year (UTC), which means stickers with an unknown date (the 1970 sentinel) only count for `all`. Archived stickers and stickers without a poster never count. Private stickers do count, since the endpoint is viewer-only and viewers already see them on the map. The response is a JSON object (`hq`, `period`, `since`, `entries[]` with `rank`, `sticker_id`, `poster`, `lat`, `lon`, `distance_m`) rather than a positional row. Posters are matched exactly, so `Jan` and `jan` rank separately, as they already do in "Most active poster".
+- **Distances are great-circle metres on a sphere**: `ST_Distance(…, false)` on the `geography` column, deliberately not the spheroid. The map computes its distances in the browser with MapLibre's `LngLat.distanceTo()`, which uses a sphere of radius 6,371,008.8 m; against a PostGIS test database the two agreed to within 0.42 m (whole-metre rounding), from 15 m up to 16,622 km. With the spheroid they would differ by up to ~0.5%, and the home page and the map would show different numbers for the same sticker.
+- **`GET /api/v1/hq`** (`sm-viewer`): HQ's position, for the map's distances and its fallback start position. The leaderboard response keeps its `hq` field as well.
+- **`HQ_LAT` / `HQ_LON` backend settings**, defaulting to `52.155174` / `5.387206`: the Onze Lieve Vrouwetoren in Amersfoort, the origin of the Dutch national grid (RD). The default is a public landmark, not any deployment's location; set the real HQ per deployment. `Config.validate_hq()` rejects out-of-range values at startup. Passed through `compose.yml`, both `.env.example` files and the Helm chart (`backend.env.hqLat` / `backend.env.hqLon`).
+- **"Farthest from HQ" card on the home page** for `sm-viewer`+, below the stats card: a period toggle (all time / current year / current half-year) and the top 10 with distances. Rows open the sticker through the existing `/map?id=` deep link.
+- **Distance menu on the map**, the last field of the top-right filter card (`.map-filters`, formerly `.category-filter`): Off, Farthest from HQ, From HQ to every sticker shown, and Between two stickers. The HQ options are `sm-viewer`+ and take HQ from `/hq`; measuring works for everyone. All distances are computed in the browser from the stickers the map has already loaded.
+  - **Farthest from HQ**: an HQ marker and one dashed line to the farthest sticker currently shown, with a label halfway along it (trophy, distance, poster) that opens the sticker.
+  - **From HQ to every sticker shown**: thinner lines to every shown sticker, plus a compact distance tag under each one while 25 or fewer are shown (`MAX_DISTANCE_TAGS`). Beyond that the tags would pile up around HQ; the popup still has the distance.
+  - **Between two stickers**: marker clicks pick stickers instead of opening popups. The second pick draws a solid line with its distance, a third pick starts over, and **Clear** resets. Picked markers are highlighted.
+  - Both HQ options follow the category and poster filters, and choosing one fits the map to HQ and its lines. Labels sit at the line's Web Mercator midpoint, and a line that would cross the antimeridian takes the short way round. Labels are HTML markers rather than a symbol layer, so no glyph server is needed and air-gapped tile setups keep working.
+  - The last line mode is remembered in `localStorage` (`stickermap-distance-mode`). Measuring is never stored, so a reload doesn't leave marker clicks picking stickers. Anonymous visitors with a stored HQ option get Off.
+- **Poster filter on the map** for `sm-viewer`+, under the category filter. On phones the two filters sit side by side (`.map-filter-row`), with the distance menu below them. The list comes from the loaded stickers, trimmed and sorted.
+- **"Distance from HQ" in the sticker popup** for `sm-viewer`+.
+- `DistanceLabelComponent` (`frontend/src/app/features/map/distance-label/`): the distance pill used for the record label, the measurement label and the per-sticker tags (`compact`). Its own stylesheet also keeps `map.scss` within the 7 kB component style budget.
+- `formatDistance()` in `frontend/src/app/shared/utils/distance-utils.ts`: metres below 1 km, one decimal below 10 km, whole kilometres above that, with the active language's number separators. Shared by the home page and the map.
+
+### Changed
+
+- **The map starts at HQ instead of a hardcoded point.** When there are no stickers, or the add-sticker location picker opens without a known location (a photo without GPS data), the map now opens on HQ at zoom 7 for signed-in users and on a world view for anonymous visitors. No coordinates are hardcoded in the frontend any more.
+- **Both map filters zoom to the stickers they leave visible** (`fitToVisibleStickers()`), including back out when set to all categories or all posters. HQ stays in view while HQ lines are drawn, and a filter that leaves nothing visible doesn't move the map. The opening fit (no deep link or position in the URL) uses the same method, so resetting both filters returns to it. Before, the category filter never moved the map.
+- **`CLAUDE.md` brought up to date with the codebase**: the backend package layout (`core/`, `routers/`, `models/`, `dependencies.py`), the `geography` location column and the full schema, the complete frontend tree, `provideAppInitializer`, i18n, the external-only Helm chart, the frontend entrypoint that runs ngssc, the self-contained MapLibre 6.16 worker, the distance features, and the rule that a deployment's real HQ coordinates never go into the repository.
+
 ## [1.24.3] - 2026-10-30
 
 ### Highlights
@@ -801,7 +837,8 @@ highlight, prefixed **"For self-hosters:"**, so no release appears empty to a re
 - CI pipeline with BuildKit-based container image builds
 - Dependabot configured for automated dependency updates
 
-[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.24.3...HEAD
+[unreleased]: https://github.com/WatskeBart/stickermap/compare/1.25.0...HEAD
+[1.25.0]: https://github.com/WatskeBart/stickermap/compare/1.24.3...1.25.0
 [1.24.3]: https://github.com/WatskeBart/stickermap/compare/1.24.2...1.24.3
 [1.24.2]: https://github.com/WatskeBart/stickermap/compare/1.24.1...1.24.2
 [1.24.1]: https://github.com/WatskeBart/stickermap/compare/1.24.0...1.24.1

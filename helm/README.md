@@ -108,6 +108,7 @@ These values have no defaults and **must** be provided:
 | `backend.env.corsAllowedOrigins` | *(derived from `https://<ingress.hostname>`)* | Set explicitly if the frontend is served from a different origin |
 | `backend.env.corsAllowedMethods` | `GET, POST, PUT, DELETE, OPTIONS` | |
 | `backend.env.corsAllowedHeaders` | `Content-Type, Authorization` | |
+| `backend.env.hqLat` / `backend.env.hqLon` | `52.155174` / `5.387206` | HQ: the point map distances and the "Farthest from HQ" leaderboard measure from, and the map's fallback start. The default is the origin of the Dutch national grid in Amersfoort; set your own |
 | `database.port` | `5432` | |
 | `database.dbname` | `stickermap` | |
 | `database.username` | `stickermap` | |

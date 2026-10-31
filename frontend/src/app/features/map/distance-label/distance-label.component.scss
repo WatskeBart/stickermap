@@ -1,0 +1,44 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px 4px 6px;
+  border: 2px solid #e17000;
+  border-radius: 999px;
+  background: var(--sm-surface-color);
+  color: var(--sm-text-primary);
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+:host(button) {
+  cursor: pointer;
+}
+
+/* Tag under a sticker */
+:host(.compact) {
+  padding: 1px 6px;
+  border-width: 1px;
+  font-size: 11px;
+}
+
+.distance-label-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #e17000;
+}
+
+.distance-label-value {
+  font-weight: 700;
+  color: #e17000;
+}
+
+.distance-label-poster {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--sm-text-secondary);
+}
